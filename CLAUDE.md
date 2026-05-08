@@ -37,8 +37,8 @@ Within both modes, the tool *teaches* operators by letting users observe cause a
 The page is a single vertical column at all viewport widths. From top to bottom:
 
 1. **Header** — Arabic title, one-sentence subtitle, mode toggle (Beginner / Advanced), Arabic normalization toggle with info popover.
-2. **Welcome panel** (Beginner only, collapsible) — three short paragraphs explaining what the tool does and how to use it. Once collapsed, a small `↩ إظهار الترحيب` link appears in its place so the user can re-open without losing chip state to a refresh.
-3. **Chip section** — heading "ابنِ بحثك بإضافة كلمات", chip area. When the chip array is empty in Beginner mode the chip area itself renders as the templates picker (heading "ابدأ من قالب جاهز:" + three template cards with descriptions + "أو اكتب كلمة في الأسفل وابدأ من الصفر."). Once any chip exists, chips replace the picker. The standalone templates row that used to live above the chip section has been retired. Below the chip area: composer input with one primary commit button (`أضف`) and the `+ إضافة` drawer trigger. A ghost-chip preview sits between the input and commit buttons in Beginner mode showing what would commit on Enter, and below it a row of operator-conversion pills (`كلمة عادية`, `في الموقع`, `في عنوان الصفحة`, `في رابط الصفحة`, `في نص الصفحة`, `في الروابط الواردة`) so the user can pick the operator before commit.
+2. **Welcome panel** (Beginner only, collapsible) — a single-line in-flow blurb at the top of `main` that names the tool and points at the Enter-to-commit flow, with an inline `إخفاء` link at its trailing edge. Once dismissed, a small `↩ إظهار الترحيب` link appears in its place so the user can re-open without losing chip state to a refresh. The blurb is intentionally lightweight so the chip section is the visual anchor on first paint.
+3. **Chip section** — heading "ابنِ بحثك بإضافة كلمات", chip area. When the chip array is empty in Beginner mode the chip area itself renders as the templates picker (heading "ابدأ من قالب جاهز:" + three template cards with descriptions + "أو اكتب كلمة في الأسفل وابدأ من الصفر."). Once any chip exists, chips replace the picker. The standalone templates row that used to live above the chip section has been retired. Below the chip area: composer input with one primary commit button (`أضف`) and the `+ إضافة` drawer trigger. A ghost-chip preview sits between the input and commit buttons in Beginner mode showing what would commit on Enter, below it a row of operator-conversion pills (`كلمة عادية`, `في الموقع`, `في عنوان الصفحة`, `في رابط الصفحة`, `في نص الصفحة`, `في الروابط الواردة`) so the user can pick the operator before commit, and below the pills a `اقتباس حرفي` toggle that pre-marks the term as a literal phrase. The toggle disables when the chosen operator is non-quotable (`site:`, `inurl:`) and resets after each commit, like the operator selection.
 4. **Bulk-actions toolbar** (Advanced only, visible when ≥1 chip is selected) — appears below the chip area with the selection count, a shared-operator dropdown, a bulk negate toggle, a bulk delete, and a clear-selection button.
 5. **Warnings region** — coaching warnings appear here, dismissible per session. Banner warnings cover only aggregate concerns (query too long, too many restrictions, Latin-only operator with Arabic chars). Issues local to a single chip live as per-chip glyphs on the chip itself.
 6. **Tips region** — strategy tips appear here in Beginner mode only, single-tip queue, priority-ordered.
@@ -48,10 +48,11 @@ The page is a single vertical column at all viewport widths. From top to bottom:
 
 The composer has a single text input with one primary commit button (`أضف`) plus the `+ إضافة` drawer trigger. Boolean grammar is reached after commit, not at commit time, so a first-time user doesn't have to understand AND/OR/NOT before getting their first chip on screen.
 
-- **Enter / `أضف`** ⇒ append a keyword chip with the operator chosen from the inline pills row (default `كلمة عادية` = no operator). Implicit AND between adjacent chips, matching Google's parser.
+- **Enter / `أضف`** ⇒ append a keyword chip with the operator chosen from the inline pills row (default `كلمة عادية` = no operator) and the quoted state from the `اقتباس حرفي` toggle. Implicit AND between adjacent chips, matching Google's parser.
 - **Shift+Enter** (still wired) ⇒ if the previous chip is a term, prepend an OR-connector chip and then append the new keyword chip; equivalent to clicking the per-chip `+أو` handle on the previous chip then typing.
-- **Per-chip `+أو` handle** ⇒ on every keyword chip, a small leading-edge `+أو` pill inserts an or-connector + a fresh empty keyword chip after the current chip's OR run, then focuses the new chip. This is the discoverable path to OR groups; it replaces the standalone OR commit button that used to live in the commit row.
+- **Per-chip `+أو` handle** ⇒ on every keyword chip *outside* an OR group, a small leading-edge `+أو` pill inserts an or-connector + a fresh empty keyword chip after the current chip's OR run, then focuses the new chip. Once a chip is part of a group, the handle is suppressed on every member; the group's single trailing `+ بديل آخر` button (see Boolean grammar) takes over as the add-affordance.
 - **Leading `-` followed by space** at commit time ⇒ append a keyword chip with `negate: true`. The chip renders with a red border and a `−` glyph; in the query it becomes `-term`. NOT is also reachable post-commit via the chip's `−` toggle and via the bulk multi-select toolbar.
+- **Leading-and-trailing `"` shortcut** at commit time ⇒ if the input starts and ends with `"` (e.g. `"phrase"` or `"محمد علي"`), the wrapping quotes are stripped and the chip commits with `quoted: true` for quotable operators. Mirrors the leading-`-` shortcut for negate. The ghost-chip preview reflects this immediately while typing. The shortcut works in both modes and is the keyboard-fluent path to literal-match.
 
 Space alone never auto-commits — Arabic phrases contain spaces, and auto-chipping on space would surprise users with names like "محمد علي". Empty Enter is a no-op; the commit button disables when the input is empty.
 
@@ -104,7 +105,7 @@ The current chip types and their query output:
 | Slug | Visual | Output |
 |---|---|---|
 | `keyword` | text + leading-edge `+أو` handle + optional NOT/quote tools + operator dropdown + optional warning glyph | `<text>`, `<op>:<text>`, or quoted/negated variant |
-| `or-connector` | "أو" pill between two term chips (rendered without its own border when wrapped inside a `.chip-or-group` container) | (no direct output — the chip-state walker handles OR grouping) |
+| `or-connector` | "أو" pill between two term chips (rendered as a small clear pill inside the `.chip-or-group` container — visually subordinate to the term chips it joins, but readable as a connector) | (no direct output — the chip-state walker handles OR grouping) |
 | `filetype` | dropdown of PDF/Word/Excel/etc. | `filetype:<value>` |
 | `date-range` | two date pickers | `after:YYYY-MM-DD` and/or `before:YYYY-MM-DD` |
 | `proximity` | term + distance + term | `"term1" AROUND(N) "term2"` |
@@ -119,7 +120,11 @@ The keyword chip's `operator` property (one of `none`, `site`, `intitle`, `inurl
 
 Adjacent chips in the chip array imply AND (matching Google's default). An OR connector chip between two term chips groups them: a run `[term, OR, term, OR, term]` becomes `(a OR b OR c)`. NOT is a per-chip property (`negate: true`), not a connector — it emits a leading `-` on the chip's query fragment.
 
-The user's path to creating an OR group is the per-chip `+أو` handle on every keyword chip. Clicking it splices an or-connector + fresh empty keyword chip after the LAST member of the run that contains the clicked chip, and focuses the new chip. The chip-area's render walker detects contiguous OR runs and wraps them in a `.chip-or-group` container with a leading `أيٌ مما يلي:` label so the user reads the run as one logical clause rather than five floating chips.
+The user's path to creating an OR group starts with the per-chip `+أو` handle on a standalone keyword chip. Clicking it splices an or-connector + fresh empty keyword chip after the LAST member of the run that contains the clicked chip, and focuses the new chip. Once a group exists, the handle is suppressed on every member; the group ends with a single trailing `+ بديل آخر` button that calls the same splice operation, so a member chip is never cluttered with both an in-group divider and an add-affordance. Shift+Enter from the composer is still wired and produces the same group structure.
+
+The chip-area's render walker detects contiguous OR runs and wraps them in a filled, tinted `.chip-or-group` container with a real-DOM header (`⫦ أيٌ مما يلي` label + a Beginner-only helper subtitle "تطابق أيّ كلمة من هذه الكلمات.") on its leading edge. Inside the group the OR connector renders as a small clear pill, not a near-invisible muted divider, so the alternation reads at a glance. Hovering or focusing any member lifts the whole container so the sibling relationship is visible by direct feedback.
+
+Implicit AND is made visible in Beginner mode by a faint `<span class="chip-and-seam">و</span>` rendered between non-grouped adjacent renderable units (i.e., between two standalone chips, between a standalone chip and an OR group, or between two OR groups). The seam is chrome-only — it changes nothing about the assembled query — and is hidden in Advanced via `body.mode-advanced .chip-and-seam { display: none; }`. The goal is to teach the boolean grammar by observation without forcing the low-literacy user to read documentation.
 
 Stale OR connectors (no longer between two terms) are auto-removed when chips are deleted, so the chip array always represents a syntactically valid query.
 
@@ -204,9 +209,9 @@ Coaching warnings use the warning color and a caution icon. They appear above th
 
 ### Mode-specific differences
 
-**Beginner mode**: welcome panel (with re-open link after collapse), templates rendered inline as the chip-area's empty state, helper sentences, chip section heading, ghost-chip preview, operator-conversion pills under the ghost, composer hint about Enter and Backspace. Strategy tips queue (one at a time). The `+ إضافة` drawer items have user-language labels with one-line descriptions and trailing operator badges, and hides proximity/number-range behind a disclosure.
+**Beginner mode**: welcome blurb (with re-open link after dismissal), templates rendered inline as the chip-area's empty state, helper sentences, chip section heading, ghost-chip preview, operator-conversion pills under the ghost, `اقتباس حرفي` toggle below the pills, composer hint about Enter and Backspace, faint `و` AND-seam between non-grouped adjacent chip units, OR-group helper subtitle ("تطابق أيّ كلمة من هذه الكلمات."). Strategy tips queue (one at a time). The `+ إضافة` drawer items have user-language labels with one-line descriptions and trailing operator badges, and hides proximity/number-range behind a disclosure.
 
-**Advanced mode**: welcome / templates / helper / heading / ghost / hint hidden. Chip area visually denser. Tips suppressed (warnings remain). Drawer surfaces all specials top-level.
+**Advanced mode**: welcome / templates / helper / heading / ghost / hint / quote-toggle / AND-seam / OR-group helper subtitle hidden. Chip area visually denser. Tips suppressed (warnings remain). Drawer surfaces all specials top-level. Literal-match is reachable only via the leading-and-trailing `"` shortcut and the in-chip `"` button.
 
 State (the chip array) is preserved across mode switches.
 
@@ -228,7 +233,7 @@ Cognitive accessibility (the lower-literacy half of the audience):
 - No hover-only interactions anywhere.
 - Beginner mode shows at most one strategy tip at a time.
 - Field labels and helper text remain visible at all times in Beginner mode (don't hide the label once the field has content).
-- Welcome panel is expanded by default and visually prominent — not hidden behind a "?" icon.
+- Welcome blurb is shown by default — not hidden behind a "?" icon — but rendered as a lightweight in-flow line so it informs without competing with the chip section for attention.
 
 ## What not to build
 
@@ -258,7 +263,9 @@ The implementing model should consider the work done when all of the following h
 
 The `dist/index.html` file opens correctly via `file://` on Chrome, Firefox, and Safari. Typing Arabic text into the composer produces no cursor jumps and no visible character reordering. Pressing Enter commits a keyword chip with the operator chosen from the inline pills row (defaults to `كلمة عادية` = no operator); the input clears; the pills reset; focus stays on the composer. Clicking a pill before Enter changes the ghost-chip preview to show the operator-prefixed form. The leading `-` shortcut shows the ghost in red-border negate styling and commits a NOT-flagged chip on Enter. Pressing Backspace with an empty composer removes the most recent chip.
 
-Clicking the per-chip `+أو` handle on any keyword chip splices an or-connector + a fresh empty keyword chip after the LAST member of that chip's OR run, focuses the new chip, and wraps the run in a `.chip-or-group` container with the leading `أيٌ مما يلي:` label. Shift+Enter from the composer is still wired and produces the same OR-group structure. Deleting a chip auto-removes any stale or-connectors so the chip array stays well-formed.
+Clicking the per-chip `+أو` handle on a *standalone* keyword chip splices an or-connector + a fresh empty keyword chip after the LAST member of that chip's OR run, focuses the new chip, and wraps the run in a filled tinted `.chip-or-group` container with a real-DOM `⫦ أيٌ مما يلي` header (plus a Beginner-only helper subtitle) and a single trailing `+ بديل آخر` button. Member chips inside that group must not show the per-chip `+أو` handle — clicking the trailing `+ بديل آخر` button is the only add-affordance from then on, and it splices in the same way. Shift+Enter from the composer is still wired and produces the same OR-group structure. Deleting a chip auto-removes any stale or-connectors so the chip array stays well-formed. In Beginner mode a faint `و` seam appears between non-grouped adjacent renderable units (standalone chip ↔ standalone chip, standalone chip ↔ OR group, OR group ↔ OR group); the seam is chrome-only and never appears in the assembled query string.
+
+The `اقتباس حرفي` toggle in the composer (Beginner only) wraps the ghost chip in `"…"` when pressed and commits a keyword chip with `quoted: true` for quotable operators; it disables when the chosen operator is not quotable (`site:`, `inurl:`) and resets to off after each commit. Typing a leading-and-trailing `"` in the composer (e.g. `"phrase"`) achieves the same outcome via the keyboard, in both modes; the wrapping quotes are stripped from `text` and the chip commits with `quoted: true`. A quoted keyword chip renders with an accent-tinted fill (not just a hairline border swap) so the literal-match state reads at a glance, and the existing in-chip `"` toggle button continues to work as the post-commit toggle.
 
 Pasting a Google-style query into the composer (e.g., `"محمد" OR "علي" site:bbc.com`) produces multiple chips in one pass and shows a `أُضيفت N كلمة من اللصق — تراجع` toast; clicking تراجع removes those exact chips. Pasting plain text falls through to default paste with a transient hint in Beginner mode.
 
@@ -318,8 +325,8 @@ src/
     welcome.js            close + re-open link wiring
     templates.js          template definitions exported as TEMPLATES + applyTemplate
     normalize-toggle.js   header normalization checkbox + info popover
-    composer.js           input, ghost preview, operator pills, paste handler + undo toast
-    chip-area.js          chip rendering, OR-group walker, empty-state templates picker, drag, Alt+Arrow, multi-select, focus→preview highlight
+    composer.js           input, ghost preview, operator pills, اقتباس حرفي toggle + leading-trailing-`"` shortcut, paste handler + undo toast
+    chip-area.js          chip rendering, OR-group walker (filled container + real-DOM header + trailing add button), AND-seam between non-grouped units, empty-state templates picker, drag, Alt+Arrow, multi-select, focus→preview highlight
     chip-toolbar.js       Advanced-mode bulk-actions toolbar (operator change, negate, delete, clear)
     chip-popover.js       per-chip warning glyph + viewport-clamped popover
     drawer.js             + إضافة popover; user-language items + descriptions + operator badges
@@ -348,3 +355,6 @@ Open `dist/index.html` directly via `file://` in Chrome, Firefox, or Safari. No 
 - Chip-local issues (intitle multi-word without quoting, inverted date range, single-word quoting) ship as per-chip warning glyphs with one-tap fixes — there is no banner duplicate. Banner warnings are reserved for aggregate / cross-cutting concerns.
 - The Advanced-mode-only interactions (drag-to-reorder, Shift+Click multi-select with bulk toolbar, Alt+Arrow keyboard reorder, paste-parsing of Google-style queries with paste-undo) were added incrementally on top of the original chip-only spec. None of them appear in Beginner mode, where the surface stays minimal.
 - `chipState.addAfter()` deliberately does NOT call `cleanupConnectors()` mid-mutation — the OR-branch flow makes two consecutive `addAfter` calls (or-connector then keyword), and intermediate cleanup would prune the connector before its trailing term landed. The mutating ops that *can* leave stale connectors (`remove`, `reorder`) still cleanup themselves.
+- The OR-group container was upgraded from a thin dashed rectangle with a 10px `::before` pseudo-label to a filled tinted block with a real-DOM `⫦ أيٌ مما يلي` header (plus a Beginner-only helper subtitle), a single trailing `+ بديل آخر` add-button per group, and a small clear `أو` pill divider inside. The per-chip `+أو` handle is suppressed on members of an existing group; the trailing button is the single add-affordance once a group exists. Beginner mode also renders a faint `و` AND-seam between non-grouped adjacent renderable units to make implicit AND visible without changing semantics.
+- Quoting gained three discoverable entry points on top of the in-chip `"` toggle that already existed: a `اقتباس حرفي` toggle in the composer (Beginner only, sits below the operator pills), a leading-and-trailing-`"` shortcut (typing `"phrase"` commits a quoted chip with the inner text — mirrors the leading-`-` negate shortcut), and a stronger `.chip-quoted` visual (accent-tinted fill, not just a hairline border swap). The model side is unchanged; the `quoted` boolean and `OPERATORS[op].quotable` gating already lived on the keyword chip.
+- The welcome panel was demoted from a card-weight component (h2 + three paragraphs) to a single-line in-flow blurb with an inline `إخفاء` link at its trailing edge. The chip section is the visual anchor on first paint; the welcome stays informational rather than commanding the page.
