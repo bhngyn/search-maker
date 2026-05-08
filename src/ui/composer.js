@@ -53,7 +53,6 @@ export function wireComposer({ host, chipState, engine, lang }) {
         type="text"
         class="composer-input"
         id="composer-input"
-        dir="auto"
         autocomplete="off"
         spellcheck="false"
         aria-describedby="composer-ghost-hint"
@@ -130,6 +129,12 @@ export function wireComposer({ host, chipState, engine, lang }) {
     if (input) {
       input.placeholder = t('ui.composer.placeholder');
       input.setAttribute('aria-label', t('ui.composer.ariaLabel'));
+      // Direction follows the active UI language so an empty input shows
+      // its caret on the side the user expects to type from. dir="auto"
+      // alone keys off the value, not the placeholder, so an empty AR
+      // input would otherwise sit LTR with the caret on the left.
+      const activeLang = (lang && typeof lang.get === 'function') ? lang.get() : 'ar';
+      input.dir = activeLang === 'ar' ? 'rtl' : 'ltr';
     }
     if (ghostLabel) ghostLabel.textContent = t('ui.composer.ghostLabel');
     if (pillsRow) pillsRow.setAttribute('aria-label', t('ui.composer.opPillsLabel'));
