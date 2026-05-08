@@ -346,8 +346,8 @@ export const IDIOMS = [
     apply(chipState) {
       chipState.add('keyword', { operator: 'from', text: '' });
       const mentionId = chipState.add('keyword', { operator: 'mention', text: '' });
-      chipState.addAfter(mentionId, 'or-connector', {});
-      chipState.addAfter(mentionId, 'keyword', { operator: 'none', text: '', quoted: true });
+      const orId = chipState.addAfter(mentionId, 'or-connector', {});
+      chipState.addAfter(orId, 'keyword', { operator: 'none', text: '', quoted: true });
     },
   },
 

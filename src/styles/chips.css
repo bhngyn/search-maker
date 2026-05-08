@@ -1149,7 +1149,7 @@
 /* Added to the chip-section's outer container by the idiom-panel module
    on idiom click; removed ~450ms later. Signals that chips were seeded. */
 .chip-section--just-seeded {
-  box-shadow: 0 0 0 2px var(--accent-soft, var(--accent, #2563eb));
+  box-shadow: 0 0 0 2px var(--accent-muted, var(--accent, #2563eb));
   transition: box-shadow 200ms ease-out;
 }
 @media (prefers-reduced-motion: reduce) {

@@ -231,7 +231,7 @@ wireNormalizeToggle({
   onChange: preview.render,
 });
 
-wireIdiomPanel({ chipState, focusComposer: () => { if (composerHandle && composerHandle.focus) composerHandle.focus(); }, ctx });
+wireIdiomPanel({ chipState, focusComposer: () => { if (composerHandle && composerHandle.focus) composerHandle.focus(); }, ctx: { ...ctx, engine } });
 const idiomPanelEl = document.getElementById('idiom-panel');
 if (idiomPanelEl) attachIdiomPopover(idiomPanelEl);
 
