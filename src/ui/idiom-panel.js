@@ -174,9 +174,7 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx, lang }) {
 
   function refreshHeaderText() {
     if (!headerTitle) return;
-    headerTitle.textContent = '📚 ' + (lang && lang.get() === 'en'
-      ? 'Recipe playbook'
-      : 'وصفات بحث جاهزة');
+    headerTitle.textContent = '📚 ' + t('idiom.pillTitle');
     if (searchInput) {
       searchInput.placeholder = t('idiom.search.placeholder');
       searchInput.setAttribute('aria-label', t('idiom.search.placeholder'));

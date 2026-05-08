@@ -14,7 +14,7 @@ export const MESSAGES = {
   // ===== HTML shell =====
   'app.title':              { ar: 'أداة بناء استعلامات البحث',        en: 'Search Query Builder' },
   'app.engineToggleLabel':  { ar: 'محرك البحث',                       en: 'Search engine' },
-  'app.langToggleLabel':    { ar: 'لغة الواجهة',                       en: 'Interface language' },
+  'app.langToggleLabel':    { ar: 'اللغة',                              en: 'Language' },
   'app.langArabic':         { ar: 'AR',                                en: 'AR' },
   'app.langEnglish':        { ar: 'EN',                                en: 'EN' },
   'app.normalizeLabel':     { ar: 'توحيد الأحرف العربية',              en: 'Arabic normalization' },
@@ -54,7 +54,7 @@ export const MESSAGES = {
     en: 'Build advanced Google search queries — Arabic terms welcome, no keyboard switching, no fighting bidirectional text.',
   },
   'engine.google.searchBtn':    { ar: 'البحث في Google',                en: 'Search Google' },
-  'engine.google.emptyPreview': { ar: 'ابدأ بكتابة كلمات البحث',         en: 'Start typing your search terms' },
+  'engine.google.emptyPreview': { ar: 'ستظهر هنا صيغة الاستعلام بعد إضافة الكلمات أعلاه', en: 'Your assembled query will appear here once you add terms above' },
 
   // Google operator labels (dropdown / pills / drawer-badge text uses op.opName + ':' so badges stay literal)
   'engine.google.op.none.label':     { ar: 'كلمة',                       en: 'Word' },
@@ -125,7 +125,7 @@ export const MESSAGES = {
     en: 'Build advanced X / Twitter search queries — Arabic terms welcome, no keyboard switching, no bidirectional headaches.',
   },
   'engine.x.searchBtn':     { ar: 'البحث في X',                           en: 'Search X' },
-  'engine.x.emptyPreview':  { ar: 'ابدأ بكتابة كلمات البحث',                en: 'Start typing your search terms' },
+  'engine.x.emptyPreview':  { ar: 'ستظهر هنا صيغة الاستعلام بعد إضافة الكلمات أعلاه', en: 'Your assembled query will appear here once you add terms above' },
 
   // X operator labels
   'engine.x.op.none.label':            { ar: 'كلمة',                       en: 'Word' },
@@ -515,6 +515,7 @@ export const MESSAGES = {
 
   // ===== Idiom panel chrome (existing) =====
   'idiom.empty':       { ar: 'لا توجد وصفات لهذا المحرك.', en: 'No recipes for this engine.' },
+  'idiom.pillTitle':   { ar: 'وصفات بحث جاهزة',           en: 'Recipe playbook' },
   'idiom.pillCount':   {
     ar: (v) => v.n + ' وصفة',
     en: (v) => v.n + ' recipe' + (v.n === 1 ? '' : 's'),

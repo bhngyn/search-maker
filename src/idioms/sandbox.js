@@ -126,7 +126,7 @@ export function captureAnatomy(idiom, opts = {}) {
     import('./x.js'),
   ]).then(([googleMod, xMod]) => {
     const testIds = {
-      google: ['gov-only', 'arab-gov-tlds'],
+      google: ['facebook-groups', 'subdomain-discovery'],
       x:      ['first-tweeter', 'thread-top-replies'],
     };
     const allIdioms = {

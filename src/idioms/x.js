@@ -40,6 +40,24 @@ function fmt(d) {
 }
 
 // ---------------------------------------------------------------------------
+// Shared "how to get the ID" hints
+//
+// Appended to descriptions of any recipe whose pattern needs a numeric
+// tweet/conversation ID. The opaque-looking number scares first-timers, so
+// each hint shows the URL → ID mapping with a worked example.
+// ---------------------------------------------------------------------------
+
+const TWEET_ID_HINT = {
+  ar: ' كيفية الحصول على معرّف التغريدة: افتحها في X وانسخ الرقم الطويل من نهاية رابطها — مثلاً في `x.com/user/status/1853991234567890123` المعرّف هو `1853991234567890123`.',
+  en: ' How to get the tweet ID: open the tweet in X and copy the long number at the end of its URL — e.g. in `x.com/user/status/1853991234567890123`, the ID is `1853991234567890123`.',
+};
+
+const CONVERSATION_ID_HINT = {
+  ar: ' كيفية الحصول على معرّف المحادثة: افتح التغريدة الأولى (الجذر) في الموضوع وانسخ الرقم الطويل من نهاية رابطها — مثلاً في `x.com/user/status/1853991234567890123` المعرّف هو `1853991234567890123`.',
+  en: ' How to get the conversation ID: open the first (root) tweet of the thread and copy the long number at the end of its URL — e.g. in `x.com/user/status/1853991234567890123`, the ID is `1853991234567890123`.',
+};
+
+// ---------------------------------------------------------------------------
 // IDIOMS
 // ---------------------------------------------------------------------------
 
@@ -154,8 +172,8 @@ export const IDIOMS = [
     icon: '🔁',
     pattern: 'quoted_tweet_id:_____',
     description: {
-      ar: 'لرسم خريطة من اقتبس تغريدة محورية. يكشف كل من أعاد التأطير عبر الاقتباس — وليس الإعجاب فقط. (انسخ معرّف التغريدة من رابطها.)',
-      en: 'Map who quote-tweeted a pivotal tweet. Surfaces every account that reframed it via QT — not just liked it. (Copy the tweet ID from its URL.)',
+      ar: 'لرسم خريطة من اقتبس تغريدة محورية. يكشف كل من أعاد التأطير عبر الاقتباس — وليس الإعجاب فقط.' + TWEET_ID_HINT.ar,
+      en: 'Map who quote-tweeted a pivotal tweet. Surfaces every account that reframed it via QT — not just liked it.' + TWEET_ID_HINT.en,
     },
     group: 'amplification',
     apply(chipState) {
@@ -169,8 +187,8 @@ export const IDIOMS = [
     icon: '💙',
     pattern: 'quoted_tweet_id:_____ filter:blue_verified',
     description: {
-      ar: 'للتمييز بين تضخيم مدفوع وتضخيم عضوي. يحصر مقتبسي تغريدة معينة في حسابات Blue المدفوعة فيكشف نمط الشراء.',
-      en: 'Tell paid amplification apart from organic. Restricts quote-tweeters of a given tweet to paid Blue accounts so coordinated buying patterns surface.',
+      ar: 'للتمييز بين تضخيم مدفوع وتضخيم عضوي. يحصر مقتبسي تغريدة معينة في حسابات Blue المدفوعة فيكشف نمط الشراء.' + TWEET_ID_HINT.ar,
+      en: 'Tell paid amplification apart from organic. Restricts quote-tweeters of a given tweet to paid Blue accounts so coordinated buying patterns surface.' + TWEET_ID_HINT.en,
     },
     group: 'amplification',
     apply(chipState) {
@@ -201,8 +219,8 @@ export const IDIOMS = [
     icon: '📢',
     pattern: 'quoted_tweet_id:_____ -filter:verified -filter:blue_verified',
     description: {
-      ar: 'بيان رسمي صدر، نريد قراءة الشارع غير الموثّق. يستثني الموثقين بكل أنواعهم فيظهر ما قاله الناس فعلاً.',
-      en: 'An official statement dropped — read the unverified street. Excludes both verified tiers so what ordinary people actually said floats up.',
+      ar: 'بيان رسمي صدر، نريد قراءة الشارع غير الموثّق. يستثني الموثقين بكل أنواعهم فيظهر ما قاله الناس فعلاً.' + TWEET_ID_HINT.ar,
+      en: 'An official statement dropped — read the unverified street. Excludes both verified tiers so what ordinary people actually said floats up.' + TWEET_ID_HINT.en,
     },
     group: 'amplification',
     apply(chipState) {
@@ -238,8 +256,8 @@ export const IDIOMS = [
     icon: '🧵',
     pattern: 'conversation_id:_____',
     description: {
-      ar: 'تغريدة جذر بمحادثة طويلة، نريد كل الردود والردود على الردود. يستحضر الموضوع كاملاً متجاوزاً ترتيب X الافتراضي. (انسخ معرّف التغريدة الجذر.)',
-      en: 'A root tweet with a long conversation — pull every reply and reply-to-reply. Loads the entire thread, bypassing X\'s default ordering. (Copy the root tweet ID.)',
+      ar: 'تغريدة جذر بمحادثة طويلة، نريد كل الردود والردود على الردود. يستحضر الموضوع كاملاً متجاوزاً ترتيب X الافتراضي.' + CONVERSATION_ID_HINT.ar,
+      en: 'A root tweet with a long conversation — pull every reply and reply-to-reply. Loads the entire thread, bypassing X\'s default ordering.' + CONVERSATION_ID_HINT.en,
     },
     group: 'thread',
     apply(chipState) {
@@ -253,8 +271,8 @@ export const IDIOMS = [
     icon: '🌐',
     pattern: 'conversation_id:_____ lang:ar',
     description: {
-      ar: 'المحادثة متعددة اللغات، نريد الأصوات المحلية فقط. يقتطف الجزء العربي من المحادثة في بحث متعدد اللغات.',
-      en: 'A multilingual conversation — keep only the local voices. Slices out the Arabic segment of a cross-language thread.',
+      ar: 'المحادثة متعددة اللغات، نريد الأصوات المحلية فقط. يقتطف الجزء العربي من المحادثة في بحث متعدد اللغات.' + CONVERSATION_ID_HINT.ar,
+      en: 'A multilingual conversation — keep only the local voices. Slices out the Arabic segment of a cross-language thread.' + CONVERSATION_ID_HINT.en,
     },
     group: 'thread',
     apply(chipState) {
@@ -269,8 +287,8 @@ export const IDIOMS = [
     icon: '🔝',
     pattern: 'conversation_id:_____ min_faves:100',
     description: {
-      ar: 'محادثة بآلاف الردود، نريد الأهم. يطفو الردود ذات التفاعل الحقيقي ويتجاوز ترتيب الخوارزمية المبهم.',
-      en: 'A thread with thousands of replies — surface the ones that mattered. Floats up replies with real engagement and bypasses X\'s opaque ranking.',
+      ar: 'محادثة بآلاف الردود، نريد الأهم. يطفو الردود ذات التفاعل الحقيقي ويتجاوز ترتيب الخوارزمية المبهم.' + CONVERSATION_ID_HINT.ar,
+      en: 'A thread with thousands of replies — surface the ones that mattered. Floats up replies with real engagement and bypasses X\'s opaque ranking.' + CONVERSATION_ID_HINT.en,
     },
     group: 'thread',
     apply(chipState) {
@@ -285,8 +303,8 @@ export const IDIOMS = [
     icon: '✅',
     pattern: 'conversation_id:_____ filter:verified',
     description: {
-      ar: 'الذين ردوا من النخب التقليدية الموثقة على تغريدة بعينها. يكشف الحوار العمودي بين المؤسسات.',
-      en: 'Legacy-verified accounts that replied to a given tweet. Reveals the institutional, top-down dialogue inside the thread.',
+      ar: 'الذين ردوا من النخب التقليدية الموثقة على تغريدة بعينها. يكشف الحوار العمودي بين المؤسسات.' + CONVERSATION_ID_HINT.ar,
+      en: 'Legacy-verified accounts that replied to a given tweet. Reveals the institutional, top-down dialogue inside the thread.' + CONVERSATION_ID_HINT.en,
     },
     group: 'thread',
     apply(chipState) {
@@ -301,8 +319,8 @@ export const IDIOMS = [
     icon: '⚖️',
     pattern: 'conversation_id:_____ -from:author filter:has_engagement',
     description: {
-      ar: 'الاعتراضات والتصحيحات تحت تغريدة جدلية. يستثني صاحب التغريدة ويُبقي الردود المتفاعلة فقط — حيث يكون التصحيح غالباً.',
-      en: 'Pushback and corrections under a contested tweet. Excludes the original author and keeps only replies with engagement — where the corrections usually live.',
+      ar: 'الاعتراضات والتصحيحات تحت تغريدة جدلية. يستثني صاحب التغريدة ويُبقي الردود المتفاعلة فقط — حيث يكون التصحيح غالباً.' + CONVERSATION_ID_HINT.ar,
+      en: 'Pushback and corrections under a contested tweet. Excludes the original author and keeps only replies with engagement — where the corrections usually live.' + CONVERSATION_ID_HINT.en,
     },
     group: 'thread',
     apply(chipState) {

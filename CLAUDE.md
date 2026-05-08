@@ -8,6 +8,19 @@ The default solution is a **chip composer** for engines whose query language is 
 
 For engines that don't expose a query language (Facebook, where filters are a base64'd JSON blob in the URL), the tool drops the chip metaphor and substitutes a category-aware **form** in the same shell. The header, normalization toggle, mode toggle, and sticky preview/copy/search row stay common; only the input surface swaps. See "Search engines" below.
 
+## Documentation map
+
+This file (CLAUDE.md) is the design spec — it tells the implementing model what to build and why. End-user documentation lives separately under `docs/`:
+
+- [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) — English user guide. Walks through every visible feature with screenshots from `docs/screenshots/`. Written for journalists, researchers, and OSINT analysts; not for engineers.
+- [`docs/USER_GUIDE.ar.md`](docs/USER_GUIDE.ar.md) — Arabic user guide. Same content as the English version, written natively (not translated) so the prose matches the in-app voice. The two guides are kept in sync; whenever you change observable behaviour, update both.
+- [`docs/Search-Maker-User-Guide.en.pdf`](docs/Search-Maker-User-Guide.en.pdf) and [`docs/Search-Maker-User-Guide.ar.pdf`](docs/Search-Maker-User-Guide.ar.pdf) — bound PDF builds of the two guides, each with a printable cover page, embedded screenshots, page numbering, and print-tuned typography (Arabic edition uses an Arabic font stack and mirrored heading rules). Regenerate with `node scripts/build-pdfs.mjs` after editing the markdown sources or screenshots.
+- [`docs/screenshots/`](docs/screenshots/) — PNG screenshots embedded in both user guides and PDFs. Regenerate with `node scripts/capture-screenshots.mjs` while a dev server is running on port 5173 (the script uses a locally-installed Puppeteer to drive a headless browser through the same flows the guides describe).
+
+When writing or updating these guides, prefer the in-app Arabic strings verbatim (e.g. `+ بناء المعادلة`, `أيٌ مما يلي`, `وصفات بحث جاهزة`) over re-translating — investigators learn the labels by sight, and divergent doc terminology costs them.
+
+[`CLAUDE-X.md`](CLAUDE-X.md) is the engine-specific spec for X / Twitter operators and is also implementer-facing, not user-facing.
+
 ## Hard constraints
 
 These are non-negotiable. If you find yourself wanting to break one, stop and re-read this section.
