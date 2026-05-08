@@ -98,7 +98,7 @@ wireWelcomePanel();
 let composerHandle = null;
 const chipAreaHost = document.getElementById('chip-area');
 const composerHost = document.getElementById('composer');
-if (chipAreaHost) wireChipArea({ host: chipAreaHost, chipState });
+if (chipAreaHost) wireChipArea({ host: chipAreaHost, chipState, mode });
 if (composerHost) {
   composerHandle = wireComposer({ host: composerHost, chipState });
   if (composerHandle.drawerTrigger) {

@@ -99,6 +99,26 @@ export function createChipState({ ctx, segmentOrder = 100 }) {
     ctx.requestUpdate();
   }
 
+  /**
+   * Move a chip to a new index. `targetIndex` is the position in the
+   * post-removal array — i.e. clamped to [0, chips.length - 1] after the
+   * dragged chip has been spliced out. Drag-and-drop in chip-area passes
+   * an index computed from the visible chip elements (which exclude the
+   * one being dragged), so the indices align directly.
+   */
+  function reorder(id, targetIndex) {
+    const oldIdx = chips.findIndex(c => c.id === id);
+    if (oldIdx < 0) return false;
+    const [chip] = chips.splice(oldIdx, 1);
+    if (targetIndex < 0) targetIndex = 0;
+    if (targetIndex > chips.length) targetIndex = chips.length;
+    chips.splice(targetIndex, 0, chip);
+    cleanupConnectors();
+    notify({ kind: 'reorder', chip });
+    ctx.requestUpdate();
+    return true;
+  }
+
   function getAll() {
     return chips.map(c => ({ ...c, props: { ...c.props } }));
   }
@@ -134,7 +154,7 @@ export function createChipState({ ctx, segmentOrder = 100 }) {
   ctx.registerSegment(segmentOrder, () => assembleChips(chips, ctx));
 
   return {
-    add, remove, update, clear, getAll, subscribe,
+    add, remove, update, reorder, clear, getAll, subscribe,
     /** Last chip in the list, or null. */
     last() { return chips.length ? chips[chips.length - 1] : null; },
   };

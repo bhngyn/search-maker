@@ -314,6 +314,43 @@ body.mode-advanced .composer-ghost-row { display: none; }
   opacity: 1;
 }
 
+/* ===== Drag-to-reorder (Advanced mode) ===== */
+.chip-draggable {
+  cursor: grab;
+}
+.chip-draggable:active {
+  cursor: grabbing;
+}
+.chip-dragging {
+  opacity: 0.35;
+}
+.chip-area-draggable {
+  /* Slight padding so drop indicators have room to render on chip edges. */
+  padding: 10px;
+}
+.chip-drop-target-before,
+.chip-drop-target-after {
+  position: relative;
+}
+.chip-drop-target-before::before,
+.chip-drop-target-after::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.chip-drop-target-before::before {
+  /* RTL: "before in array order" = visually to the right of the chip */
+  right: -6px;
+}
+.chip-drop-target-after::after {
+  left: -6px;
+}
+
 /* ===== Wide chips (filetype, date-range, proximity, number-range) ===== */
 .chip-wide {
   border-radius: 10px;
