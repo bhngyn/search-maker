@@ -2,8 +2,10 @@
 // holds a dropdown of common extensions plus a delete button. No quote, no
 // negate, no normalization.
 //
-// Source spec (CLAUDE.md): pdf, doc, docx, xls, xlsx, ppt, pptx, txt, rtf
-// (csv and mp3 are deindexed by Google and intentionally omitted).
+// The list mirrors Google's officially indexable file formats (Search
+// docs, "File types indexable by Google"). csv and mp3 are intentionally
+// excluded — Google does not index their contents, so filetype:csv /
+// filetype:mp3 only match by URL substring and mislead investigators.
 
 import { t } from '../i18n/messages.js';
 
@@ -11,8 +13,8 @@ export const type = 'filetype';
 export const label = 'engine.google.drawer.filetype.label';
 
 // Extension labels are mostly script-neutral — only `none` and `txt` get
-// localized. Everything else (PDF, Word, Excel, …) reads identically in
-// both languages, so we keep a literal label there to keep this list compact.
+// localized. Everything else (PDF, Word, Excel, KML, …) reads identically
+// in both languages, so we keep a literal label to keep this list compact.
 export const FILETYPES = [
   { value: '',     labelKey: 'chip.filetype.opt.none' },
   { value: 'pdf',  label: 'PDF' },
@@ -22,8 +24,16 @@ export const FILETYPES = [
   { value: 'xlsx', label: 'Excel (xlsx)' },
   { value: 'ppt',  label: 'PowerPoint (ppt)' },
   { value: 'pptx', label: 'PowerPoint (pptx)' },
-  { value: 'txt',  labelKey: 'chip.filetype.opt.txt' },
+  { value: 'odt',  label: 'OpenDocument (odt)' },
+  { value: 'ods',  label: 'OpenDocument (ods)' },
+  { value: 'odp',  label: 'OpenDocument (odp)' },
   { value: 'rtf',  label: 'RTF' },
+  { value: 'txt',  labelKey: 'chip.filetype.opt.txt' },
+  { value: 'kml',  label: 'Google Earth (kml)' },
+  { value: 'kmz',  label: 'Google Earth (kmz)' },
+  { value: 'gpx',  label: 'GPS (gpx)' },
+  { value: 'xml',  label: 'XML' },
+  { value: 'svg',  label: 'SVG' },
 ];
 
 export function defaultProps() {
