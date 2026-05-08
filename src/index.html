@@ -51,6 +51,21 @@
       </p>
     </section>
 
+    <section id="idiom-panel" class="idiom-panel" data-state="closed" data-descriptions="hidden">
+      <button class="idiom-panel-pill" type="button" aria-expanded="false" aria-controls="idiom-panel-body">
+        <span class="idiom-panel-pill-icon">📚</span>
+        <span class="idiom-panel-pill-title">وصفات بحث جاهزة</span>
+        <span class="idiom-panel-pill-count">35 وصفة</span>
+        <span class="idiom-panel-pill-chevron" aria-hidden="true">▼</span>
+      </button>
+      <div class="idiom-panel-header" hidden>
+        <span class="idiom-panel-header-title">📚 وصفات بحث جاهزة</span>
+        <button class="idiom-panel-descriptions-toggle" type="button" aria-pressed="false">📖 شروح</button>
+        <button class="idiom-panel-close" type="button" aria-label="إغلاق">▲</button>
+      </div>
+      <div class="idiom-panel-body" id="idiom-panel-body" role="region" aria-label="مكتبة وصفات البحث" hidden></div>
+    </section>
+
     <section class="chip-section" aria-labelledby="chip-section-heading">
       <h2 id="chip-section-heading"></h2>
       <div id="chip-area"></div>

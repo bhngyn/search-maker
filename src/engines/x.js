@@ -3,6 +3,8 @@
 // String fields are i18n keys, NOT literal strings — see src/i18n/messages.js
 // and the docblock in src/engines/google.js.
 
+import { IDIOMS, GROUP_ORDER, GROUP_LABELS } from '../idioms/x.js';
+
 const keywordOperators = {
   none: {
     label: 'engine.x.op.none.label',
@@ -203,6 +205,9 @@ export default {
     ],
   },
   templates,
+  idioms: IDIOMS,
+  idiomGroupOrder: GROUP_ORDER,
+  idiomGroupLabels: GROUP_LABELS,
   dateRangeOps: { after: 'since', before: 'until' },
   addableChipTypes: new Set(['keyword', 'or-connector', 'date-range', 'filter', 'engagement']),
   arabicForbiddenOps: new Set(['from', 'to', 'mention', 'list', 'url', 'lang', 'near', 'source', 'conversation_id', 'quoted_tweet_id']),
