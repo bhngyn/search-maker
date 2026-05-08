@@ -91,7 +91,7 @@
 .chip-text:focus {
   border-color: var(--accent);
   border-style: solid;
-  box-shadow: 0 0 0 2px var(--accent-muted, var(--accent));
+  box-shadow: 0 0 0 2px var(--tip-soft);
 }
 .chip-text:focus:empty::before { opacity: 0.45; }
 
@@ -176,10 +176,14 @@
 .chip-negate .chip-delete-btn { color: var(--warning); }
 
 /* Quoted chip — accent tint on border + soft fill so the literal-match
-   state is unmistakable at a glance, not just a hairline border swap. */
+   state is unmistakable at a glance, not just a hairline border swap.
+   Uses --accent-soft (blue 18%) rather than --tip-soft so the visual
+   doesn't collide with the OR-group container's cyan framing — quoting
+   is an "exact match" signal, OR is an "alternation" signal, and they
+   should not share a tint. */
 .chip-quoted {
   border-color: var(--accent);
-  background: var(--accent-muted);
+  background: var(--accent-soft);
 }
 .chip-quoted .chip-text { font-family: var(--mono); }
 
@@ -212,10 +216,12 @@
 .chip-bool-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* AND-kind connector — different palette so the two states are at-a-glance
-   distinguishable. Reuses the muted-accent palette so it reads as "neutral
-   conjunction" while the OR pill keeps the tip-yellow accent. */
+   distinguishable. Uses --accent-soft (blue 18%) so AND reads as "neutral
+   conjunction" in the accent palette while the OR pill keeps the cyan tip
+   palette. Together with .chip-quoted, accent-soft is the canonical fill
+   for "this is in the accent family but quietly subordinate." */
 .chip-bool-and {
-  background: var(--accent-muted);
+  background: var(--accent-soft);
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -234,7 +240,7 @@
   font-size: 17px;
   background: var(--bg);
   color: var(--fg);
-  border: 1.5px solid var(--accent-muted);
+  border: 1.5px solid var(--tip-soft);
   border-radius: 10px;
   box-shadow: 0 1px 0 var(--bg-subtle), 0 2px 6px rgba(0, 0, 0, 0.35);
   transition: border-color 150ms, box-shadow 150ms;
@@ -408,7 +414,7 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 10px;
-  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 8px -2px rgba(0,0,0,0.3);
+  box-shadow: var(--shadow-lg);
   padding: 4px;
   min-width: 240px;
   font-size: 14px;
@@ -461,11 +467,19 @@
 .chip-warning-popover-fix:hover { filter: brightness(1.05); }
 .chip-warning-popover-fix:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ===== Multi-select (Advanced mode) ===== */
+/* ===== Multi-select ===== */
+/* Selected chip — swap the chip's border to accent and add an inset
+   accent ring so the border reads as a clean 2px without shifting
+   padding. We deliberately do NOT use an outset outline ring: the
+   text-field focus state inside the chip already uses an accent outline,
+   and stacking two accent outlines produces a confused "is this focused
+   or selected?" read. We also do NOT change the background, so this
+   composes cleanly with .chip-quoted (accent-soft fill) and .chip-negate
+   (warning fill) — selected reads on top of the chip's identity, not
+   on top of its colour. */
 .chip-selected {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  background: var(--bg);
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
 }
 
 .chip-toolbar {
@@ -616,7 +630,7 @@
   white-space: nowrap;
 }
 .chip-engagement-dir.is-max {
-  background: var(--accent-muted);
+  background: var(--tip-soft);
   color: var(--accent-fg);
 }
 
@@ -641,7 +655,7 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 10px;
-  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 8px -2px rgba(0,0,0,0.3);
+  box-shadow: var(--shadow-lg);
   padding: 6px;
   min-width: 240px;
   max-width: 320px;
@@ -899,34 +913,32 @@
   opacity: 0.45;
   cursor: not-allowed;
 }
+/* PRESSED-STATE CONVENTIONS
+   Hard style (solid --accent fill + --accent-fg text):
+     "this option is selected from a mutually-exclusive set"
+     — operator pills, engine toggle, language toggle, OR toggle, group filter chips.
+   Soft style (--accent-soft fill + accent text + accent border):
+     "this is a sticky modifier on the next commit"
+     — quote toggle.
+   The two styles must stay distinguishable; do not merge them. */
 .composer-quote-toggle[aria-pressed="true"] {
-  background: var(--accent-muted);
+  background: var(--accent-soft);
   border-color: var(--accent);
   color: var(--accent);
 }
-/* === Composer modifier row ===
-   NOT and OR are pre-commit boolean modifiers — distinct semantics from the
-   operator pills (which select a content operator) and the quote toggle
-   (which wraps in literal-match). They get their own row with a tinted
-   surface and a leading-edge label so the separation reads at a glance. */
-.composer-modifier-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-  padding: 6px 10px;
-  background: var(--bg-subtle);
-  border: 1px dashed var(--border);
-  border-radius: 8px;
-}
-.composer-modifier-row-label {
-  font-size: 12px;
-  color: var(--fg-muted);
-  letter-spacing: 0.02em;
-  text-transform: none;
-  margin-inline-end: 4px;
-  white-space: nowrap;
+/* === Composer modifier toggles (NOT / OR) ===
+   Living on the same row as the operator pills and quote toggle, separated
+   by a thin vertical hairline. NOT and OR are pre-commit boolean modifiers
+   — distinct semantics from the operator choice (a content operator) and
+   the quote toggle (literal-match wrapping). The single-row layout
+   eliminates a stack of three control rows under the input; the divider
+   is the only chrome we need to keep the two groups legible. */
+.composer-op-row-divider {
+  display: inline-block;
+  align-self: stretch;
+  width: 1px;
+  margin: 4px 4px;
+  background: var(--border);
 }
 .composer-modifier-toggle {
   display: inline-flex;
@@ -952,11 +964,22 @@
   line-height: 1;
 }
 .composer-modifier-toggle-label { font-weight: 500; }
+/* NOT toggle pressed: amber fill. Distinct from the warning glyph (a
+   smaller bordered badge on a chip) by scale — the toggle fills its
+   whole pill, the glyph is a 22px circular dot. They share the warning
+   palette intentionally: NOT is a "destructive of results" action and
+   the warning palette is the one tokenized signal we have for that. */
 .composer-not-toggle[aria-pressed="true"] {
-  background: var(--warning, #fbbf24);
-  border-color: var(--warning, #fbbf24);
-  color: var(--accent-fg, #0f172a);
+  background: var(--warning);
+  border-color: var(--warning);
+  color: var(--bg);
 }
+/* OR toggle pressed: hard accent style — same as operator pills and
+   engine toggle, because pressing OR commits to "use OR for the next
+   chip" (a one-of-set selection). The rendered OR-group container uses
+   the cyan tip palette; the visual mismatch is acceptable because the
+   button is transient (resets after commit) and the group is persistent
+   — the user does not see them side-by-side. */
 .composer-or-toggle[aria-pressed="true"] {
   background: var(--accent);
   border-color: var(--accent);
@@ -987,7 +1010,7 @@
    the term will be wrapped in quotes before pressing Enter. */
 .composer-ghost-chip-quoted {
   border-color: var(--accent);
-  background: var(--accent-muted);
+  background: var(--tip-soft);
   font-family: var(--mono);
   font-style: normal;
 }
@@ -1041,7 +1064,7 @@
    the chip pill via document flow (it's the first child appended). */
 .chip-or-handle {
   background: transparent;
-  border: 1px dashed var(--accent-muted);
+  border: 1px dashed var(--tip-soft);
   color: var(--fg-muted);
   cursor: pointer;
   font-family: inherit;
@@ -1080,7 +1103,7 @@
    flag is legible without leaning on the small leading "−" prefix. */
 .chip-not-handle {
   background: transparent;
-  border: 1px dashed var(--warning, #f47272);
+  border: 1px dashed var(--warning);
   color: var(--fg-muted);
   cursor: pointer;
   font-family: inherit;
@@ -1097,23 +1120,23 @@
 }
 .chip:hover .chip-not-handle,
 .chip:focus-within .chip-not-handle {
-  color: var(--warning, #f47272);
+  color: var(--warning);
   border-style: solid;
 }
 .chip-not-handle:hover {
-  background: var(--warning-soft, rgba(244, 114, 114, 0.18));
-  border-color: var(--warning, #f47272);
-  color: var(--warning, #f47272);
+  background: var(--warning-soft);
+  border-color: var(--warning);
+  color: var(--warning);
   border-style: solid;
 }
 .chip-not-handle[aria-pressed="true"] {
-  background: var(--warning, #f47272);
-  border-color: var(--warning, #f47272);
-  color: var(--accent-fg, #fff);
+  background: var(--warning);
+  border-color: var(--warning);
+  color: var(--accent-fg);
   border-style: solid;
 }
 .chip-not-handle:focus-visible {
-  outline: 2px solid var(--warning, #f47272);
+  outline: 2px solid var(--warning);
   outline-offset: 1px;
 }
 
@@ -1131,7 +1154,7 @@
   gap: 8px;
   padding: 8px 10px;
   background: var(--tip-bg);
-  border: 1px solid var(--accent-muted);
+  border: 1px solid var(--tip-soft);
   border-inline-start: 3px solid var(--tip);
   border-radius: 8px;
   position: relative;
@@ -1162,11 +1185,15 @@
   line-height: 1;
 }
 .chip-or-group-label-text { font-weight: 600; }
+/* Helper subtitle — quieter than the group's main "أيٌ مما يلي" label so
+   it teaches without shouting on every group. Matches the AND-seam's
+   subordinate weight (11px / partially transparent). */
 .chip-or-group-label-helper {
   margin-inline-start: 2px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 400;
   color: var(--fg-muted);
+  opacity: 0.7;
 }
 
 /* Inside-group "أو" — small clear pill, not the near-invisible state it
@@ -1174,7 +1201,7 @@
    reads "[term] أو [term]" not "[term] [أو] [term]". */
 .chip-or-group .chip-or-connector {
   background: var(--bg);
-  border: 1px solid var(--accent-muted);
+  border: 1px solid var(--tip-soft);
   border-radius: 999px;
   color: var(--tip);
   padding: 2px 8px;
@@ -1255,7 +1282,7 @@
 /* Added to the chip-section's outer container by the idiom-panel module
    on idiom click; removed ~450ms later. Signals that chips were seeded. */
 .chip-section--just-seeded {
-  box-shadow: 0 0 0 2px var(--accent-muted, var(--accent, #2563eb));
+  box-shadow: 0 0 0 2px var(--tip-soft);
   transition: box-shadow 200ms ease-out;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1285,7 +1312,7 @@
   transition: background-color 600ms ease-out, color 600ms ease-out;
 }
 .preview-frag-active {
-  background-color: var(--accent-muted, var(--bg-subtle));
+  background-color: var(--tip-soft);
   color: var(--accent);
   transition: background-color 80ms ease-in, color 80ms ease-in;
 }
@@ -1397,7 +1424,7 @@
 .date-picker-day:hover { background: var(--bg-subtle); border-color: var(--accent); }
 .date-picker-day:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .date-picker-day--other-month { color: var(--fg-muted); opacity: 0.5; }
-.date-picker-day--today { border-color: var(--accent-muted); }
+.date-picker-day--today { border-color: var(--tip-soft); }
 .date-picker-day--selected,
 .date-picker-day--selected:hover {
   background: var(--accent);

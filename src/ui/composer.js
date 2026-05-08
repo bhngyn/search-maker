@@ -64,7 +64,7 @@ export function wireComposer({ host, chipState, engine, lang }) {
         <span class="composer-ghost-label" id="composer-ghost-label-text"></span>
         <span class="composer-ghost-chip" id="composer-ghost-chip"></span>
       </div>
-      <div class="composer-op-row">
+      <div class="composer-op-row" role="group" id="composer-op-row">
         <div class="composer-op-pills" id="composer-op-pills" role="group"></div>
         <button
           type="button"
@@ -75,9 +75,7 @@ export function wireComposer({ host, chipState, engine, lang }) {
           <span class="composer-quote-toggle-glyph" dir="ltr">"&nbsp;"</span>
           <span class="composer-quote-toggle-label" id="composer-quote-toggle-label-text"></span>
         </button>
-      </div>
-      <div class="composer-modifier-row" role="group" id="composer-modifier-row">
-        <span class="composer-modifier-row-label" id="composer-modifier-row-label-text"></span>
+        <span class="composer-op-row-divider" aria-hidden="true"></span>
         <button
           type="button"
           class="composer-modifier-toggle composer-not-toggle"
@@ -122,8 +120,7 @@ export function wireComposer({ host, chipState, engine, lang }) {
   const notToggleLabel = host.querySelector('#composer-not-toggle-label-text');
   const orToggle = host.querySelector('#composer-or-toggle');
   const orToggleLabel = host.querySelector('#composer-or-toggle-label-text');
-  const modifierRow = host.querySelector('#composer-modifier-row');
-  const modifierRowLabel = host.querySelector('#composer-modifier-row-label-text');
+  const opRow = host.querySelector('#composer-op-row');
   const quoteHint = host.querySelector('#composer-quote-hint-text');
   const pasteHintEl = host.querySelector('#composer-ghost-paste-hint');
   const helpHint = host.querySelector('#composer-ghost-hint');
@@ -151,8 +148,7 @@ export function wireComposer({ host, chipState, engine, lang }) {
       orToggle.setAttribute('title', t('ui.composer.orToggleTitle'));
     }
     if (orToggleLabel) orToggleLabel.textContent = t('ui.composer.orToggleLabel');
-    if (modifierRow) modifierRow.setAttribute('aria-label', t('ui.composer.modifierRowLabel'));
-    if (modifierRowLabel) modifierRowLabel.textContent = t('ui.composer.modifierRowLabel');
+    if (opRow) opRow.setAttribute('aria-label', t('ui.composer.opPillsLabel'));
     if (quoteHint) quoteHint.textContent = t('ui.composer.quoteHint');
     if (pasteHintEl) pasteHintEl.textContent = t('ui.composer.pasteHint');
     if (commitRow) commitRow.setAttribute('aria-label', t('ui.composer.commitGroupLabel'));

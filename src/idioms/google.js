@@ -64,8 +64,8 @@ export const IDIOMS = [
     icon: '📂',
     pattern: 'site:domain.gov/section',
     description: {
-      ar: '(Russell signature) يضيّق البحث إلى قسم داخل موقع كبير دون معرفة هيكلة النطاقات الفرعية. مثال: site:moh.gov.sa/Ministry "تقرير سنوي" للوصول إلى التقارير السنوية في قسم محدد من بوابة وزارية.',
-      en: '(Russell signature) Narrows the search to a section inside a large site without needing to know its subdomain structure. Russell\'s example: site:sanantonio.gov/dsd "retaining wall".',
+      ar: 'يضيّق البحث إلى قسم محدد داخل موقع كبير دون الحاجة لمعرفة هيكلة نطاقاته الفرعية. مفيد للبوابات الحكومية الضخمة ذات الأقسام المتعددة، مثل site:moh.gov.sa/Ministry "تقرير سنوي" للوصول إلى التقارير السنوية في قسم بعينه.',
+      en: 'Narrows the search to a specific section of a large site without needing to know its subdomain layout. Useful for sprawling government portals with many divisions, e.g. site:moh.gov.sa/Ministry "annual report" to reach a particular division\'s reports.',
     },
     group: 'sites',
     apply(chipState) {
@@ -78,8 +78,8 @@ export const IDIOMS = [
     icon: '🔍',
     pattern: 'site:X -site:www.X',
     description: {
-      ar: '(Russell PDF idiom 1) يبحث داخل موقع ويستبعد www. — يكشف النطاقات الفرعية الجانبية والداخلية مثل intranet.x.com أو staff.x.com.',
-      en: '(Russell PDF idiom 1) Searches inside a site while excluding www. — surfaces side and internal subdomains like intranet.x.com or staff.x.com.',
+      ar: 'يبحث داخل موقع ويستبعد النطاق الرئيسي www. — يكشف النطاقات الفرعية الجانبية والداخلية مثل intranet.x.com أو staff.x.com. مفيد لرسم خريطة بنية موقع كبير وكشف بوابات داخلية لم يقصد أصحابها نشرها للعموم.',
+      en: 'Searches inside a site while excluding the main www. host — surfaces side and internal subdomains like intranet.x.com or staff.x.com. Useful for mapping the structure of a large site and exposing internal portals the owners didn\'t mean to publish openly.',
     },
     group: 'sites',
     apply(chipState) {
@@ -109,8 +109,8 @@ export const IDIOMS = [
     icon: '📊',
     pattern: 'filetype:xlsx',
     description: {
-      ar: '(Russell signature) موازنات، رواتب، إحصاءات قابلة للحساب. غالباً ما تُنشر بسهو أو بحكم الإلزام.',
-      en: '(Russell signature) Budgets, payrolls, computable statistics. Often published by accident or because disclosure rules require it.',
+      ar: 'موازنات، رواتب، إحصاءات قابلة للحساب — تُنشر غالباً بسهو أو بحكم الإلزام. مفيد عندما تحتاج البيانات الخام لإجراء حساباتك بنفسك بدلاً من الاكتفاء بملخّص في تقرير صحفي.',
+      en: 'Budgets, payrolls, computable statistics — often published by accident or because disclosure rules require it. Useful when you need the raw numbers to run your own calculations rather than relying on a summary in a news report.',
     },
     group: 'docs',
     apply(chipState) {
@@ -123,8 +123,8 @@ export const IDIOMS = [
     icon: '🏢',
     pattern: 'site:.gov filetype:pdf _____',
     description: {
-      ar: 'الوصفة الأشهر عند Russell: نطاق + صيغة + موضوع. تُظهر الوثيقة الأصلية الصادرة عن الجهة، لا التغطية الإعلامية لها. مثال: site:.gov.eg filetype:pdf إحصاء أو site:.gov.jo filetype:xlsx ميزانية.',
-      en: 'Russell\'s most-quoted compound: domain + filetype + topic. Surfaces the source document issued by the agency itself, not the media coverage of it. Russell\'s example: site:sanantonio.gov filetype:doc injuries.',
+      ar: 'تركيبة بحث ثلاثية: نطاق + صيغة + موضوع. تُظهر الوثيقة الأصلية الصادرة عن الجهة لا التغطية الإعلامية لها. مفيد للوصول إلى المصدر الأول لإحصاء أو ميزانية أو لائحة، مثل site:.gov.eg filetype:pdf إحصاء أو site:.gov.jo filetype:xlsx ميزانية.',
+      en: 'A three-part research compound: domain + filetype + topic. Surfaces the source document issued by the agency itself, not the media coverage of it. Useful for getting to the primary source of a statistic, budget, or regulation, e.g. site:.gov.eg filetype:pdf statistic, or site:.gov.jo filetype:xlsx budget.',
     },
     group: 'docs',
     apply(chipState) {
@@ -180,8 +180,8 @@ export const IDIOMS = [
     icon: '📖',
     pattern: 'site:ar.wikipedia.org _____',
     description: {
-      ar: '(عادة Russell الأولى، معرّبة) ابحث في ويكيبيديا العربية عن المصطلح الفنّي الذي يستخدمه المتخصصون قبل تشغيل الاستعلام الحقيقي. خطوة لا يتجاوزها المحقق المُحنّك.',
-      en: '(Russell\'s #1 habit, localized) Search Arabic Wikipedia for the technical term specialists actually use before running the real query. The step seasoned investigators never skip.',
+      ar: 'ابحث في ويكيبيديا العربية عن المصطلح الفنّي الذي يستخدمه المتخصصون قبل تشغيل الاستعلام الحقيقي. مفيد عندما تحقق في موضوع تخصصي ولا تعرف بعد المفردة الدقيقة التي يتداولها أهل الميدان — خطوة تمهيدية تختار لك مفردات بحث أفضل.',
+      en: 'Search Arabic Wikipedia for the technical term specialists actually use before running the real query. Useful when you\'re investigating a specialized topic and don\'t yet know the exact wording the field uses — a vocabulary-scouting pass that gives the real query better keywords.',
     },
     group: 'vocabulary',
     apply(chipState) {
@@ -195,8 +195,8 @@ export const IDIOMS = [
     icon: '📚',
     pattern: 'site:en.wikipedia.org _____',
     description: {
-      ar: 'المقابل الإنجليزي للمصطلح للبحث في المصادر الدولية. حركة Russell التوقيعية تطبَّق هنا على النصّ الإنجليزي.',
-      en: 'The English equivalent of a term, for searching international sources. Russell\'s signature move applied to English-language text.',
+      ar: 'يجد المقابل الإنجليزي لمصطلح ما تمهيداً للبحث في المصادر الدولية. مفيد قبل التوسع إلى وكالات أنباء أو وثائق أجنبية، حتى تنطلق بالكلمة التي يستخدمها الناطقون بالإنجليزية فعلاً، لا بترجمة حرفية.',
+      en: 'Find the English equivalent of a term as a prelude to searching international sources. Useful before expanding into foreign news outlets or documents — gives you the word English-speakers actually use, not a literal translation.',
     },
     group: 'vocabulary',
     apply(chipState) {
@@ -228,8 +228,8 @@ export const IDIOMS = [
     icon: '💬',
     pattern: '"قال" OR "صرّح" OR "أكد" OR "أعلن"',
     description: {
-      ar: '(فكرة Russell "Smith denied/claimed/argued" بصياغة عربية) يلتقط جميع الطرق التي يَنسب بها الإعلام تصريحاً ما لشخصية. اقرنه باسم الشخصية لاسترجاع تصريحاتها بصياغاتها المختلفة.',
-      en: '(Russell\'s "Smith denied/claimed/argued" idiom) Catches every way the media attributes a quote to a public figure. Pair it with a name to pull all their statements in their various phrasings.',
+      ar: 'يلتقط جميع الطرق التي يَنسب بها الإعلام تصريحاً ما لشخصية (قال، صرّح، أكد، أعلن…). مفيد عندما تجمع كل ما قاله شخص حول موضوع، لئلا تفوتك تصريحات صيغت بأفعال مختلفة. اقرنه باسم الشخصية لاسترجاع تصريحاتها بصياغاتها كافة.',
+      en: 'Catches every way the media attributes a quote to a public figure (said, stated, claimed, denied…). Useful when you\'re gathering everything a person has said on a topic and don\'t want to miss statements phrased with different verbs. Pair it with a name to pull all their statements regardless of phrasing.',
     },
     group: 'vocabulary',
     apply(chipState) {
@@ -300,8 +300,8 @@ export const IDIOMS = [
     icon: '⏮️',
     pattern: '"_____" before:event-date -event-noun',
     description: {
-      ar: '(تقنية Russell التوقيعية) لرؤية كيف غُطِّيت شركة أو جهة قبل أن تتصدّر العناوين بسبب حادث. الشكل العام: "[شركة]" before:[تاريخ الحادث] -[اسم الحادث] — يستبعد ضجيج ما-بعد-الحادث ويُظهر الذاكرة المؤسسية ما-قبله.',
-      en: '(Russell signature, e.g. "West Fertilizer" -explosion) See how a company or institution was covered before it hit the headlines because of an incident. Excludes the post-event noise and surfaces the institutional memory from before.',
+      ar: 'يكشف كيف غُطِّيت جهة أو شركة قبل أن تتصدّر العناوين بسبب حادث. الشكل العام: "[الجهة]" before:[تاريخ الحادث] -[اسم الحادث] — يستبعد ضجيج ما-بعد-الحادث ويُظهر الذاكرة المؤسسية ما-قبله. مفيد للتحقيقات الاستعادية: ما الذي كان يُقال عن الجهة قبل أن تنفجر الفضيحة؟',
+      en: 'Surfaces how an entity was covered before it hit the headlines because of an incident. Shape: "[entity]" before:[event date] -[event noun] — excludes the post-event noise and reveals the institutional memory from before. Useful for retrospective investigations: what was being said about the entity before the scandal broke?',
     },
     group: 'time',
     apply(chipState) {
@@ -336,8 +336,8 @@ export const IDIOMS = [
     icon: '🏛️',
     pattern: 'site:web.archive.org _____',
     description: {
-      ar: '(حركة Russell عند الوصول إلى طريق مسدود) عندما يصل البحث الحرّ إلى صفحة محذوفة أو خطأ 404، يحوّل الاستعلام إلى Wayback Machine حيث الصفحات المحذوفة محفوظة.',
-      en: '(Russell pivot move) When the open-web search hits a dead end (page deleted, 404), redirect the query into the Wayback Machine, where deleted pages live on.',
+      ar: 'يحوّل الاستعلام إلى أرشيف Wayback Machine حيث تظلّ الصفحات المحذوفة محفوظة. مفيد عندما يصطدم البحث الحرّ بصفحة محذوفة أو خطأ 404 — خاصةً لاسترجاع صفحات أُزيلت بعد كشف فضيحة أو تحت ضغط قانوني.',
+      en: 'Redirects the query into the Wayback Machine archive, where deleted pages live on. Useful when the open-web search hits a dead end (page removed, 404) — especially for recovering pages taken down after a scandal broke or under legal pressure.',
     },
     group: 'time',
     apply(chipState) {
@@ -416,8 +416,8 @@ export const IDIOMS = [
     icon: '🔗',
     pattern: '"name1" AROUND(5) "name2"',
     description: {
-      ar: 'تقنية AROUND عند Russell: كلمتان متجاورتان خلال خمس كلمات. الشكل العام: "[اسم أول]" AROUND(5) "[اسم ثانٍ]" — ممتاز لربط شخصين معاً، أو حين يفصل بينهما لقب أو صفة فلا يلتقطهما الاقتباس الحرفي.',
-      en: '(Russell-style "Manuel AROUND(2) Isquierdo") Two words within five words of each other — ideal for linking two people, or for cases where a title or descriptor sits between them so a literal phrase wouldn\'t catch it.',
+      ar: 'يبحث عن كلمتين تظهران متجاورتين ضمن خمس كلمات. الشكل العام: "[اسم أول]" AROUND(5) "[اسم ثانٍ]". مفيد لربط شخصين أو كياناً وحدثاً معاً، خصوصاً حين يفصل بينهما لقب أو صفة فلا يلتقطهما الاقتباس الحرفي ("الوزير محمد علي" مثلاً).',
+      en: 'Finds two words that appear within five words of each other. Shape: "[first name]" AROUND(5) "[second name]". Useful for linking two people, or an entity to an event, especially when a title or descriptor sits between them and a literal phrase wouldn\'t match (e.g. "Minister Mohamed Ali").',
     },
     group: 'boolean',
     apply(chipState) {
@@ -446,8 +446,8 @@ export const IDIOMS = [
     icon: '📃',
     pattern: 'intext:_____',
     description: {
-      ar: '(Russell\'s favorite operator) المصطلح في القائمة الجانبية أو القائمة المنسدلة يُلوِّث النتائج. intext: يفرض ظهور الكلمة في جسم الصفحة لا في زخارفها.',
-      en: '(Russell\'s favorite operator) When a term sits in a sidebar or a dropdown menu, it pollutes the results. intext: forces the word to appear in the page body, not its chrome.',
+      ar: 'يفرض ظهور الكلمة في جسم الصفحة لا في زخارفها (شريط جانبي، قائمة منسدلة، تذييل). مفيد لاستبعاد الصفحات التي تذكر الكلمة في القوائم العامة أو نصوص الإطار دون أن تتناولها فعلاً — يرفع جودة النتائج بشكل ملحوظ.',
+      en: 'Forces the word to appear in the page body, not its chrome (sidebar, dropdown, footer). Useful for filtering out pages that show the term in boilerplate or navigation but don\'t actually discuss it — a noticeable lift in result quality.',
     },
     group: 'position',
     apply(chipState) {
@@ -460,8 +460,8 @@ export const IDIOMS = [
     icon: '📑',
     pattern: 'intext:"A" intext:"B"',
     description: {
-      ar: '(تركيبة Russell التوقيعية، مثل intext:"[اسم]" intext:"تحقيق") يُجبر تواجد عبارتين معاً في نصّ الصفحة لا في الزخارف. ضمانة قوية لصفحة فعلية حول الموضوع.',
-      en: '(Russell\'s signature compound, e.g. intext:"Manuel Isquierdo" intext:"grand jury") Forces both phrases to appear together in the body text, not the chrome. A strong guarantee that the page actually concerns both.',
+      ar: 'يُجبر تواجد عبارتين معاً في نصّ الصفحة لا في الزخارف. مفيد عندما تحقق في تقاطع موضوعين وتريد ضمانة قوية بأن الصفحة تتناولهما فعلاً، مثل intext:"[اسم]" intext:"تحقيق" — يُقصي الصفحات التي تذكر الكلمتين كلٍّ في موضع منفصل بلا علاقة بينهما.',
+      en: 'Forces both phrases to appear together in the body text, not the chrome. Useful when investigating the intersection of two topics and you want strong assurance the page actually concerns both, e.g. intext:"[name]" intext:"investigation" — filters out pages that mention each term separately with no real connection.',
     },
     group: 'position',
     apply(chipState) {
@@ -506,8 +506,8 @@ export const IDIOMS = [
     icon: '⭐',
     pattern: '"phrase * here"',
     description: {
-      ar: '(Russell PDF idiom 2) النجمة داخل اقتباس تملأ كلمة مجهولة. لإيجاد عبارات بترتيب محدد لكن بكلمة وسط لا تتذكّرها.',
-      en: '(Russell PDF idiom 2) An asterisk inside a quoted phrase fills in an unknown word. For phrases you remember in a specific order but with one word missing.',
+      ar: 'النجمة داخل اقتباس حرفي تملأ مكان كلمة مجهولة. مفيد لاستعادة عبارة تتذكّر ترتيبها لكنك لا تتذكّر إحدى كلماتها — اقتباس سمعته جزئياً، أو شعار حملة فاتك جزء منه.',
+      en: 'An asterisk inside a quoted phrase fills in an unknown word. Useful for recovering a phrase whose order you remember but whose middle word you don\'t — a quote you heard only partially, or a campaign slogan you half-remember.',
     },
     group: 'signature',
     apply(chipState) {
@@ -520,8 +520,8 @@ export const IDIOMS = [
     icon: '🎯',
     pattern: '"قال * إنّ *"',
     description: {
-      ar: '(Russell PDF idiom 2 في تطبيق صحفي) ابحث عن اقتباس بهيكل ثابت ونجوم تملأ الأسماء المجهولة. تكشف من قال ماذا في خطاب نمطي.',
-      en: '(Russell PDF idiom 2, journalism flavor) Search for a quote with a fixed structure and asterisks filling in unknown names. Reveals who said what in formulaic public statements.',
+      ar: 'يبحث عن اقتباس ذي هيكل ثابت مع نجوم تنوب عن الأسماء المجهولة. مفيد لاكتشاف من قال ماذا في الخطاب الرسمي النمطي، أو لاسترجاع تصريحات تعرف صياغتها لكن لا تعرف صاحبها أو من خصّه بالحديث.',
+      en: 'Searches for a quote with a fixed structure and asterisks standing in for unknown names. Useful for uncovering who said what in formulaic public statements, or for recovering quotes whose phrasing you know but whose speaker — or the person being addressed — you don\'t.',
     },
     group: 'signature',
     apply(chipState) {
@@ -534,8 +534,8 @@ export const IDIOMS = [
     icon: '✳️',
     pattern: 'site:*.X.com',
     description: {
-      ar: '(Russell PDF idiom 3) النجمة في site: تطابق أيّ نطاق فرعي. مثال: site:*.gov.sa يكشف كل الجهات الحكومية السعودية المرتبطة.',
-      en: '(Russell PDF idiom 3) An asterisk inside site: matches any subdomain. Example: site:*.gov.sa surfaces every linked Saudi government body.',
+      ar: 'النجمة داخل site: تطابق أيّ نطاق فرعي. مفيد لرسم خريطة الجهات المرتبطة بنطاق علوي واحد دون الحاجة لمعرفتها مسبقاً، مثل site:*.gov.sa الذي يكشف كل الجهات الحكومية السعودية المنشورة على نطاق .gov.sa.',
+      en: 'An asterisk inside site: matches any subdomain. Useful for mapping the network of bodies sharing one top-level domain without needing to know them in advance — e.g. site:*.gov.sa surfaces every Saudi government body published on .gov.sa.',
     },
     group: 'signature',
     apply(chipState) {

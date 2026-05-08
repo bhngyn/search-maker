@@ -24,8 +24,8 @@ export const MESSAGES = {
     en: 'When enabled, the tool unifies similar Arabic letters (e.g. أ, إ, آ → ا) before searching, broadening results across spelling variants. Your typed text is not changed — the transformation appears only in the query preview below. Useful when the search terms include Arabic, regardless of the UI language.',
   },
   'app.welcomeBlurbHtml': {
-    ar: 'ابنِ استعلامات بحث Google بالعربية: اكتب كلمة، اضغط <kbd>Enter</kbd> لإضافتها كـ«كلمة بحث»، ثم انسخ الاستعلام أو ابحث به مباشرةً.',
-    en: 'Build search queries by typing a term, pressing <kbd>Enter</kbd> to commit it as a chip, then copying the query or running it directly. Arabic terms are supported — type them straight into a chip and they\'ll render right-to-left while the rest of the UI stays English.',
+    ar: 'ابدأ بوصفة جاهزة من <strong>«وصفات بحث جاهزة»</strong> أدناه، أو اكتب كلمتك واضغط <kbd>Enter</kbd> لبناء استعلامك من الصفر.',
+    en: 'Start with a ready-made recipe from <strong>"Recipes"</strong> below, or type a term and press <kbd>Enter</kbd> to build your query from scratch.',
   },
   'app.welcomeCloseLabel':  { ar: 'إخفاء لوحة الترحيب',                 en: 'Hide welcome panel' },
   'app.welcomeCloseText':   { ar: 'إخفاء',                              en: 'Hide' },
@@ -91,6 +91,24 @@ export const MESSAGES = {
   'engine.google.drawer.proximity.desc':        { ar: 'كلمتان تظهران بقرب بعضهما، مفيد لربط شخصين', en: 'Two words near each other — useful for linking entities' },
   'engine.google.drawer.numberRange.label':     { ar: 'نطاق عددي',                    en: 'Number range' },
   'engine.google.drawer.numberRange.desc':      { ar: 'أرقام بين قيمتين، مثل 100..500',  en: 'Numbers between two values, e.g. 100..500' },
+  'engine.google.drawer.social.telegram.label':     { ar: 'تيليغرام',                                  en: 'Telegram' },
+  'engine.google.drawer.social.telegram.desc':      { ar: 'يحصر النتائج بقنوات ومجموعات تيليغرام العامة', en: 'Limit results to public Telegram channels and groups' },
+  'engine.google.drawer.social.fb-groups.label':    { ar: 'مجموعات فيسبوك',                            en: 'Facebook groups' },
+  'engine.google.drawer.social.fb-groups.desc':     { ar: 'يحصر النتائج بصفحات مجموعات فيسبوك',         en: 'Limit results to Facebook group pages' },
+  'engine.google.drawer.social.fb.label':           { ar: 'فيسبوك',                                    en: 'Facebook' },
+  'engine.google.drawer.social.fb.desc':            { ar: 'الحسابات والصفحات والمنشورات على فيسبوك',     en: 'Profiles, pages, and posts on Facebook' },
+  'engine.google.drawer.social.x.label':            { ar: 'إكس / تويتر',                              en: 'X / Twitter' },
+  'engine.google.drawer.social.x.desc':             { ar: 'المحتوى العام على منصة إكس',                en: 'Public content on X / Twitter' },
+  'engine.google.drawer.social.linkedin.label':     { ar: 'لينكدإن',                                   en: 'LinkedIn' },
+  'engine.google.drawer.social.linkedin.desc':      { ar: 'الحسابات والشركات والمنشورات على لينكدإن',   en: 'Profiles, companies, and posts on LinkedIn' },
+  'engine.google.drawer.social.reddit.label':       { ar: 'ريديت',                                     en: 'Reddit' },
+  'engine.google.drawer.social.reddit.desc':        { ar: 'المنتديات الفرعية والمنشورات والتعليقات على ريديت', en: 'Subreddits, posts, and comments on Reddit' },
+  'engine.google.drawer.social.youtube.label':      { ar: 'يوتيوب',                                    en: 'YouTube' },
+  'engine.google.drawer.social.youtube.desc':       { ar: 'القنوات والفيديوهات والتعليقات على يوتيوب',   en: 'Channels, videos, and comments on YouTube' },
+  'engine.google.drawer.social.instagram.label':    { ar: 'إنستغرام',                                  en: 'Instagram' },
+  'engine.google.drawer.social.instagram.desc':     { ar: 'الحسابات والمنشورات على إنستغرام',           en: 'Profiles and posts on Instagram' },
+  'engine.google.drawer.social.tiktok.label':       { ar: 'تيك توك',                                   en: 'TikTok' },
+  'engine.google.drawer.social.tiktok.desc':        { ar: 'الحسابات والفيديوهات على تيك توك',           en: 'Profiles and videos on TikTok' },
 
   // Google templates
   'engine.google.tpl.site.title':     { ar: 'بحث في موقع محدد',            en: 'Search a specific site' },
@@ -350,6 +368,7 @@ export const MESSAGES = {
   // ===== UI strings (drawer) =====
   'ui.drawer.beginnerMore':        { ar: 'خيارات إضافية',                   en: 'More options' },
   'ui.drawer.advancedKeywordsHeading':{ ar: 'عوامل البحث على الكلمات',       en: 'Keyword operators' },
+  'ui.drawer.advancedSocialHeading':  { ar: 'مواقع التواصل الاجتماعي',         en: 'Social media sites' },
   'ui.drawer.advancedSpecialsHeading':{ ar: 'قيود إضافية',                   en: 'Additional filters' },
 
   // ===== UI strings (chip popover) =====
