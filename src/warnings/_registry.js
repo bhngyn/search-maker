@@ -1,20 +1,20 @@
-// All cross-chip warnings. Each module exports register(ctx, deps) where
-// deps = { previewBox, chipState }. Modules return { onRender } if they
+// Cross-cutting / aggregate warnings. Each module exports register(ctx, deps)
+// where deps = { previewBox, chipState }. Modules return { onRender } if they
 // recompute on every preview pass; the bootstrap pushes that callback into
 // postRenderHooks.
+//
+// Chip-local issues (intitle multi-word without quotes, reversed date range,
+// single-word quoting) are surfaced as per-chip warning glyphs with one-tap
+// fixes — see chips/keyword.js and chips/date-range.js — and are intentionally
+// NOT also reported as banner warnings here, to avoid duplicating the same
+// signal in two places.
 
-import * as intitleMultiword from './intitle-multiword.js';
 import * as queryTooLong from './query-too-long.js';
 import * as overRestricted from './over-restricted.js';
-import * as dateRangeReversed from './date-range-reversed.js';
 import * as operatorArabicChars from './operator-arabic-chars.js';
-import * as singleWordQuote from './single-word-quote.js';
 
 export const warnings = [
-  intitleMultiword,
   queryTooLong,
   overRestricted,
-  dateRangeReversed,
   operatorArabicChars,
-  singleWordQuote,
 ];
