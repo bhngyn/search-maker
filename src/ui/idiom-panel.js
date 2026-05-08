@@ -25,6 +25,7 @@
 //     returns focus to the pill
 
 import { getActiveEngine } from '../core/engine.js';
+import { t } from '../i18n/messages.js';
 
 // ---------------------------------------------------------------------------
 // Public export
@@ -39,11 +40,18 @@ import { getActiveEngine } from '../core/engine.js';
  * @param {object} [args.ctx]  — shared ctx (unused directly; engine is read
  *   via the module-level `getActiveEngine()` accessor)
  */
-export function wireIdiomPanel({ chipState, focusComposer, ctx }) {
+export function wireIdiomPanel({ chipState, focusComposer, ctx, lang }) {
   const panel = document.getElementById('idiom-panel');
   if (!panel) {
     console.warn('wireIdiomPanel: #idiom-panel not found — panel wiring skipped');
     return;
+  }
+
+  function pickLocalized(v) {
+    if (v == null) return '';
+    if (typeof v === 'string') return v;
+    const cur = lang ? lang.get() : 'ar';
+    return v[cur] != null ? v[cur] : (v.ar != null ? v.ar : '');
   }
 
   // DOM refs (expected to already be in the HTML; see HTML contract in plan)
@@ -86,7 +94,7 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx }) {
     panel.dataset.descriptions = visible ? 'visible' : 'hidden';
     if (descToggle) {
       descToggle.setAttribute('aria-pressed', visible ? 'true' : 'false');
-      descToggle.textContent = visible ? '📖 إخفاء الشروح' : '📖 شروح';
+      descToggle.textContent = visible ? t('idiom.toggleHide') : t('idiom.toggleShow');
     }
   }
 
@@ -106,7 +114,7 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx }) {
   function updatePillCount() {
     if (!pillCount) return;
     const { items } = getIdioms();
-    pillCount.textContent = `${items.length} وصفة`;
+    pillCount.textContent = t('idiom.pillCount', { n: items.length });
   }
 
   // ---------------------------------------------------------------------------
@@ -140,7 +148,7 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx }) {
     if (!items.length) {
       const empty = document.createElement('p');
       empty.className = 'idiom-panel-empty';
-      empty.textContent = 'لا توجد وصفات لهذا المحرك.';
+      empty.textContent = t('idiom.empty');
       body.appendChild(empty);
       return;
     }
@@ -158,7 +166,7 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx }) {
 
       const h = document.createElement('h4');
       h.className = 'idiom-panel-section';
-      h.textContent = labels[groupSlug] || groupSlug;
+      h.textContent = pickLocalized(labels[groupSlug]) || groupSlug;
       body.appendChild(h);
 
       const grid = buildGrid(groupItems);
@@ -193,15 +201,15 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx }) {
     card.className = 'idiom-panel-card';
     card.setAttribute('role', 'listitem');
     card.dataset.idiomId = idiom.id || '';
-    card.dataset.pattern = idiom.pattern || '';
-    card.dataset.description = idiom.description || '';
-    card.setAttribute('aria-label', `${idiom.title || ''}${idiom.description ? ' — ' + idiom.description : ''}`);
+    const localTitle = pickLocalized(idiom.title);
+    const localDesc = pickLocalized(idiom.description);
+    card.setAttribute('aria-label', `${localTitle}${localDesc ? ' — ' + localDesc : ''}`);
 
     card.innerHTML = `
       <span class="idiom-panel-card-icon" aria-hidden="true">${escapeHtml(idiom.icon || '')}</span>
-      <span class="idiom-panel-card-title">${escapeHtml(idiom.title || '')}</span>
+      <span class="idiom-panel-card-title">${escapeHtml(localTitle)}</span>
       <span class="idiom-panel-card-pattern" dir="ltr">${escapeHtml(idiom.pattern || '')}</span>
-      <span class="idiom-panel-card-desc">${escapeHtml(idiom.description || '')}</span>
+      <span class="idiom-panel-card-desc">${escapeHtml(localDesc)}</span>
     `;
 
     card.addEventListener('click', () => {
@@ -329,6 +337,14 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx }) {
       'wireIdiomPanel: no ctx.engine.on() found — panel will NOT auto-refresh on engine swap. ' +
       'Pass the engine controller on ctx.engine or call wireIdiomPanel after createEngineController.'
     );
+  }
+
+  if (lang && typeof lang.on === 'function') {
+    lang.on(() => {
+      updatePillCount();
+      setDescriptions(panel.dataset.descriptions === 'visible');
+      if (bodyRendered) renderBody();
+    });
   }
 
   // ---------------------------------------------------------------------------
