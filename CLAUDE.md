@@ -26,7 +26,7 @@ The audience is Arabic-speaking journalists, researchers, OSINT analysts, citize
 
 The dominant design constraint is that the default experience must work for the low-literacy user without overwhelming them, because that user is the one most likely to abandon the tool if the first impression is intimidating. A high-literacy user can endure a slightly verbose interface for thirty seconds and then switch to advanced mode; a low-literacy user who sees a wall of unfamiliar operators will close the tab and never return.
 
-Therefore the tool ships in **Beginner mode** by default. Beginner mode is the friendly, guided, helper-rich experience: a welcome panel explains the tool, three template buttons offer ready-made starting points, every chip shows operator-name badges, the composer offers three commit buttons (AND/OR/NOT) under the input plus a ghost-chip preview that mirrors what would commit on Enter, and contextual tips and gentle warnings appear as the user works. The user is led from top to bottom through a clear workflow: read the welcome, pick a template (or start typing), watch chips accumulate as they hit Enter, then copy or search.
+Therefore the tool ships in **Beginner mode** by default. Beginner mode is the friendly, guided, helper-rich experience: a welcome panel explains the tool (with a small `↩ إظهار الترحيب` link to re-open it after dismissal), the chip area's empty state renders three template cards as the obvious starting point, every chip shows operator-name badges, the composer offers a single primary commit button (`أضف`) plus the `+ إضافة` drawer trigger, a ghost-chip preview sits below the input mirroring what would commit on Enter, a row of operator-conversion pills lets the user pick `intitle:`/`site:`/etc. before commit, and contextual tips and gentle warnings appear as the user works. The user is led from top to bottom through a clear workflow: read the welcome, pick a template (or start typing), watch chips accumulate as they hit Enter, then copy or search.
 
 A single prominent toggle in the header switches the tool to **Advanced mode**. Advanced mode is the dense, expert experience: welcome panel and templates are hidden, helper sentences disappear, the chip area packs tighter, and special chip types (proximity, number-range) are surfaced top-level in the `+ إضافة` drawer. Coaching warnings remain on in both modes because they catch mistakes that hurt experts and novices equally.
 
@@ -39,22 +39,27 @@ The page is a single vertical column at all viewport widths. From top to bottom:
 1. **Header** — Arabic title, one-sentence subtitle, mode toggle (Beginner / Advanced), Arabic normalization toggle with info popover.
 2. **Welcome panel** (Beginner only, collapsible) — three short paragraphs explaining what the tool does and how to use it.
 3. **Templates row** (Beginner only) — three large buttons that pre-seed chips: site search, document search (filetype = PDF), date range (last 12 months).
-4. **Chip section** — heading "ابنِ بحثك بإضافة كلمات", chip area showing committed chips, composer input with three commit buttons (`أضف (و)`, `أو`, `ليس (−)`) and a `+ إضافة` drawer trigger. A ghost-chip preview sits between the input and commit buttons in Beginner mode, showing what would commit on Enter as the user types.
+4. **Chip section** — heading "ابنِ بحثك بإضافة كلمات", chip area showing committed chips. When the chip array is empty in Beginner mode the chip area renders as the templates picker (heading + 3 cards + "أو اكتب كلمة في الأسفل وابدأ من الصفر."). Once any chip exists, the chips replace the picker. Below the chip area: composer input with one primary commit button (`أضف`) and the `+ إضافة` drawer trigger. A ghost-chip preview sits between the input and commit buttons in Beginner mode showing what would commit on Enter, and below it a row of operator-conversion pills (`كلمة عادية`, `في الموقع`, `في عنوان الصفحة`, `في رابط الصفحة`, `في نص الصفحة`, `في الروابط الواردة`) so the user can pick the operator before commit.
 5. **Warnings region** — coaching warnings appear here, dismissible per session.
 6. **Tips region** — strategy tips appear here in Beginner mode only, single-tip queue, priority-ordered.
 7. **Sticky preview** — the assembled query in a read-only LTR monospace box, sticking to the bottom of the viewport. Click the box to copy. Below it, three buttons: نسخ (copy), البحث في Google (search), مسح الكل (reset).
 
 ### Commit flow (the heart of the tool)
 
-The composer has a single text input with three commit buttons under it:
+The composer has a single text input with one primary commit button (`أضف`) plus the `+ إضافة` drawer trigger. Boolean grammar is reached after commit, not at commit time, so a first-time user doesn't have to understand AND/OR/NOT before getting their first chip on screen.
 
-- **Enter / "أضف (و)"** ⇒ append a keyword chip (implicit AND between adjacent chips, matching Google's parser).
-- **Shift+Enter / "أو"** ⇒ if the previous chip is a term, prepend an OR-connector chip and then append the new keyword chip; this forms or extends an OR group like `(a OR b OR c)`.
-- **"ليس (−)" or leading `-` followed by space** ⇒ append a keyword chip with `negate: true`. The chip renders with a red border and a `−` glyph; in the query it becomes `-term`.
+- **Enter / `أضف`** ⇒ append a keyword chip with the operator chosen from the inline pills row (default `كلمة عادية` = no operator). Implicit AND between adjacent chips, matching Google's parser.
+- **Shift+Enter** (still wired) ⇒ if the previous chip is a term, prepend an OR-connector chip and then append the new keyword chip; equivalent to clicking the per-chip `+أو` handle on the previous chip then typing.
+- **Per-chip `+أو` handle** ⇒ on every keyword chip, a small leading-edge `+أو` pill inserts an or-connector + a fresh empty keyword chip after the current chip's OR run, then focuses the new chip. This is the discoverable path to OR groups; it replaces the standalone OR commit button that used to live in the commit row.
+- **Leading `-` followed by space** at commit time ⇒ append a keyword chip with `negate: true`. The chip renders with a red border and a `−` glyph; in the query it becomes `-term`. NOT is also reachable post-commit via the chip's `−` toggle and via the bulk multi-select toolbar.
 
-Space alone never auto-commits — Arabic phrases contain spaces, and auto-chipping on space would surprise users with names like "محمد علي". Empty Enter is a no-op; the buttons disable when the input is empty.
+Space alone never auto-commits — Arabic phrases contain spaces, and auto-chipping on space would surprise users with names like "محمد علي". Empty Enter is a no-op; the commit button disables when the input is empty.
 
 Backspace on an empty composer removes the most recent chip. No undo step — fluent typists expect this and the chip can be re-typed.
+
+### Visual binding between chips and the preview
+
+Each chip's contribution to the assembled query is wrapped in a `.preview-frag` span tagged with `data-chip-id` inside the sticky preview at the bottom. When a chip is added or focused, chip-area calls `preview.highlightChip(id)` which flashes that span's background for ~600ms. This is the only visual link between a chip and its substring; it teaches the chip→string mapping by observation.
 
 ### `+ إضافة` drawer
 
@@ -98,6 +103,8 @@ The keyword chip's `operator` property (one of `none`, `site`, `intitle`, `inurl
 ## Boolean grammar
 
 Adjacent chips in the chip array imply AND (matching Google's default). An OR connector chip between two term chips groups them: a run `[term, OR, term, OR, term]` becomes `(a OR b OR c)`. NOT is a per-chip property (`negate: true`), not a connector — it emits a leading `-` on the chip's query fragment.
+
+The user's path to creating an OR group is the per-chip `+أو` handle on every keyword chip. Clicking it splices an or-connector + fresh empty keyword chip after the LAST member of the run that contains the clicked chip, and focuses the new chip. The chip-area's render walker detects contiguous OR runs and wraps them in a `.chip-or-group` container with a leading `أيٌ مما يلي:` label so the user reads the run as one logical clause rather than five floating chips.
 
 Stale OR connectors (no longer between two terms) are auto-removed when chips are deleted, so the chip array always represents a syntactically valid query.
 
@@ -148,16 +155,18 @@ Warnings flag objective construction errors that degrade search quality regardle
 
 Each warning and tip lives in its own file under `src/warnings/<slug>.js` or `src/tips/<slug>.js` and exports `register(ctx, deps)` where `deps = { previewBox, chipState }`. Modules return `{ onRender }` if they need to recompute on every preview pass.
 
+Banner warnings are reserved for *aggregate or cross-cutting* concerns (the whole query is too long, too many restrictions across all chips, an operator value contains the wrong script). Issues that are *local to a single chip* (multi-word `intitle:` without quoting, an inverted date range, a single quoted word) are surfaced as a per-chip warning glyph (`⚠`/`ℹ`) with a one-tap fix in the popover — see `src/chips/keyword.js` and `src/chips/date-range.js`'s `validate()` exports. The two surfaces never duplicate the same signal.
+
 Implemented:
 
 | File | Fires when |
 |---|---|
-| `warnings/intitle-multiword.js` | A keyword chip with operator `intitle`/`intext`/`inanchor` has multi-word text without quoting (silently binds only the first word to the operator). |
 | `warnings/query-too-long.js` | The assembled query exceeds 32 words (Google often returns nothing). |
 | `warnings/over-restricted.js` | More than 4 operator-bearing chips are active (highly restricted queries often return zero results). |
-| `warnings/date-range-reversed.js` | A date-range chip's `after` is later than its `before`. |
 | `warnings/operator-arabic-chars.js` | A `site` or `inurl` chip contains Arabic characters (Google can't match Arabic in URLs). |
-| `warnings/single-word-quote.js` | A keyword chip quotes a single word (disables Google's spell correction and synonym expansion). |
+| (per-chip glyph, not banner) | A keyword chip with operator `intitle`/`intext`/`inanchor` has multi-word text without quoting → glyph offers `فعّل الاقتباس` fix. |
+| (per-chip glyph, not banner) | A date-range chip's `after` is later than its `before` → glyph offers `بدّل التاريخين` fix. |
+| (per-chip glyph, not banner) | A keyword chip quotes a single word → glyph offers `إلغاء الاقتباس` fix. |
 | `tips/filetype-pdf.js` | A filetype chip is set to PDF (suggest combining with a site restriction). |
 | `tips/keyword-name-variants.js` | A quoted multi-word plain keyword chip exists (suggest enabling Arabic normalization for name spelling variants). |
 | `tips/proximity-usage.js` | A proximity chip has both terms filled (OSINT distance-tuning guidance). |
@@ -180,7 +189,7 @@ Coaching warnings use the warning color and a caution icon. They appear above th
 
 ### Mode-specific differences
 
-**Beginner mode**: welcome panel, templates row, helper sentences, chip section heading, ghost-chip preview, composer hint about Enter/Shift+Enter/Backspace. Strategy tips queue (one at a time). The `+ إضافة` drawer hides advanced specials behind a disclosure.
+**Beginner mode**: welcome panel (with re-open link after collapse), templates rendered inline as the chip-area's empty state, helper sentences, chip section heading, ghost-chip preview, operator-conversion pills under the ghost, composer hint about Enter and Backspace. Strategy tips queue (one at a time). The `+ إضافة` drawer items have user-language labels with one-line descriptions and trailing operator badges, and hides proximity/number-range behind a disclosure.
 
 **Advanced mode**: welcome / templates / helper / heading / ghost / hint hidden. Chip area visually denser. Tips suppressed (warnings remain). Drawer surfaces all specials top-level.
 
@@ -242,7 +251,7 @@ Refreshing the page resets all chip state. No network requests are made except t
 
 All three template buttons in Beginner mode pre-fill chips (not form fields) and focus the composer.
 
-The mode toggle is visible in the header at all times in both modes. Switching from Beginner to Advanced preserves the chip array; switching back also preserves them. In Beginner mode, the welcome panel, templates row, ghost-chip preview, and composer hint are visible. In Advanced mode they are hidden.
+The mode toggle is visible in the header at all times in both modes. Switching from Beginner to Advanced preserves the chip array; switching back also preserves them. In Beginner mode, the welcome panel, the empty-state templates picker, the ghost-chip preview, the operator-conversion pills, and the composer hint are visible. In Advanced mode they are hidden.
 
 Strategy tips appear in Beginner mode when their triggering conditions are met and only one is visible at a time. Coaching warnings appear in both modes and disappear automatically when the condition resolves.
 

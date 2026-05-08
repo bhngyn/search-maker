@@ -51,7 +51,6 @@ const toastEl = document.getElementById('toast');
 
 // ===== Core state =====
 const segments = [];
-const fieldRegistry = new Map(); // empty in chip-only mode; reset still iterates it (a no-op).
 
 // ===== Core systems =====
 const normalize = createNormalizer(() => normalizeInput.checked);
@@ -70,16 +69,21 @@ mode.on(() => tips.reflow());
 // `postRenderHooks` is captured by reference so warnings/tips registered
 // after createPreview can still push into it. `onResetHooks` is similar
 // — chip-state pushes its `clear` callback after construction.
+// `getQueryFragmentsRef` lets preview call into chip-state's fragment
+// emitter once chip-state has been constructed (chip-state needs ctx,
+// ctx needs preview, preview is constructed first — wire via a thunk).
 const postRenderHooks = [];
 const onResetHooks = [];
+let chipStateRef = null;
 const preview = createPreview({
   previewBox, copyBtn, searchBtn, resetBtn, toastEl,
-  assembleQuery, fieldRegistry, warnings, tips,
+  assembleQuery, warnings, tips,
   postRenderHooks, onResetHooks,
+  getQueryFragments: () => chipStateRef ? chipStateRef.getQueryFragments() : [],
 });
 
 const ctx = createCtx({
-  segments, fieldRegistry, normalize,
+  segments, normalize,
   requestUpdate: preview.render,
   warnings, tips, mode,
 });
@@ -89,6 +93,7 @@ const ctx = createCtx({
 // number doesn't matter functionally but a low number is conventionally
 // the "main content" slot.
 const chipState = createChipState({ ctx, segmentOrder: 1 });
+chipStateRef = chipState;
 
 // Wire chip clearing into the global reset (second-tap branch).
 onResetHooks.push(() => chipState.clear());
@@ -103,7 +108,17 @@ let composerHandle = null;
 const chipAreaHost = document.getElementById('chip-area');
 const composerHost = document.getElementById('composer');
 const chipToolbarHost = document.getElementById('chip-toolbar');
-if (chipAreaHost) wireChipArea({ host: chipAreaHost, chipState, mode, selection: chipSelection });
+// chip-area is wired before the composer exists — pass a thunk that
+// resolves the composer's focus method lazily so empty-state template
+// cards can move focus to the composer once it's mounted.
+if (chipAreaHost) wireChipArea({
+  host: chipAreaHost,
+  chipState,
+  mode,
+  selection: chipSelection,
+  focusComposer: () => { if (composerHandle && composerHandle.focus) composerHandle.focus(); },
+  onChipHighlight: id => preview.highlightChip(id),
+});
 if (chipToolbarHost) wireChipToolbar({ host: chipToolbarHost, chipState, selection: chipSelection, mode });
 if (composerHost) {
   composerHandle = wireComposer({ host: composerHost, chipState });

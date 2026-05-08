@@ -9,6 +9,7 @@
 // reading right-to-left).
 
 import { chipTypes } from '../chips/_registry.js';
+import { TEMPLATES, applyTemplate } from './templates.js';
 
 /**
  * Selection observable shared with the bulk-actions toolbar. A simple
@@ -35,8 +36,10 @@ export function createChipSelection() {
  * @param {{ subscribe: Function, getAll: Function, remove: Function, update: Function, clear: Function, reorder?: Function }} args.chipState
  * @param {{ get: () => 'beginner' | 'advanced', on?: (cb: (mode: string) => void) => void }} [args.mode]
  * @param {ReturnType<typeof createChipSelection>} [args.selection]
+ * @param {() => void} [args.focusComposer]  used by the empty-state templates to focus the composer after applying
+ * @param {(chipId: string) => void} [args.onChipHighlight]  invoked when a chip is added or focused; preview uses it to flash the matching fragment
  */
-export function wireChipArea({ host, chipState, mode, selection }) {
+export function wireChipArea({ host, chipState, mode, selection, focusComposer, onChipHighlight }) {
   host.classList.add('chip-area');
   host.setAttribute('aria-live', 'polite');
   host.setAttribute('aria-relevant', 'additions removals');
@@ -50,29 +53,178 @@ export function wireChipArea({ host, chipState, mode, selection }) {
   function render() {
     const chips = chipState.getAll();
     if (chips.length === 0) {
-      host.innerHTML = '<p class="chip-area-empty">لم تُضف أي كلمات بعد. اكتب كلمة في الأسفل واضغط Enter.</p>';
+      renderEmptyState();
       host.classList.remove('chip-area-draggable');
       return;
     }
     host.classList.toggle('chip-area-draggable', isAdvanced());
+    host.classList.remove('chip-area-is-empty');
     host.innerHTML = '';
-    chips.forEach(chip => {
-      const mod = chipTypes[chip.type];
-      if (!mod || typeof mod.render !== 'function') return;
-      const el = mod.render(chip, {
-        onDelete: () => chipState.remove(chip.id),
-        onToggleNegate: () => chipState.update(chip.id, { negate: !chip.props.negate }),
-        onToggleQuoted: () => chipState.update(chip.id, { quoted: !chip.props.quoted }),
-        onChangeOperator: (op) => chipState.update(chip.id, { operator: op }),
-        onChangeText: (text) => chipState.update(chip.id, { text }),
-        onChangeProps: (patch) => chipState.update(chip.id, patch),
-      });
-      if (selection && selection.has(chip.id)) el.classList.add('chip-selected');
-      if (selection && isAdvanced()) wireSelectionClick(el, chip.id);
-      if (isAdvanced() && chipState.reorder) {
-        wireDrag(el, chip.id);
+    // Build a per-index map of OR-group containers. We walk chips and group
+    // any contiguous run of [keyword, or-connector, keyword, ...] into a
+    // single .chip-or-group span. Non-grouped chips render directly into
+    // host. The grouping is render-only — chip-state stays flat.
+    const groupRanges = computeOrGroupRanges(chips);
+    let cursor = 0;
+    while (cursor < chips.length) {
+      const groupEnd = groupRanges.get(cursor);
+      if (typeof groupEnd === 'number') {
+        // [cursor .. groupEnd] is one OR group (inclusive on both ends).
+        const groupEl = document.createElement('span');
+        groupEl.className = 'chip-or-group';
+        groupEl.setAttribute('role', 'group');
+        groupEl.setAttribute('aria-label', 'مجموعة "أو"');
+        for (let i = cursor; i <= groupEnd; i++) {
+          appendChipEl(groupEl, chips[i]);
+        }
+        host.appendChild(groupEl);
+        cursor = groupEnd + 1;
+      } else {
+        appendChipEl(host, chips[cursor]);
+        cursor++;
       }
-      host.appendChild(el);
+    }
+  }
+
+  /**
+   * Render the empty-state DOM. In Beginner mode this is the templates
+   * picker (heading + 3 cards + hint). In Advanced mode it falls back to
+   * a silent muted line. CSS hides the templates block when the body is
+   * in advanced mode, so we always render the same DOM regardless of mode
+   * — that way mode toggles don't trigger a re-render here.
+   */
+  function renderEmptyState() {
+    host.innerHTML = '';
+    host.classList.add('chip-area-is-empty');
+    const wrap = document.createElement('div');
+    wrap.className = 'chip-area-empty-state';
+
+    const heading = document.createElement('h3');
+    heading.className = 'chip-area-empty-heading';
+    heading.textContent = 'ابدأ من قالب جاهز:';
+    wrap.appendChild(heading);
+
+    const grid = document.createElement('div');
+    grid.className = 'chip-area-empty-grid';
+    TEMPLATES.forEach(tpl => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'chip-area-empty-card';
+      card.dataset.templateId = tpl.id;
+
+      const titleLine = document.createElement('span');
+      titleLine.className = 'chip-area-empty-card-title';
+      const icon = document.createElement('span');
+      icon.className = 'chip-area-empty-card-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = tpl.icon;
+      const titleText = document.createElement('span');
+      titleText.textContent = tpl.title;
+      titleLine.appendChild(icon);
+      titleLine.appendChild(titleText);
+
+      const desc = document.createElement('span');
+      desc.className = 'chip-area-empty-card-desc';
+      desc.textContent = tpl.description;
+
+      card.appendChild(titleLine);
+      card.appendChild(desc);
+      card.addEventListener('click', () => {
+        applyTemplate(tpl.id, { chipState, focusComposer });
+      });
+      grid.appendChild(card);
+    });
+    wrap.appendChild(grid);
+
+    const hint = document.createElement('p');
+    hint.className = 'chip-area-empty-hint';
+    hint.textContent = 'أو اكتب كلمة في الأسفل وابدأ من الصفر.';
+    wrap.appendChild(hint);
+
+    // Plain Advanced-mode fallback. CSS keeps only one of these visible
+    // depending on body.mode-* class.
+    const fallback = document.createElement('p');
+    fallback.className = 'chip-area-empty';
+    fallback.textContent = 'لم تُضف أي كلمات بعد. اكتب كلمة في الأسفل واضغط Enter.';
+
+    host.appendChild(wrap);
+    host.appendChild(fallback);
+  }
+
+  /**
+   * Returns a Map of startIndex → endIndex (inclusive) describing every
+   * contiguous OR run of [term, OR, term, OR, term, ...]. A run requires
+   * at least one connector, so a single keyword chip is never "in a group."
+   */
+  function computeOrGroupRanges(chips) {
+    const ranges = new Map();
+    let i = 0;
+    while (i < chips.length) {
+      const c = chips[i];
+      if (!c || c.type === 'or-connector') { i++; continue; }
+      // Walk forward across [term, OR, term, ...] pairs.
+      let end = i;
+      while (
+        end + 2 < chips.length &&
+        chips[end + 1] && chips[end + 1].type === 'or-connector' &&
+        chips[end + 2] && chips[end + 2].type !== 'or-connector'
+      ) {
+        end += 2;
+      }
+      if (end > i) ranges.set(i, end);
+      i = end + 1;
+    }
+    return ranges;
+  }
+
+  function appendChipEl(parent, chip) {
+    const mod = chipTypes[chip.type];
+    if (!mod || typeof mod.render !== 'function') return;
+    const el = mod.render(chip, {
+      onDelete: () => chipState.remove(chip.id),
+      onToggleNegate: () => chipState.update(chip.id, { negate: !chip.props.negate }),
+      onToggleQuoted: () => chipState.update(chip.id, { quoted: !chip.props.quoted }),
+      onChangeOperator: (op) => chipState.update(chip.id, { operator: op }),
+      onChangeText: (text) => chipState.update(chip.id, { text }),
+      onChangeProps: (patch) => chipState.update(chip.id, patch),
+      onAddOrBranch: () => addOrBranch(chip.id),
+    });
+    if (selection && selection.has(chip.id)) el.classList.add('chip-selected');
+    if (selection && isAdvanced()) wireSelectionClick(el, chip.id);
+    if (isAdvanced() && chipState.reorder) {
+      wireDrag(el, chip.id);
+    }
+    parent.appendChild(el);
+  }
+
+  /**
+   * Splice an or-connector + fresh empty keyword chip after the LAST
+   * member of the OR run that contains `chipId`. If `chipId` isn't already
+   * in a run, this just appends after the chip itself, which still creates
+   * a valid run because the new keyword chip is also a term.
+   */
+  function addOrBranch(chipId) {
+    if (!chipState.addAfter) return;
+    const all = chipState.getAll();
+    let idx = all.findIndex(c => c.id === chipId);
+    if (idx < 0) return;
+    // Walk forward through any [OR, term] pairs to find the end of the run.
+    while (
+      idx + 2 < all.length &&
+      all[idx + 1] && all[idx + 1].type === 'or-connector' &&
+      all[idx + 2] && all[idx + 2].type !== 'or-connector'
+    ) {
+      idx += 2;
+    }
+    const anchorId = all[idx].id;
+    const connectorId = chipState.addAfter(anchorId, 'or-connector', {});
+    if (!connectorId) return;
+    const newChipId = chipState.addAfter(connectorId, 'keyword', { text: '', operator: 'none' });
+    if (!newChipId) return;
+    // After re-render, focus the new chip's editable text.
+    requestAnimationFrame(() => {
+      const newEl = host.querySelector('[data-chip-id="' + newChipId + '"] .chip-text');
+      if (newEl && typeof newEl.focus === 'function') newEl.focus();
     });
   }
 
@@ -93,6 +245,10 @@ export function wireChipArea({ host, chipState, mode, selection }) {
   function wireDrag(el, chipId) {
     el.draggable = true;
     el.classList.add('chip-draggable');
+    // Make the chip itself focusable so keyboard users can target the
+    // reorder handlers without going through inner editable widgets.
+    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+    el.title = 'اضغط Alt+سهم لتحريك الكلمة';
     el.addEventListener('dragstart', (e) => {
       const target = e.target;
       if (target && target.matches && target.matches('[contenteditable], input, select, textarea, button')) {
@@ -108,6 +264,29 @@ export function wireChipArea({ host, chipState, mode, selection }) {
       el.classList.remove('chip-dragging');
       clearDropIndicator();
       draggedChipId = null;
+    });
+    // Alt+Arrow nudges the chip forward/back in the array. We use Alt
+    // so plain arrow keys remain available for cursor movement inside
+    // the chip's contenteditable text. After a reorder the chip array
+    // re-renders; focus the moved chip via data-chip-id so the user can
+    // keep nudging.
+    el.addEventListener('keydown', (e) => {
+      if (!e.altKey) return;
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      if (!chipState.reorder) return;
+      const all = chipState.getAll();
+      const idx = all.findIndex(c => c.id === chipId);
+      if (idx < 0) return;
+      const delta = e.key === 'ArrowRight' ? 1 : -1;
+      const target = idx + delta;
+      if (target < 0 || target > all.length - 1) return;
+      e.preventDefault();
+      e.stopPropagation();
+      chipState.reorder(chipId, target);
+      requestAnimationFrame(() => {
+        const moved = host.querySelector('[data-chip-id="' + chipId + '"]');
+        if (moved && typeof moved.focus === 'function') moved.focus();
+      });
     });
   }
 
@@ -185,8 +364,29 @@ export function wireChipArea({ host, chipState, mode, selection }) {
     });
   }
 
-  chipState.subscribe(() => render());
+  chipState.subscribe((_chips, change) => {
+    render();
+    // Flash the preview fragment for the just-added chip so the user sees
+    // the visual link between the chip and its piece of the assembled query.
+    // Defer to rAF so preview's own re-render (driven by ctx.requestUpdate
+    // after the same notify pass) has a chance to mount the fragment span.
+    if (change && change.kind === 'add' && change.chip && onChipHighlight) {
+      requestAnimationFrame(() => onChipHighlight(change.chip.id));
+    }
+  });
   if (selection) selection.subscribe(() => render());
   if (mode && mode.on) mode.on(() => render());
+
+  // Focus binding: when a chip element gains focus (tab, click, or focus()
+  // call), highlight its fragment in the preview. Uses focusin so it bubbles
+  // from inner editable widgets too.
+  host.addEventListener('focusin', (e) => {
+    if (!onChipHighlight) return;
+    const chipEl = e.target && e.target.closest && e.target.closest('[data-chip-id]');
+    if (chipEl && chipEl.dataset && chipEl.dataset.chipId) {
+      onChipHighlight(chipEl.dataset.chipId);
+    }
+  });
+
   render();
 }

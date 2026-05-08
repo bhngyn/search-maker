@@ -638,3 +638,398 @@ body.mode-advanced .chip-area .chip:hover:not(.chip-selected) {
   .composer-commit-row { flex-direction: column; }
   .composer-btn { width: 100%; }
 }
+
+/* === Drawer item shape (A4) === */
+/* Two-line + trailing-edge mono badge. The .drawer-item base rules above
+   provide flex, padding, hover and focus; we override layout to support
+   the two-line text block plus a trailing badge. */
+.drawer-item {
+  align-items: flex-start;
+  padding: 10px 12px;
+  min-height: 52px;
+  gap: 12px;
+}
+.drawer-item-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.drawer-item-label {
+  flex: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+  line-height: 1.3;
+}
+.drawer-item-desc {
+  font-size: 12px;
+  color: var(--fg-muted);
+  line-height: 1.4;
+}
+.drawer-item-badge {
+  flex: 0 0 auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: var(--fg-muted);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  align-self: center;
+  white-space: nowrap;
+}
+.drawer-item:hover .drawer-item-badge,
+.drawer-item:focus-visible .drawer-item-badge {
+  color: var(--fg);
+  border-color: var(--fg-muted);
+}
+.drawer-panel { min-width: 280px; max-width: 360px; }
+
+/* === Popover-above flip (B3) === */
+/* Marker class added to .chip-warning-popover when the popover is flipped
+   above its anchor (instead of below) because the default placement would
+   overflow the viewport. Positioning itself is set inline; this class is a
+   hook for future caret/arrow direction styling. */
+.chip-warning-popover-above {
+  /* No visual change yet — left intentionally minimal. */
+}
+
+/* === Welcome re-open link (B6) === */
+/* A small, unobtrusive "I changed my mind" link that appears in place of
+   the welcome panel after the user collapses it. Hidden in Advanced mode
+   alongside the panel itself. */
+.welcome-reopen {
+  display: inline-block;
+  background: transparent;
+  border: 0;
+  color: var(--fg-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  margin: 0 0 16px 0;
+  min-height: 32px;
+  border-radius: 4px;
+}
+.welcome-reopen:hover { color: var(--fg); text-decoration: underline; }
+.welcome-reopen:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.welcome-reopen[hidden] { display: none !important; }
+body.mode-advanced .welcome-reopen { display: none !important; }
+
+/* === Composer redesign (A1+A3) ===
+   New rules added after the redesign. Older composer rules above remain for
+   chip-area / chip-pill / preview styling — these only override what changed
+   for the simplified commit row and the operator-suggestion pills under the
+   ghost preview. */
+
+/* A1 — two-button commit row. The remaining buttons are the primary "أضف"
+   and the dashed "+ إضافة" drawer trigger. Constrain the primary so the
+   trigger doesn't get squished, and make the trigger feel intentional next
+   to it rather than an afterthought. */
+.composer-commit-row .composer-btn-and {
+  flex: 1 1 auto;
+  min-width: 140px;
+}
+.composer-commit-row .composer-btn-add {
+  flex: 0 0 auto;
+  min-width: 120px;
+}
+
+/* A3 — operator-suggestion pills under the ghost preview.
+   The ghost-row was a fixed 32px-high single line; with pills it needs to
+   flex to fit two lines, so override the fixed height. The transition still
+   collapses to 0 height when hidden so empty input doesn't reserve space. */
+.composer-ghost-row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+.composer-ghost-row.visible {
+  height: auto;
+}
+.composer-ghost-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.composer-ghost-op-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--bg-subtle);
+  color: var(--accent);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+.composer-ghost-neg {
+  font-family: var(--mono);
+  color: var(--warning);
+  font-weight: 700;
+}
+
+.composer-op-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.composer-op-pill {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  min-height: 32px;
+  line-height: 1.15;
+  transition: background 120ms, border-color 120ms, color 120ms;
+}
+.composer-op-pill:hover { border-color: var(--accent); background: var(--bg-subtle); }
+.composer-op-pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.composer-op-pill[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}
+.composer-op-pill-label { font-weight: 500; }
+.composer-op-pill-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  opacity: 0.75;
+}
+.composer-op-pill[aria-pressed="true"] .composer-op-pill-badge { opacity: 0.85; }
+
+/* === Composer paste-undo (B7) ===
+   The base .toast rule has pointer-events: none so the copy-confirmation
+   doesn't block anything underneath. The undo toast contains an interactive
+   button so re-enable pointer events when the variant class is present, and
+   tighten the layout so the inline button doesn't wrap awkwardly. */
+.toast.toast-with-action {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.toast-undo-btn {
+  background: transparent;
+  color: var(--bg);
+  border: 1px solid var(--bg);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  min-height: 32px;
+}
+.toast-undo-btn:hover { background: var(--bg); color: var(--fg); }
+.toast-undo-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Plain-paste hint sits inside the ghost row so the existing
+   mode-advanced display:none on .composer-ghost-row already keeps it out of
+   Advanced. Hidden by default; the JS adds .composer-ghost-row-paste-hint
+   to reveal it for 4s then .composer-ghost-row-paste-hint-fading to fade. */
+.composer-ghost-paste-hint {
+  display: none;
+  margin: 0;
+  font-size: 12px;
+  color: var(--fg-muted);
+  padding: 6px 10px;
+  background: var(--bg-subtle);
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  line-height: 1.4;
+  transition: opacity 300ms;
+}
+.composer-ghost-row-paste-hint .composer-ghost-paste-hint { display: block; }
+.composer-ghost-row-paste-hint-fading .composer-ghost-paste-hint { opacity: 0; }
+
+/* === OR-group framing (A2) === */
+/* Per-chip "+أو" handle on every keyword chip. Always visible (not
+   hover-only) and tappable on touch (≥24px). Sits at the leading edge of
+   the chip pill via document flow (it's the first child appended). */
+.chip-or-handle {
+  background: transparent;
+  border: 1px solid var(--accent-muted);
+  color: var(--tip);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 999px;
+  min-width: 36px;
+  min-height: 24px;
+  margin-inline-end: 2px;
+  white-space: nowrap;
+  transition: background 120ms, border-color 120ms, color 120ms;
+}
+.chip-or-handle:hover {
+  background: var(--tip-bg);
+  border-color: var(--tip);
+  color: var(--tip);
+}
+.chip-or-handle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+body.mode-beginner .chip-or-handle {
+  font-size: 12px;
+  min-height: 28px;
+  padding: 4px 8px;
+}
+
+/* Container that wraps a contiguous run of [term, OR, term, ...]. The
+   model stays flat — this is render-only chrome. */
+.chip-or-group {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 6px 6px 6px;
+  border: 1px dashed var(--accent-muted);
+  border-radius: 6px;
+  position: relative;
+}
+.chip-or-group::before {
+  content: 'أيٌ مما يلي:';
+  position: absolute;
+  top: -2px;
+  inset-inline-start: 8px;
+  font-size: 10px;
+  color: var(--fg-muted);
+  background: var(--bg);
+  padding: 0 4px;
+  line-height: 1;
+  pointer-events: none;
+}
+/* Inside a group, the connector becomes a slim divider — no border, smaller. */
+.chip-or-group .chip-or-connector {
+  background: transparent;
+  border: 0;
+  color: var(--fg-muted);
+  padding: 0 2px;
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+.chip-or-group .chip-or-connector .chip-or-text { padding: 0 2px; }
+.chip-or-group .chip-or-connector .chip-delete-btn { display: none; }
+
+/* === Empty-state templates (A5) === */
+/* When the chip array is empty, the chip-area renders both an inline
+   templates picker (Beginner) and a muted fallback line (Advanced). CSS
+   shows exactly one of them based on body.mode-* so chip-area itself
+   doesn't need to re-render on mode change. */
+body.mode-beginner .chip-area.chip-area-is-empty {
+  /* Drop the dashed silhouette when the empty state is the templates
+     picker — the cards carry their own visual weight. */
+  border-color: transparent;
+  background: transparent;
+  padding: 0;
+  display: block;
+}
+.chip-area-empty-state {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.chip-area-empty-heading {
+  margin: 0;
+  font-size: 14px;
+  color: var(--fg-muted);
+  font-weight: 500;
+}
+.chip-area-empty-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .chip-area-empty-grid { grid-template-columns: 1fr; }
+}
+.chip-area-empty-card {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 14px;
+  text-align: start;
+  cursor: pointer;
+  font: inherit;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 150ms, background 150ms;
+}
+.chip-area-empty-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-subtle);
+}
+.chip-area-empty-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.chip-area-empty-card-title {
+  font-weight: 600;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.chip-area-empty-card-icon { font-size: 18px; line-height: 1; }
+.chip-area-empty-card-desc {
+  color: var(--fg-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.chip-area-empty-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+/* In Advanced mode the empty state is just the existing dashed silhouette
+   plus a muted line — hide the templates block. The default chip-area
+   styling (dashed border + padding) is unchanged in Advanced. */
+body.mode-advanced .chip-area-empty-state { display: none; }
+/* In Beginner mode the muted fallback line is hidden — templates take its place. */
+body.mode-beginner .chip-area > .chip-area-empty { display: none; }
+
+/* === Keyboard reorder hint (B4) === */
+/* Draggable chips get a tabindex in Advanced mode so Alt+Arrow can
+   nudge them. Give the chip itself a visible focus ring distinct from
+   the inner contenteditable's ring so the user can tell which keystroke
+   target they're on. */
+.chip-draggable:focus-visible {
+  outline: 2px dashed var(--accent);
+  outline-offset: 3px;
+}
+
+/* === Preview fragment highlight (A6) ===
+   Each chip's contribution to the assembled preview is wrapped in a
+   .preview-frag span. When a chip is added or focused, chip-area calls
+   preview.highlightChip(id), which adds .preview-frag-active for ~600ms.
+   The flash is the only visual binding between a chip and its piece of
+   the query string — keeps the preview teaching, not just outputting. */
+.preview-frag {
+  display: inline;
+  border-radius: 3px;
+  padding: 0 1px;
+  transition: background-color 600ms ease-out, color 600ms ease-out;
+}
+.preview-frag-active {
+  background-color: var(--accent-muted, var(--bg-subtle));
+  color: var(--accent);
+  transition: background-color 80ms ease-in, color 80ms ease-in;
+}

@@ -72,6 +72,36 @@ export function createChipState({ ctx, segmentOrder = 100 }) {
     return chip.id;
   }
 
+  /**
+   * Insert a chip immediately after the chip identified by `afterId`.
+   * Returns the new chip's id, or null if `afterId` isn't found or `type`
+   * isn't registered. Used by the per-chip "+أو" handle to splice a new
+   * connector + keyword pair next to an existing chip without an explicit
+   * reorder pass.
+   */
+  function addAfter(afterId, type, props = {}) {
+    if (!chipTypes[type]) {
+      console.warn('unknown chip type', type);
+      return null;
+    }
+    const idx = chips.findIndex(c => c.id === afterId);
+    if (idx < 0) return null;
+    const chip = {
+      id: makeId(),
+      type,
+      props: { ...defaultPropsFor(type), ...props },
+    };
+    chips.splice(idx + 1, 0, chip);
+    // Don't run cleanupConnectors here: the OR-branch flow calls addAfter
+    // twice in sequence (connector, then keyword), and cleanup between the
+    // two would prune the connector before its trailing term lands. The
+    // mutating ops that *can* create stale connectors (remove, reorder)
+    // still cleanup themselves, so the invariant holds.
+    notify({ kind: 'add', chip });
+    ctx.requestUpdate();
+    return chip.id;
+  }
+
   function remove(id) {
     const idx = chips.findIndex(c => c.id === id);
     if (idx < 0) return false;
@@ -82,6 +112,16 @@ export function createChipState({ ctx, segmentOrder = 100 }) {
     notify({ kind: 'remove', chip: removed });
     ctx.requestUpdate();
     return true;
+  }
+
+  /**
+   * Bulk-remove. Used by the paste-undo toast so a multi-chip paste can be
+   * undone in one click without firing N separate notify() / requestUpdate()
+   * passes for the subscribers' eyes (each remove() above already does its
+   * own cleanup; the resulting renders coalesce naturally).
+   */
+  function removeMany(ids) {
+    ids.forEach(id => remove(id));
   }
 
   function update(id, propsPatch) {
@@ -153,8 +193,22 @@ export function createChipState({ ctx, segmentOrder = 100 }) {
   // ===== Query assembly =====
   ctx.registerSegment(segmentOrder, () => assembleChips(chips, ctx));
 
+  /**
+   * Per-chip query fragments for the visual binding between chips and the
+   * preview box. Walks the same OR-aware path as assembleChips() but emits
+   * a structured list — chip fragments interleaved with separators and
+   * group parens — so the preview can wrap each chip's contribution in a
+   * span tagged with its id and highlight that span on add/focus.
+   *
+   * @returns {Array<{ kind: 'chip'|'sep'|'open'|'close', text: string, chipId?: string }>}
+   */
+  function getQueryFragments() {
+    return assembleChipFragments(chips, ctx);
+  }
+
   return {
-    add, remove, update, reorder, clear, getAll, subscribe,
+    add, addAfter, remove, removeMany, update, reorder, clear, getAll, subscribe,
+    getQueryFragments,
     /** Last chip in the list, or null. */
     last() { return chips.length ? chips[chips.length - 1] : null; },
   };
@@ -207,4 +261,51 @@ function chipAssemble(chip, ctx) {
     console.warn('chip assemble failed', chip, e);
     return '';
   }
+}
+
+/**
+ * Same OR-aware walk as assembleChips, but instead of a flat string returns
+ * a fragment list so preview.js can render each chip's contribution inside
+ * a span tagged with its id. The string formed by joining .text values is
+ * byte-for-byte identical to assembleChips' output.
+ */
+function assembleChipFragments(chips, ctx) {
+  /** @type {Array<{ kind: string, text: string, chipId?: string }>} */
+  const out = [];
+  let needSep = false;
+  const pushSep = () => { if (needSep) { out.push({ kind: 'sep', text: ' ' }); needSep = false; } };
+
+  let i = 0;
+  while (i < chips.length) {
+    const chip = chips[i];
+    if (chip.type === 'or-connector') { i++; continue; }
+    const run = [chip];
+    while (
+      i + 2 < chips.length &&
+      chips[i + 1].type === 'or-connector' &&
+      chips[i + 2].type !== 'or-connector'
+    ) {
+      run.push(chips[i + 2]);
+      i += 2;
+    }
+    const rendered = run
+      .map(c => ({ chipId: c.id, text: chipAssemble(c, ctx) }))
+      .filter(r => r.text && r.text.trim());
+    if (rendered.length >= 2) {
+      pushSep();
+      out.push({ kind: 'open', text: '(' });
+      rendered.forEach((r, idx) => {
+        if (idx > 0) out.push({ kind: 'sep', text: ' OR ' });
+        out.push({ kind: 'chip', chipId: r.chipId, text: r.text });
+      });
+      out.push({ kind: 'close', text: ')' });
+      needSep = true;
+    } else if (rendered.length === 1) {
+      pushSep();
+      out.push({ kind: 'chip', chipId: rendered[0].chipId, text: rendered[0].text });
+      needSep = true;
+    }
+    i++;
+  }
+  return out;
 }
