@@ -1,18 +1,19 @@
-// Chip composer — the input + commit buttons that turn typed text into
+// Chip composer — the input + commit button that turns typed text into
 // keyword chips.
 //
 // Commit paths:
-//   Enter / "أضف (و)"     ⇒ append a keyword chip (implicit AND)
-//   Shift+Enter / "أو"     ⇒ append an OR-connector then a keyword chip,
-//                            forming/extending an OR group
-//   "ليس (−)"              ⇒ append a keyword chip with negate=true
-//   Leading "-" + space    ⇒ same as ليس; convenience shortcut
+//   Enter / "أضف"          ⇒ append a keyword chip (implicit AND)
+//   Shift+Enter            ⇒ append an OR-connector then a keyword chip,
+//                            forming/extending an OR group (still in the
+//                            keydown handler — the standalone OR button was
+//                            removed in favor of per-chip OR affordances)
+//   Leading "-" + space    ⇒ append a keyword chip with negate=true. The
+//                            standalone NOT button was removed; this shortcut
+//                            and the per-chip "−" tool remain the entry points.
 //   Paste                  ⇒ if the pasted text looks like a Google query
 //                            (has operators, quotes, OR, etc.), parse it
 //                            into chips. Plain-text pastes fall through.
 
-import { parseQuery } from '../core/parse-query.js';
-//
 // Flow-state ergonomics (Phase 6):
 //   - Ghost-chip preview that mirrors what would commit on Enter, sitting
 //     below the input. Crucial for low-literacy users — makes the chip
@@ -23,10 +24,28 @@ import { parseQuery } from '../core/parse-query.js';
 //   - Space alone never auto-commits (Arabic phrases contain spaces).
 //   - Empty Enter is a no-op. Buttons disable when the input is empty.
 
+import { parseQuery } from '../core/parse-query.js';
+import { OPERATORS } from '../chips/keyword.js';
+
+// Beginner-mode "convert to" pills shown under the ghost preview while the
+// user is typing. Picking one re-renders the ghost so the user sees the
+// operator prefix before commit; Enter then commits with that operator
+// pre-set on the new keyword chip. Selection is local to the composer —
+// it never touches chip-state until commit, and it resets to 'none' after
+// each commit so the next keyword starts as a plain term.
+const OPERATOR_PILLS = [
+  { op: 'none',     label: 'كلمة عادية' },
+  { op: 'site',     label: 'في الموقع' },
+  { op: 'intitle',  label: 'في عنوان الصفحة' },
+  { op: 'inurl',    label: 'في رابط الصفحة' },
+  { op: 'intext',   label: 'في نص الصفحة' },
+  { op: 'inanchor', label: 'في الروابط الواردة' },
+];
+
 /**
  * @param {object} args
  * @param {HTMLElement} args.host
- * @param {{ add: Function, last: Function, remove: Function, getAll: Function }} args.chipState
+ * @param {{ add: Function, last: Function, remove: Function, removeMany: Function, getAll: Function }} args.chipState
  */
 export function wireComposer({ host, chipState }) {
   host.classList.add('composer');
@@ -44,32 +63,64 @@ export function wireComposer({ host, chipState }) {
       />
     </div>
     <div class="composer-ghost-row" id="composer-ghost-row" aria-hidden="true">
-      <span class="composer-ghost-label">سيُضاف:</span>
-      <span class="composer-ghost-chip" id="composer-ghost-chip"></span>
+      <div class="composer-ghost-line">
+        <span class="composer-ghost-label">سيُضاف:</span>
+        <span class="composer-ghost-chip" id="composer-ghost-chip"></span>
+      </div>
+      <div class="composer-op-pills" id="composer-op-pills" role="group" aria-label="نوع الإضافة"></div>
+      <p class="composer-ghost-paste-hint" id="composer-ghost-paste-hint" aria-live="polite">سيُضاف ككلمة واحدة. اضغط Enter لتأكيد، أو الصق نصاً مع علامات اقتباس للحصول على شظايا منفصلة.</p>
     </div>
-    <div class="composer-commit-row" role="group" aria-label="إضافة الكلمة بعامل">
+    <div class="composer-commit-row" role="group" aria-label="إضافة الكلمة">
       <button type="button" class="composer-btn composer-btn-and" id="composer-btn-and" disabled>
-        أضف <span class="composer-btn-hint">(و)</span>
-      </button>
-      <button type="button" class="composer-btn composer-btn-or" id="composer-btn-or" disabled>
-        أو
-      </button>
-      <button type="button" class="composer-btn composer-btn-not" id="composer-btn-not" disabled>
-        ليس <span class="composer-btn-hint">(−)</span>
+        أضف
       </button>
       <button type="button" class="composer-btn composer-btn-add" id="composer-btn-add" aria-label="إضافة عامل خاص">
         + إضافة
       </button>
     </div>
-    <p class="composer-hint" id="composer-ghost-hint">اضغط Enter لإضافة كلمة. Shift+Enter يضيفها كبديل (أو) للكلمة السابقة. Backspace في حقل فارغ يحذف آخر قطعة.</p>
+    <p class="composer-hint" id="composer-ghost-hint">اكتب كلمة واضغط Enter. ستظهر كـ«كلمة بحث» — اضغطها بعد ذلك لتعديلها.</p>
   `;
 
   const input = host.querySelector('#composer-input');
   const btnAnd = host.querySelector('#composer-btn-and');
-  const btnOr = host.querySelector('#composer-btn-or');
-  const btnNot = host.querySelector('#composer-btn-not');
   const ghostRow = host.querySelector('#composer-ghost-row');
   const ghostChip = host.querySelector('#composer-ghost-chip');
+  const pillsRow = host.querySelector('#composer-op-pills');
+
+  // Pre-commit operator selection. Lives only here — chip-state never sees
+  // it until commit() builds the keyword chip's props.
+  let chosenOp = 'none';
+
+  function buildPills() {
+    pillsRow.innerHTML = '';
+    OPERATOR_PILLS.forEach(({ op, label }) => {
+      const pill = document.createElement('button');
+      pill.type = 'button';
+      pill.className = 'composer-op-pill';
+      pill.dataset.op = op;
+      pill.setAttribute('aria-pressed', op === chosenOp ? 'true' : 'false');
+      const opName = OPERATORS[op].opName;
+      const badgeText = opName ? opName + ':' : '—';
+      pill.innerHTML = `
+        <span class="composer-op-pill-label">${label}</span>
+        <span class="composer-op-pill-badge" dir="ltr">${badgeText}</span>
+      `;
+      pill.addEventListener('click', (e) => {
+        e.preventDefault();
+        chosenOp = op;
+        syncPillsPressed();
+        ghostPreview();
+        input.focus();
+      });
+      pillsRow.appendChild(pill);
+    });
+  }
+
+  function syncPillsPressed() {
+    pillsRow.querySelectorAll('.composer-op-pill').forEach(p => {
+      p.setAttribute('aria-pressed', p.dataset.op === chosenOp ? 'true' : 'false');
+    });
+  }
 
   function commit(mode) {
     let raw = input.value.trim();
@@ -89,9 +140,11 @@ export function wireComposer({ host, chipState }) {
       }
     }
 
-    chipState.add('keyword', { text: raw, negate, quoted: false });
+    chipState.add('keyword', { text: raw, operator: chosenOp, negate, quoted: false });
 
     input.value = '';
+    chosenOp = 'none';
+    syncPillsPressed();
     refresh();
     input.focus();
   }
@@ -108,39 +161,122 @@ export function wireComposer({ host, chipState }) {
       negate = true;
       raw = raw.slice(1).trim();
     }
-    // Render a faded preview chip mirroring keyword chip shape.
+    // Render a faded preview chip mirroring keyword chip shape, including
+    // the operator prefix when one is chosen so the user sees exactly what
+    // will commit.
+    const op = OPERATORS[chosenOp] || OPERATORS.none;
     ghostChip.className = 'composer-ghost-chip' + (negate ? ' composer-ghost-chip-negate' : '');
-    ghostChip.textContent = (negate ? '− ' : '') + raw;
+    ghostChip.innerHTML = '';
+    if (negate) {
+      const neg = document.createElement('span');
+      neg.className = 'composer-ghost-neg';
+      neg.textContent = '− ';
+      ghostChip.appendChild(neg);
+    }
+    if (op.opName) {
+      const badge = document.createElement('span');
+      badge.className = 'composer-ghost-op-badge';
+      badge.dir = 'ltr';
+      badge.textContent = op.opName + ':';
+      ghostChip.appendChild(badge);
+      ghostChip.appendChild(document.createTextNode(' '));
+    }
+    const term = document.createElement('span');
+    term.dir = op.dir;
+    term.textContent = raw;
+    ghostChip.appendChild(term);
     ghostRow.classList.add('visible');
   }
 
   function refresh() {
     const has = input.value.trim().length > 0;
     btnAnd.disabled = !has;
-    btnOr.disabled = !has;
-    btnNot.disabled = !has;
     ghostPreview();
+  }
+
+  // Shared toast element (the same #toast used by the copy-confirmation in
+  // core/preview.js). We construct DOM directly because the toast carries
+  // an interactive button — preview.showToast only handles plain text.
+  const toastEl = document.getElementById('toast');
+  let toastTimer = null;
+
+  function clearToast() {
+    if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
+    if (!toastEl) return;
+    toastEl.classList.remove('visible');
+    toastEl.classList.remove('toast-with-action');
+    toastEl.innerHTML = '';
+  }
+
+  function showPasteUndoToast(addedIds) {
+    if (!toastEl) return;
+    clearToast();
+    toastEl.classList.add('toast-with-action');
+    const msg = document.createElement('span');
+    msg.textContent = 'أُضيفت ' + addedIds.length + ' كلمة من اللصق — ';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'toast-undo-btn';
+    btn.textContent = 'تراجع';
+    btn.addEventListener('click', () => {
+      chipState.removeMany(addedIds);
+      clearToast();
+    });
+    toastEl.appendChild(msg);
+    toastEl.appendChild(btn);
+    toastEl.classList.add('visible');
+    toastTimer = setTimeout(clearToast, 1500);
+  }
+
+  // Plain-paste hint sits inside the ghost-row so the existing
+  // mode-advanced display:none rule already keeps it Beginner-only. Auto-
+  // fades after 4 seconds via class transitions.
+  let pasteHintTimer = null;
+  let pasteHintFadeTimer = null;
+  function showPasteHint() {
+    clearTimeout(pasteHintTimer);
+    clearTimeout(pasteHintFadeTimer);
+    ghostRow.classList.add('composer-ghost-row-paste-hint');
+    ghostRow.classList.remove('composer-ghost-row-paste-hint-fading');
+    // The ghost-row collapses to height:0 when input is empty; nudge it
+    // visible so the hint is actually shown until the input is filled by
+    // the default paste handler.
+    ghostRow.classList.add('visible');
+    pasteHintTimer = setTimeout(() => {
+      ghostRow.classList.add('composer-ghost-row-paste-hint-fading');
+      pasteHintFadeTimer = setTimeout(() => {
+        ghostRow.classList.remove('composer-ghost-row-paste-hint');
+        ghostRow.classList.remove('composer-ghost-row-paste-hint-fading');
+      }, 350);
+    }, 4000);
   }
 
   input.addEventListener('input', refresh);
   input.addEventListener('paste', (e) => {
     // Try to parse the pasted text as a Google-style query. If it parses
     // into one or more chip descriptors, insert them and clear the input.
-    // If parseQuery returns null (the paste looks like plain text), let the
-    // browser's default paste behavior fill the input as usual.
+    // If parseQuery returns null (the paste looks like plain text), fall
+    // through to the browser's default paste, but show a one-shot hint so
+    // the user knows their paste became a single chip on purpose.
     const cd = e.clipboardData || window.clipboardData;
     if (!cd) return;
     const pasted = cd.getData('text');
     if (!pasted) return;
     const descriptors = parseQuery(pasted);
-    if (descriptors == null) return; // plain text → default paste
+    if (descriptors == null) {
+      showPasteHint();
+      return;
+    }
     e.preventDefault();
     if (descriptors.length === 0) return; // empty / whitespace → no-op
+    const addedIds = [];
     for (const d of descriptors) {
-      chipState.add(d.type, d.props);
+      const id = chipState.add(d.type, d.props);
+      if (id) addedIds.push(id);
     }
     input.value = '';
     refresh();
+    if (addedIds.length > 0) showPasteUndoToast(addedIds);
   });
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
@@ -160,8 +296,8 @@ export function wireComposer({ host, chipState }) {
   });
 
   btnAnd.addEventListener('click', () => commit('and'));
-  btnOr.addEventListener('click', () => commit('or'));
-  btnNot.addEventListener('click', () => commit('not'));
+
+  buildPills();
 
   // React to chip state changes (e.g. so the input refocuses smoothly when
   // chips are deleted via Backspace and the user is mid-typing).

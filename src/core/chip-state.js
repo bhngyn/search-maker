@@ -84,6 +84,16 @@ export function createChipState({ ctx, segmentOrder = 100 }) {
     return true;
   }
 
+  /**
+   * Bulk-remove. Used by the paste-undo toast so a multi-chip paste can be
+   * undone in one click without firing N separate notify() / requestUpdate()
+   * passes for the subscribers' eyes (each remove() above already does its
+   * own cleanup; the resulting renders coalesce naturally).
+   */
+  function removeMany(ids) {
+    ids.forEach(id => remove(id));
+  }
+
   function update(id, propsPatch) {
     const c = chips.find(c => c.id === id);
     if (!c) return false;
@@ -154,7 +164,7 @@ export function createChipState({ ctx, segmentOrder = 100 }) {
   ctx.registerSegment(segmentOrder, () => assembleChips(chips, ctx));
 
   return {
-    add, remove, update, reorder, clear, getAll, subscribe,
+    add, remove, removeMany, update, reorder, clear, getAll, subscribe,
     /** Last chip in the list, or null. */
     last() { return chips.length ? chips[chips.length - 1] : null; },
   };
