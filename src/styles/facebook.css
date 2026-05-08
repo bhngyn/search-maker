@@ -15,46 +15,64 @@
 }
 
 #facebook-form { display: none; }
-body.engine-facebook #facebook-form { display: block; }
+body.engine-facebook #facebook-form { display: grid; }
 body.engine-facebook .chip-section,
 body.engine-facebook #warnings-region,
 body.engine-facebook #tips-region,
 body.engine-facebook #welcome-panel,
 body.engine-facebook #welcome-reopen-btn { display: none !important; }
 
+/* Bottom padding on main so the last form section scrolls clear of the
+   sticky preview. Without this, the date pickers land right under the
+   URL bar and feel "blocked". The sticky preview is ~110px tall; pad
+   by a little more so the last filter has air. */
+body.engine-facebook main { padding-bottom: 140px; }
+
+/* ===== Form shell ===== */
 .fb-form {
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
   margin-bottom: var(--gap);
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+}
+
+@media (min-width: 900px) {
+  .fb-form { grid-template-columns: 1fr 1fr; }
+  /* Categories and keyword stretch the full width; sections live in the
+     two-column grid. */
+  .fb-form-categories,
+  .fb-form-keyword { grid-column: 1 / -1; }
 }
 
 .fb-form-section {
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
+  border-radius: 12px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.fb-form-section:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .fb-form-legend {
   margin: 0;
   font-size: 13px;
   font-weight: 600;
-  color: var(--fg);
+  color: var(--fg-muted);
+  letter-spacing: 0.02em;
+  text-transform: none;
 }
 
 .fb-form-hint {
   margin: 0;
   font-size: 12px;
   color: var(--fg-muted);
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .fb-form-empty {
@@ -64,141 +82,211 @@ body.engine-facebook #welcome-reopen-btn { display: none !important; }
   font-style: italic;
 }
 
+.fb-form-sections {
+  display: contents;
+}
+
 /* ===== Categories grid ===== */
+.fb-form-categories {
+  background: var(--bg-subtle);
+  padding: 16px;
+}
+.fb-form-categories .fb-form-legend {
+  font-size: 14px;
+  color: var(--fg);
+  margin-bottom: 4px;
+}
 .fb-cat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
 }
 .fb-cat-btn {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
-  padding: 8px 10px;
+  gap: 4px;
+  padding: 12px 14px;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   color: var(--fg);
   cursor: pointer;
   font: inherit;
   text-align: start;
-  min-height: 56px;
-  transition: border-color 0.12s ease, background 0.12s ease;
+  min-height: 64px;
+  transition: border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
 }
-.fb-cat-btn:hover { border-color: var(--accent); }
+.fb-cat-btn:hover {
+  border-color: var(--accent);
+  background: var(--bg-subtle);
+}
 .fb-cat-btn:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 .fb-cat-btn.is-active {
-  background: rgba(37, 99, 235, 0.08);
+  background: rgba(37, 99, 235, 0.10);
   border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
 }
 .fb-cat-label { font-size: 14px; font-weight: 600; }
-.fb-cat-hint  { font-size: 11px; color: var(--fg-muted); }
+.fb-cat-hint  { font-size: 11px; color: var(--fg-muted); line-height: 1.4; }
+.fb-cat-btn.is-active .fb-cat-hint { color: var(--fg); opacity: 0.85; }
+@media (prefers-color-scheme: dark) {
+  .fb-cat-btn.is-active { background: rgba(56, 189, 248, 0.14); }
+}
 
 /* ===== Keyword input ===== */
+.fb-form-keyword .fb-form-legend {
+  font-size: 14px;
+  color: var(--fg);
+  font-weight: 600;
+}
 .fb-keyword-input {
   width: 100%;
-  font-size: 16px;
   font: inherit;
-  padding: 10px 12px;
+  font-size: 16px;
+  padding: 12px 14px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--bg);
   color: var(--fg);
   box-sizing: border-box;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
+.fb-keyword-input::placeholder { color: var(--fg-muted); opacity: 0.7; }
 .fb-keyword-input:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
 }
 
 /* ===== Radio rows ===== */
 .fb-radio-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 .fb-radio-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  padding: 6px 4px;
+  gap: 10px;
+  padding: 8px 10px;
   cursor: pointer;
-  min-height: 36px;
+  min-height: 40px;
+  border-radius: 6px;
+  transition: background 0.1s ease;
+}
+.fb-radio-row:hover { background: var(--bg-subtle); }
+.fb-radio-row:has(input[type="radio"]:checked) {
+  background: rgba(37, 99, 235, 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  .fb-radio-row:has(input[type="radio"]:checked) {
+    background: rgba(56, 189, 248, 0.12);
+  }
 }
 .fb-radio-row input[type="radio"],
 .fb-toggle-row input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   cursor: pointer;
+  accent-color: var(--accent);
+  margin: 0;
+  flex-shrink: 0;
 }
 .fb-radio-label {
   font-size: 14px;
   color: var(--fg);
-}
-.fb-id-input {
   flex: 1;
+  min-width: 100px;
+}
+.fb-radio-row:has(input[type="radio"]:checked) .fb-radio-label {
+  font-weight: 600;
+}
+
+/* ===== ID input (inline with the radio row when its option is selected) ===== */
+.fb-id-input {
+  flex: 1 1 220px;
   min-width: 200px;
-  padding: 6px 8px;
+  padding: 8px 10px;
   font: inherit;
   font-size: 13px;
   font-family: var(--mono);
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--bg);
   color: var(--fg);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 .fb-id-input:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16);
 }
+.fb-id-input::placeholder { color: var(--fg-muted); opacity: 0.7; }
 .fb-id-hint {
+  flex-basis: 100%;
   font-size: 11px;
   color: var(--fg-muted);
+  margin-inline-start: 28px;
 }
 
 /* ===== Toggle / id-only / date ===== */
 .fb-toggle-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
-  min-height: 36px;
-  padding: 4px 0;
+  min-height: 40px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  transition: background 0.1s ease;
 }
+.fb-toggle-row:hover { background: var(--bg-subtle); }
 .fb-idonly-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  padding: 4px 0;
 }
 .fb-date-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  padding: 4px 0;
 }
 .fb-date-label {
   font-size: 13px;
   color: var(--fg-muted);
-  min-width: 28px;
+  font-weight: 600;
+  min-width: 32px;
 }
 .fb-date-input {
   font: inherit;
   font-size: 13px;
-  padding: 6px 8px;
+  font-family: var(--mono);
+  padding: 8px 10px;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--bg);
   color: var(--fg);
+  min-width: 160px;
 }
 .fb-date-input:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16);
+}
+
+/* Date pickers in dark mode use the system widget — leave color-scheme as
+   default. The Safari date picker icon will follow prefers-color-scheme. */
+@media (prefers-color-scheme: dark) {
+  .fb-date-input { color-scheme: dark; }
 }
 
 /* ===== Preview tweaks: when Facebook is active the box holds a URL,
@@ -206,5 +294,5 @@ body.engine-facebook #welcome-reopen-btn { display: none !important; }
 body.engine-facebook .preview-box:not(.empty) {
   word-break: break-all;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.55;
 }
