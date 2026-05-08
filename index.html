@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>أداة بناء استعلامات البحث</title>
+<style>
+  :root {
+    --accent: #2563eb;
+    --accent-fg: #ffffff;
+    --bg: #ffffff;
+    --bg-subtle: #f5f7fa;
+    --fg: #1a1a1a;
+    --fg-muted: #6b7280;
+    --border: #d1d5db;
+    --warning: #b45309;
+    --warning-bg: #fef3c7;
+    --tip: #0369a1;
+    --tip-bg: #e0f2fe;
+    --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --gap: 24px;
+    --gap-tight: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a;
+      --bg-subtle: #1e293b;
+      --fg: #f1f5f9;
+      --fg-muted: #94a3b8;
+      --border: #334155;
+      --warning: #fbbf24;
+      --warning-bg: #422006;
+      --tip: #38bdf8;
+      --tip-bg: #082f49;
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", Tahoma, "Geeza Pro", "Arabic Typesetting", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  .app { max-width: 720px; margin: 0 auto; padding: 24px; }
+  body.mode-advanced .app { max-width: 1080px; }
+
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .app-title { margin: 0 0 4px 0; font-size: 24px; }
+  .app-subtitle { margin: 0; color: var(--fg-muted); font-size: 14px; }
+
+  .header-controls { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+
+  .mode-toggle { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .mode-toggle button {
+    background: transparent; color: var(--fg-muted); border: 0;
+    padding: 8px 14px; font: inherit; cursor: pointer;
+    min-height: 40px;
+  }
+  .mode-toggle button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+  .mode-toggle button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  .normalize-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+  .normalize-toggle input { accent-color: var(--accent); }
+  .normalize-info-btn {
+    background: transparent; border: 1px solid var(--border); color: var(--fg-muted);
+    width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+    font-size: 12px; line-height: 1; padding: 0;
+  }
+  .normalize-info-panel {
+    background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px; margin-top: 8px; font-size: 13px; color: var(--fg-muted);
+    max-width: 360px;
+  }
+  .normalize-info-panel[hidden] { display: none; }
+
+  .fields-container { display: flex; flex-direction: column; gap: var(--gap); }
+  body.mode-advanced .fields-container {
+    display: grid; grid-template-columns: 1fr; gap: var(--gap-tight);
+  }
+  @media (min-width: 720px) {
+    body.mode-advanced .fields-container { grid-template-columns: 1fr 1fr; gap: 16px 24px; }
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .field input[type="text"], .field input[type="number"], .field input[type="date"], .field select, .field textarea {
+    width: 100%; padding: 10px 12px;
+    font: inherit; font-size: 15px;
+    background: var(--bg); color: var(--fg);
+    border: 1px solid var(--border); border-radius: 6px;
+  }
+  .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent);
+  }
+  .field-help { margin: 0; color: var(--fg-muted); font-size: 13px; }
+  body.mode-advanced .field { gap: 4px; }
+  body.mode-advanced .field label { font-size: 13px; }
+  body.mode-advanced .field-help { display: none; }
+
+  .op-badge {
+    font-family: var(--mono); font-size: 11px;
+    background: var(--bg-subtle); color: var(--fg-muted);
+    padding: 2px 6px; border-radius: 4px;
+    direction: ltr; unicode-bidi: isolate;
+  }
+
+  .quote-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+  .quote-toggle input { accent-color: var(--accent); }
+
+  .field-clear-btn {
+    background: transparent; border: 0; color: var(--fg-muted);
+    cursor: pointer; font-size: 18px; line-height: 1; padding: 4px 8px;
+    align-self: flex-start;
+  }
+  .field-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .field-clear-btn[hidden] { display: none; }
+
+  .preview-section { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .preview-heading { margin: 0 0 8px 0; font-size: 14px; color: var(--fg-muted); }
+  body.mode-advanced .preview-heading { display: none; }
+  .preview-box {
+    direction: ltr; unicode-bidi: isolate;
+    font-family: var(--mono); font-size: 15px;
+    background: var(--bg-subtle); color: var(--fg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px; min-height: 64px;
+    white-space: pre-wrap; word-break: break-word;
+    text-align: left;
+  }
+  body.mode-advanced .preview-box { font-size: 16px; min-height: 96px; }
+  .preview-box.empty { color: var(--fg-muted); }
+
+  .action-row { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--accent); color: var(--accent-fg);
+    border: 0; padding: 12px 20px; font: inherit; font-size: 15px;
+    border-radius: 8px; cursor: pointer;
+    min-height: 44px; min-width: 140px;
+  }
+  .btn-primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn-primary:disabled { background: var(--border); color: var(--fg-muted); cursor: not-allowed; }
+  .btn-secondary {
+    background: transparent; color: var(--fg);
+    border: 1px solid var(--border); padding: 12px 20px; font: inherit; font-size: 14px;
+    border-radius: 8px; cursor: pointer;
+    min-height: 44px;
+  }
+  .btn-secondary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--fg); color: var(--bg);
+    padding: 10px 18px; border-radius: 8px; font-size: 14px;
+    pointer-events: none; opacity: 0; transition: opacity 200ms;
+  }
+  .toast.visible { opacity: 1; }
+
+  .warnings-region, .tips-region { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .warning, .tip {
+    display: flex; gap: 8px; align-items: flex-start;
+    padding: 10px 12px; border-radius: 6px; font-size: 13px;
+  }
+  .warning { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning); }
+  .tip { background: var(--tip-bg); color: var(--tip); border: 1px solid var(--tip); }
+  body.mode-advanced .tips-region { display: none; }
+
+  /* === STYLES_INSERT === */
+
+</style>
+</head>
+<body class="mode-beginner">
+<div class="app">
+
+  <header class="app-header">
+    <div>
+      <h1 class="app-title">أداة بناء استعلامات البحث</h1>
+      <p class="app-subtitle">ابنِ استعلامات بحث متقدمة في Google باللغة العربية، دون الحاجة إلى الكتابة بالإنجليزية أو تبديل لوحة المفاتيح.</p>
+    </div>
+    <div class="header-controls">
+      <div class="mode-toggle" role="group" aria-label="وضع الواجهة">
+        <button id="mode-btn-beginner" type="button" aria-pressed="true">وضع المبتدئ</button>
+        <button id="mode-btn-advanced" type="button" aria-pressed="false">وضع المتقدم</button>
+      </div>
+      <div class="normalize-toggle">
+        <label>
+          <input type="checkbox" id="normalize-toggle-input">
+          توحيد الأحرف العربية
+        </label>
+        <button type="button" id="normalize-info-btn" class="normalize-info-btn" aria-expanded="false" aria-controls="normalize-info-panel" title="ما هذا؟">i</button>
+      </div>
+      <div id="normalize-info-panel" class="normalize-info-panel" hidden>
+        عند تفعيل هذا الخيار، يقوم البرنامج بتوحيد بعض الأحرف العربية المتشابهة (مثل أ، إ، آ تصبح ا) قبل البحث، مما يساعد على الحصول على نتائج أوسع. لا يغيّر هذا الخيار ما تكتبه — يظهر التحويل في معاينة الاستعلام أدناه.
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="fields-container" class="fields-container">
+      <!-- === FIELDS_INSERT === -->
+    </div>
+
+    <div id="warnings-region" class="warnings-region" aria-live="polite"></div>
+    <div id="tips-region" class="tips-region" aria-live="polite"></div>
+
+    <section class="preview-section">
+      <h2 class="preview-heading">استعلامك جاهز</h2>
+      <div id="preview-box" class="preview-box empty" dir="ltr" aria-live="polite">ابدأ بكتابة كلمات البحث</div>
+      <div class="action-row">
+        <button id="copy-btn" class="btn-primary" type="button" disabled>نسخ</button>
+        <button id="search-btn" class="btn-primary" type="button" disabled>البحث في Google</button>
+        <button id="reset-btn" class="btn-secondary" type="button">مسح الكل</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ===== Core state =====
+  const segments = [];           // { order, fn }
+  const fieldRegistry = new Map(); // slug -> { setValue }
+  const modeListeners = [];
+  const warningRegion = document.getElementById('warnings-region');
+  const tipRegion = document.getElementById('tips-region');
+  const previewBox = document.getElementById('preview-box');
+  const copyBtn = document.getElementById('copy-btn');
+  const searchBtn = document.getElementById('search-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const normalizeInput = document.getElementById('normalize-toggle-input');
+  const normalizeInfoBtn = document.getElementById('normalize-info-btn');
+  const normalizeInfoPanel = document.getElementById('normalize-info-panel');
+  const modeBtnBeginner = document.getElementById('mode-btn-beginner');
+  const modeBtnAdvanced = document.getElementById('mode-btn-advanced');
+  const toastEl = document.getElementById('toast');
+
+  let currentMode = 'beginner';
+  const activeWarnings = new Map(); // slug -> element
+  const activeTips = new Map();     // slug -> { priority, messageHtml, element }
+
+  // ===== Arabic normalization (Phase 2 may extend; keep no-op here if toggle off) =====
+  function normalizeArabic(text) {
+    if (!normalizeInput.checked || !text) return text;
+    let s = String(text);
+    // Strip diacritics, tatweel, superscript alef.
+    s = s.replace(/[ً-ْٰـ]/g, '');
+    // Unify alef variants.
+    s = s.replace(/[أإآٱ]/g, 'ا');
+    // Unify ya variants.
+    s = s.replace(/ى/g, 'ي');
+    // Ta marbuta -> ha.
+    s = s.replace(/ة/g, 'ه');
+    return s;
+  }
+
+  // ===== Query assembly =====
+  function assembleQuery() {
+    const ordered = segments.slice().sort((a, b) => a.order - b.order);
+    const parts = [];
+    for (const seg of ordered) {
+      try {
+        const out = seg.fn();
+        if (out && String(out).trim()) parts.push(String(out).trim());
+      } catch (e) {
+        console.warn('segment failed', seg.order, e);
+      }
+    }
+    return parts.join(' ').replace(/\s+/g, ' ').trim();
+  }
+
+  function renderPreview() {
+    const q = assembleQuery();
+    if (!q) {
+      previewBox.textContent = 'ابدأ بكتابة كلمات البحث';
+      previewBox.classList.add('empty');
+      copyBtn.disabled = true;
+      searchBtn.disabled = true;
+    } else {
+      previewBox.textContent = q;
+      previewBox.classList.remove('empty');
+      copyBtn.disabled = false;
+      searchBtn.disabled = false;
+    }
+  }
+
+  // ===== Warnings & tips =====
+  function renderWarning(slug, messageHtml) {
+    let el = activeWarnings.get(slug);
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'warning warning-' + slug;
+      el.id = 'warning-' + slug;
+      activeWarnings.set(slug, el);
+      warningRegion.appendChild(el);
+    }
+    el.innerHTML = messageHtml;
+  }
+  function clearWarning(slug) {
+    const el = activeWarnings.get(slug);
+    if (el) {
+      el.remove();
+      activeWarnings.delete(slug);
+    }
+  }
+
+  function reflowTips() {
+    // Beginner-only, single-tip-at-a-time. Pick highest-priority undismissed tip.
+    tipRegion.innerHTML = '';
+    if (currentMode !== 'beginner') return;
+    const tips = Array.from(activeTips.values()).filter(t => !t.dismissed);
+    if (!tips.length) return;
+    tips.sort((a, b) => b.priority - a.priority);
+    const t = tips[0];
+    const el = document.createElement('div');
+    el.className = 'tip tip-' + t.slug;
+    el.id = 'tip-' + t.slug;
+    el.innerHTML = t.messageHtml + ' <button type="button" aria-label="إخفاء الاقتراح" style="margin-inline-start:8px;background:transparent;border:0;color:inherit;cursor:pointer;font-size:16px;line-height:1;">×</button>';
+    el.querySelector('button').addEventListener('click', () => {
+      t.dismissed = true;
+      reflowTips();
+    });
+    tipRegion.appendChild(el);
+  }
+  function addTip(slug, opts) {
+    const existing = activeTips.get(slug);
+    if (existing && existing.dismissed) return; // session-dismissed
+    activeTips.set(slug, { slug, priority: opts.priority || 0, messageHtml: opts.messageHtml, dismissed: existing ? existing.dismissed : false });
+    reflowTips();
+  }
+  function removeTip(slug) {
+    activeTips.delete(slug);
+    reflowTips();
+  }
+
+  // ===== Mode toggle =====
+  function setMode(mode) {
+    if (mode === currentMode) return;
+    currentMode = mode;
+    document.body.classList.toggle('mode-beginner', mode === 'beginner');
+    document.body.classList.toggle('mode-advanced', mode === 'advanced');
+    modeBtnBeginner.setAttribute('aria-pressed', mode === 'beginner' ? 'true' : 'false');
+    modeBtnAdvanced.setAttribute('aria-pressed', mode === 'advanced' ? 'true' : 'false');
+    reflowTips();
+    modeListeners.forEach(cb => { try { cb(mode); } catch (e) { console.warn(e); } });
+  }
+  modeBtnBeginner.addEventListener('click', () => setMode('beginner'));
+  modeBtnAdvanced.addEventListener('click', () => setMode('advanced'));
+
+  // ===== Normalization toggle =====
+  normalizeInput.addEventListener('change', renderPreview);
+  normalizeInfoBtn.addEventListener('click', () => {
+    const open = normalizeInfoPanel.hasAttribute('hidden');
+    if (open) {
+      normalizeInfoPanel.removeAttribute('hidden');
+      normalizeInfoBtn.setAttribute('aria-expanded', 'true');
+    } else {
+      normalizeInfoPanel.setAttribute('hidden', '');
+      normalizeInfoBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // ===== Copy & search =====
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('visible');
+    setTimeout(() => toastEl.classList.remove('visible'), 1500);
+  }
+  copyBtn.addEventListener('click', async () => {
+    const q = previewBox.textContent;
+    let copied = false;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(q);
+        copied = true;
+      }
+    } catch (e) { /* fallthrough */ }
+    if (!copied) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = q;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        copied = document.execCommand('copy');
+        document.body.removeChild(ta);
+      } catch (e) { /* fallthrough */ }
+    }
+    if (copied) {
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'تم النسخ';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } else {
+      showToast('تعذر النسخ — يرجى نسخ الاستعلام يدوياً');
+    }
+  });
+  searchBtn.addEventListener('click', () => {
+    const q = previewBox.textContent;
+    if (!q) return;
+    const url = 'https://www.google.com/search?q=' + encodeURIComponent(q);
+    window.open(url, '_blank', 'noopener,noreferrer');
+  });
+
+  // ===== Reset (two-tap inline confirmation) =====
+  let resetArmed = false;
+  let resetTimer = null;
+  resetBtn.addEventListener('click', () => {
+    if (!resetArmed) {
+      resetArmed = true;
+      resetBtn.textContent = 'تأكيد المسح';
+      resetTimer = setTimeout(() => {
+        resetArmed = false;
+        resetBtn.textContent = 'مسح الكل';
+      }, 3000);
+    } else {
+      clearTimeout(resetTimer);
+      resetArmed = false;
+      resetBtn.textContent = 'مسح الكل';
+      // Clear every registered field by setting to empty value.
+      fieldRegistry.forEach(api => { try { api.setValue(''); } catch (e) {} });
+      // Clear all warnings and tips too.
+      Array.from(activeWarnings.keys()).forEach(clearWarning);
+      activeTips.clear();
+      reflowTips();
+      renderPreview();
+    }
+  });
+
+  // ===== ctx exposed to register* fragments =====
+  const ctx = {
+    registerSegment(order, fn) { segments.push({ order, fn }); },
+    registerField(slug, api) { fieldRegistry.set(slug, api); },
+    requestUpdate() { renderPreview(); },
+    addWarning(slug, html) { renderWarning(slug, html); },
+    removeWarning(slug) { clearWarning(slug); },
+    addTip(slug, opts) { addTip(slug, opts); },
+    removeTip(slug) { removeTip(slug); },
+    normalize: normalizeArabic,
+    getMode() { return currentMode; },
+    onModeChange(cb) { if (typeof cb === 'function') modeListeners.push(cb); },
+  };
+
+  // The orchestrator's merge step appends each fragment's function declaration here,
+  // followed by a `__pendingRegisters.push(<functionName>);` line. The bootstrap below
+  // then invokes every collected register* function with the shared ctx.
+  const __pendingRegisters = [];
+
+  /* === SCRIPT_INSERT === */
+
+  __pendingRegisters.forEach(fn => {
+    if (typeof fn !== 'function') return;
+    try { fn(ctx); } catch (e) { console.error('register fn failed', fn.name, e); }
+  });
+
+  renderPreview();
+})();
+</script>
+</body>
+</html>
