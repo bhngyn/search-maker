@@ -56,23 +56,106 @@ export function wireChipArea({ host, chipState, mode, selection }) {
     }
     host.classList.toggle('chip-area-draggable', isAdvanced());
     host.innerHTML = '';
-    chips.forEach(chip => {
-      const mod = chipTypes[chip.type];
-      if (!mod || typeof mod.render !== 'function') return;
-      const el = mod.render(chip, {
-        onDelete: () => chipState.remove(chip.id),
-        onToggleNegate: () => chipState.update(chip.id, { negate: !chip.props.negate }),
-        onToggleQuoted: () => chipState.update(chip.id, { quoted: !chip.props.quoted }),
-        onChangeOperator: (op) => chipState.update(chip.id, { operator: op }),
-        onChangeText: (text) => chipState.update(chip.id, { text }),
-        onChangeProps: (patch) => chipState.update(chip.id, patch),
-      });
-      if (selection && selection.has(chip.id)) el.classList.add('chip-selected');
-      if (selection && isAdvanced()) wireSelectionClick(el, chip.id);
-      if (isAdvanced() && chipState.reorder) {
-        wireDrag(el, chip.id);
+    // Build a per-index map of OR-group containers. We walk chips and group
+    // any contiguous run of [keyword, or-connector, keyword, ...] into a
+    // single .chip-or-group span. Non-grouped chips render directly into
+    // host. The grouping is render-only — chip-state stays flat.
+    const groupRanges = computeOrGroupRanges(chips);
+    let cursor = 0;
+    while (cursor < chips.length) {
+      const groupEnd = groupRanges.get(cursor);
+      if (typeof groupEnd === 'number') {
+        // [cursor .. groupEnd] is one OR group (inclusive on both ends).
+        const groupEl = document.createElement('span');
+        groupEl.className = 'chip-or-group';
+        groupEl.setAttribute('role', 'group');
+        groupEl.setAttribute('aria-label', 'مجموعة "أو"');
+        for (let i = cursor; i <= groupEnd; i++) {
+          appendChipEl(groupEl, chips[i]);
+        }
+        host.appendChild(groupEl);
+        cursor = groupEnd + 1;
+      } else {
+        appendChipEl(host, chips[cursor]);
+        cursor++;
       }
-      host.appendChild(el);
+    }
+  }
+
+  /**
+   * Returns a Map of startIndex → endIndex (inclusive) describing every
+   * contiguous OR run of [term, OR, term, OR, term, ...]. A run requires
+   * at least one connector, so a single keyword chip is never "in a group."
+   */
+  function computeOrGroupRanges(chips) {
+    const ranges = new Map();
+    let i = 0;
+    while (i < chips.length) {
+      const c = chips[i];
+      if (!c || c.type === 'or-connector') { i++; continue; }
+      // Walk forward across [term, OR, term, ...] pairs.
+      let end = i;
+      while (
+        end + 2 < chips.length &&
+        chips[end + 1] && chips[end + 1].type === 'or-connector' &&
+        chips[end + 2] && chips[end + 2].type !== 'or-connector'
+      ) {
+        end += 2;
+      }
+      if (end > i) ranges.set(i, end);
+      i = end + 1;
+    }
+    return ranges;
+  }
+
+  function appendChipEl(parent, chip) {
+    const mod = chipTypes[chip.type];
+    if (!mod || typeof mod.render !== 'function') return;
+    const el = mod.render(chip, {
+      onDelete: () => chipState.remove(chip.id),
+      onToggleNegate: () => chipState.update(chip.id, { negate: !chip.props.negate }),
+      onToggleQuoted: () => chipState.update(chip.id, { quoted: !chip.props.quoted }),
+      onChangeOperator: (op) => chipState.update(chip.id, { operator: op }),
+      onChangeText: (text) => chipState.update(chip.id, { text }),
+      onChangeProps: (patch) => chipState.update(chip.id, patch),
+      onAddOrBranch: () => addOrBranch(chip.id),
+    });
+    if (selection && selection.has(chip.id)) el.classList.add('chip-selected');
+    if (selection && isAdvanced()) wireSelectionClick(el, chip.id);
+    if (isAdvanced() && chipState.reorder) {
+      wireDrag(el, chip.id);
+    }
+    parent.appendChild(el);
+  }
+
+  /**
+   * Splice an or-connector + fresh empty keyword chip after the LAST
+   * member of the OR run that contains `chipId`. If `chipId` isn't already
+   * in a run, this just appends after the chip itself, which still creates
+   * a valid run because the new keyword chip is also a term.
+   */
+  function addOrBranch(chipId) {
+    if (!chipState.addAfter) return;
+    const all = chipState.getAll();
+    let idx = all.findIndex(c => c.id === chipId);
+    if (idx < 0) return;
+    // Walk forward through any [OR, term] pairs to find the end of the run.
+    while (
+      idx + 2 < all.length &&
+      all[idx + 1] && all[idx + 1].type === 'or-connector' &&
+      all[idx + 2] && all[idx + 2].type !== 'or-connector'
+    ) {
+      idx += 2;
+    }
+    const anchorId = all[idx].id;
+    const connectorId = chipState.addAfter(anchorId, 'or-connector', {});
+    if (!connectorId) return;
+    const newChipId = chipState.addAfter(connectorId, 'keyword', { text: '', operator: 'none' });
+    if (!newChipId) return;
+    // After re-render, focus the new chip's editable text.
+    requestAnimationFrame(() => {
+      const newEl = host.querySelector('[data-chip-id="' + newChipId + '"] .chip-text');
+      if (newEl && typeof newEl.focus === 'function') newEl.focus();
     });
   }
 

@@ -638,3 +638,79 @@ body.mode-advanced .chip-area .chip:hover:not(.chip-selected) {
   .composer-commit-row { flex-direction: column; }
   .composer-btn { width: 100%; }
 }
+
+/* === OR-group framing (A2) === */
+/* Per-chip "+أو" handle on every keyword chip. Always visible (not
+   hover-only) and tappable on touch (≥24px). Sits at the leading edge of
+   the chip pill via document flow (it's the first child appended). */
+.chip-or-handle {
+  background: transparent;
+  border: 1px solid var(--accent-muted);
+  color: var(--tip);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: 999px;
+  min-width: 36px;
+  min-height: 24px;
+  margin-inline-end: 2px;
+  white-space: nowrap;
+  transition: background 120ms, border-color 120ms, color 120ms;
+}
+.chip-or-handle:hover {
+  background: var(--tip-bg);
+  border-color: var(--tip);
+  color: var(--tip);
+}
+.chip-or-handle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+body.mode-beginner .chip-or-handle {
+  font-size: 12px;
+  min-height: 28px;
+  padding: 4px 8px;
+}
+
+/* Container that wraps a contiguous run of [term, OR, term, ...]. The
+   model stays flat — this is render-only chrome. */
+.chip-or-group {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 6px 6px 6px;
+  border: 1px dashed var(--accent-muted);
+  border-radius: 6px;
+  position: relative;
+}
+.chip-or-group::before {
+  content: 'أيٌ مما يلي:';
+  position: absolute;
+  top: -2px;
+  inset-inline-start: 8px;
+  font-size: 10px;
+  color: var(--fg-muted);
+  background: var(--bg);
+  padding: 0 4px;
+  line-height: 1;
+  pointer-events: none;
+}
+/* Inside a group, the connector becomes a slim divider — no border, smaller. */
+.chip-or-group .chip-or-connector {
+  background: transparent;
+  border: 0;
+  color: var(--fg-muted);
+  padding: 0 2px;
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+.chip-or-group .chip-or-connector .chip-or-text { padding: 0 2px; }
+.chip-or-group .chip-or-connector .chip-delete-btn { display: none; }
+
+/* === Empty-state templates (A5) === */
+/* === Keyboard reorder hint (B4) === */
