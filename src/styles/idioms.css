@@ -159,20 +159,38 @@
 
 .idiom-panel-header {
   display: none; /* shown by data-state="open" rule */
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
   padding: 10px 14px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-subtle);
 }
 
+/* Top row: title leads, close button trails. Always one line. */
+.idiom-panel-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Controls row: search + filter chips + descriptions toggle. Wraps freely. */
+.idiom-panel-header-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
 .idiom-panel-header-title {
   font-size: 14px;
   font-weight: 600;
   color: var(--fg);
-  flex-shrink: 0;
+  flex: 1 1 auto;
+  min-width: 0;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ─── SEARCH INPUT ────────────────────────────────────────────────────── */
@@ -290,7 +308,11 @@
   background: var(--accent);
 }
 
-/* ─── CLOSE BUTTON ────────────────────────────────────────────────────── */
+/* ─── CLOSE BUTTON ──────────────────────────────────────────────────────
+   Square × button anchored next to the title so the dismiss control is
+   always at a predictable corner of the panel. The × glyph + aria-label
+   are universally understood; a text label is intentionally omitted to
+   avoid clipping at the panel's trailing edge on narrow viewports. */
 
 .idiom-panel-close {
   display: inline-flex;
@@ -298,13 +320,17 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  font-size: 11px;
+  font: inherit;
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 600;
   color: var(--fg-muted);
   background: transparent;
-  border: 1px solid transparent;
+  border: 1px solid var(--border);
   border-radius: 6px;
   cursor: pointer;
   flex-shrink: 0;
+  padding: 0;
   transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
 }
 
@@ -312,7 +338,7 @@
 .idiom-panel-close:focus-visible {
   background: var(--bg);
   color: var(--fg);
-  border-color: var(--border);
+  border-color: var(--accent);
   outline: none;
 }
 
@@ -345,6 +371,19 @@
 .idiom-panel-body::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 3px;
+}
+
+/* On mobile, drop the inner-scroll container — the playbook becomes
+   one long panel that the page itself scrolls. Avoids the awkward
+   nested-scroll experience and lets users swipe naturally through
+   all 35 recipes without trapping their finger inside a 60vh box.
+   Browsers normalize `overflow-y: visible` to `auto` when `overflow-x`
+   stays non-visible, so reset both axes together. */
+@media (max-width: 700px) {
+  .idiom-panel[data-state="open"] .idiom-panel-body {
+    max-height: none;
+    overflow: visible;
+  }
 }
 
 /* ─── SECTION HEADER ─────────────────────────────────────────────────── */
