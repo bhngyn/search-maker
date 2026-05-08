@@ -191,6 +191,31 @@ body.mode-beginner .chip-op-select { font-size: 12px; }
 }
 .chip-or-text { padding: 0 4px; }
 
+/* The connector text is a button — make it look like a pill, no default
+   button chrome. The whole chip is also clickable as a toggle hint. */
+.chip-bool-toggle {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 4px;
+  border-radius: 4px;
+  min-height: 28px;
+}
+.chip-bool-toggle:hover { background: rgba(255, 255, 255, 0.08); }
+.chip-bool-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* AND-kind connector — different palette so the two states are at-a-glance
+   distinguishable. Reuses the muted-accent palette so it reads as "neutral
+   conjunction" while the OR pill keeps the tip-yellow accent. */
+.chip-bool-and {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 /* ===== Composer ===== */
 .composer {
   display: flex;

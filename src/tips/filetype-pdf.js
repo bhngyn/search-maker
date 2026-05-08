@@ -1,3 +1,5 @@
+import { t } from '../i18n/messages.js';
+
 // "PDF + suggest site restriction" tip — fires when a filetype chip is set
 // to PDF (the most common Google operator combination for finding leaked
 // or official documents).
@@ -15,7 +17,7 @@ export function register(ctx, deps) {
     if (hasPdf) {
       ctx.addTip('filetype-pdf', {
         priority: 70,
-        messageHtml: '💡 تلميح: ابحث عن PDF مع قيد موقع لاكتشاف وثائق محصورة. مثلاً، إضافة <code>site:.gov</code> أو <code>site:.edu</code> غالباً تكشف وثائق رسمية أو أكاديمية.',
+        messageHtml: t('tip.filetypePdf'),
       });
     } else {
       ctx.removeTip('filetype-pdf');

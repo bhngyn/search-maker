@@ -1,3 +1,5 @@
+import { t } from '../i18n/messages.js';
+
 // Tip surfaced when the user has a quoted multi-word keyword chip — Arabic
 // names often have multiple valid spellings, and the global normalize toggle
 // can broaden the search across variants.
@@ -21,7 +23,7 @@ export function register(ctx, deps) {
     if (trigger) {
       ctx.addTip('keyword-name-variants', {
         priority: 50,
-        messageHtml: '💡 تلميح: الأسماء العربية لها كثير من التهجئات المختلفة (أ، إ، آ). يمكنك تفعيل «توحيد الأحرف العربية» في الأعلى ليشمل البحث هذه الاختلافات تلقائياً.',
+        messageHtml: t('tip.keywordNameVariants'),
       });
     } else {
       ctx.removeTip('keyword-name-variants');

@@ -1,5 +1,6 @@
 import { renderWarningGlyph } from '../ui/chip-popover.js';
 import { getActiveEngine } from '../core/engine.js';
+import { t } from '../i18n/messages.js';
 
 // Keyword chip — the primary chip type. Carries free-text content plus an
 // optional content operator. The catalogue of operators lives on the active
@@ -17,12 +18,12 @@ import { getActiveEngine } from '../core/engine.js';
 // chip type needed because both engines parse `*` literally inside text.
 
 export const type = 'keyword';
-export const label = 'كلمة';
+export const label = 'engine.google.op.none.label';
 
 const FALLBACK_OP = {
-  label: 'كلمة',
+  label: 'engine.google.op.none.label',
   opName: '',
-  dir: 'rtl',
+  dir: 'auto',
   normalizes: true,
   quotable: true,
   acceptsArabic: true,
@@ -86,8 +87,8 @@ export function validate(chip) {
   if (multiWordOps.has(opKey) && text && /\s/.test(text) && !chip.props.quoted) {
     issues.push({
       severity: 'warning',
-      message: 'كلمات متعددة بدون اقتباس — سيُربط أول جزء فقط بالعامل. فعّل الاقتباس.',
-      fix: { label: 'فعّل الاقتباس', apply: () => ({ quoted: true }) },
+      message: t('chip.keyword.validate.multiWord'),
+      fix: { label: t('chip.keyword.validate.multiWordFix'), apply: () => ({ quoted: true }) },
     });
   }
 
@@ -95,7 +96,7 @@ export function validate(chip) {
   if (arabicForbiddenOps.has(opKey) && /[؀-ۿ]/.test(text)) {
     issues.push({
       severity: 'warning',
-      message: 'هذا الحقل يتوقع نصاً لاتينياً. لن يطابق محرك البحث النص العربي هنا.',
+      message: t('chip.keyword.validate.arabicForbidden'),
     });
   }
 
@@ -103,8 +104,8 @@ export function validate(chip) {
   if (chip.props.quoted && op.quotable && text && !/\s/.test(text)) {
     issues.push({
       severity: 'tip',
-      message: 'اقتباس كلمة واحدة يُعطّل تصحيح التهجئة والمرادفات. غالباً غير ضروري.',
-      fix: { label: 'إلغاء الاقتباس', apply: () => ({ quoted: false }) },
+      message: t('chip.keyword.validate.singleWordQuoted'),
+      fix: { label: t('chip.keyword.validate.singleWordQuotedFix'), apply: () => ({ quoted: false }) },
     });
   }
 
@@ -148,7 +149,7 @@ export function render(chip, handlers) {
   const del = document.createElement('button');
   del.type = 'button';
   del.className = 'chip-delete-btn';
-  del.setAttribute('aria-label', 'حذف الكلمة');
+  del.setAttribute('aria-label', t('chip.keyword.deleteAria'));
   del.textContent = '×';
   del.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -164,9 +165,9 @@ export function render(chip, handlers) {
     orHandle = document.createElement('button');
     orHandle.type = 'button';
     orHandle.className = 'chip-or-handle';
-    orHandle.setAttribute('aria-label', 'إضافة بديل بـ "أو"');
-    orHandle.title = 'إضافة بديل بـ "أو"';
-    orHandle.textContent = '+ أو';
+    orHandle.setAttribute('aria-label', t('chip.keyword.orHandleAria'));
+    orHandle.title = t('chip.keyword.orHandleAria');
+    orHandle.textContent = t('chip.keyword.orHandleText');
     orHandle.addEventListener('click', (e) => {
       e.stopPropagation();
       handlers.onAddOrBranch();
@@ -228,13 +229,13 @@ export function render(chip, handlers) {
   if (handlers.onChangeOperator) {
     const select = document.createElement('select');
     select.className = 'chip-op-select';
-    select.setAttribute('aria-label', 'اختر العامل');
+    select.setAttribute('aria-label', t('chip.keyword.opSelectAria'));
     operatorKeys.forEach(key => {
       const o = operators[key];
       if (!o) return;
       const opt = document.createElement('option');
       opt.value = key;
-      opt.textContent = o.label;
+      opt.textContent = t(o.label);
       if (key === chip.props.operator) opt.selected = true;
       select.appendChild(opt);
     });
@@ -251,9 +252,9 @@ export function render(chip, handlers) {
     quoteBtn.type = 'button';
     quoteBtn.className = 'chip-tool-btn';
     quoteBtn.setAttribute('aria-pressed', chip.props.quoted ? 'true' : 'false');
-    quoteBtn.setAttribute('aria-label', chip.props.quoted ? 'إلغاء الاقتباس' : 'اقتباس حرفي');
+    quoteBtn.setAttribute('aria-label', chip.props.quoted ? t('chip.keyword.quoteOn') : t('chip.keyword.quoteOff'));
     quoteBtn.textContent = '"';
-    quoteBtn.title = chip.props.quoted ? 'إلغاء الاقتباس' : 'اقتباس حرفي';
+    quoteBtn.title = chip.props.quoted ? t('chip.keyword.quoteOn') : t('chip.keyword.quoteOff');
     quoteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       handlers.onToggleQuoted();
@@ -266,9 +267,9 @@ export function render(chip, handlers) {
   negBtn.type = 'button';
   negBtn.className = 'chip-tool-btn';
   negBtn.setAttribute('aria-pressed', chip.props.negate ? 'true' : 'false');
-  negBtn.setAttribute('aria-label', chip.props.negate ? 'إلغاء النفي' : 'نفي (-)');
+  negBtn.setAttribute('aria-label', chip.props.negate ? t('chip.keyword.notOn') : t('chip.keyword.notOff'));
   negBtn.textContent = '−';
-  negBtn.title = chip.props.negate ? 'إلغاء النفي' : 'نفي (-)';
+  negBtn.title = chip.props.negate ? t('chip.keyword.notOn') : t('chip.keyword.notOff');
   negBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     handlers.onToggleNegate();

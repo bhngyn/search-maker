@@ -20,6 +20,7 @@
 // orderings. The drawer reads them lazily so an engine switch immediately
 // shows the right set without manual rebinding.
 import { getActiveEngine } from '../core/engine.js';
+import { t } from '../i18n/messages.js';
 
 function getDrawerSpec() {
   const eng = getActiveEngine();
@@ -72,8 +73,8 @@ export function wireDrawer({ trigger, chipState, mode, engine }) {
     // renders correctly inside the RTL panel.
     btn.innerHTML = `
       <span class="drawer-item-text">
-        <span class="drawer-item-label">${item.label}</span>
-        <span class="drawer-item-desc">${item.desc}</span>
+        <span class="drawer-item-label">${t(item.label)}</span>
+        <span class="drawer-item-desc">${t(item.desc)}</span>
       </span>
       <span class="drawer-item-badge" dir="ltr">${item.badge}</span>
     `;
@@ -116,7 +117,7 @@ export function wireDrawer({ trigger, chipState, mode, engine }) {
         const more = document.createElement('details');
         more.className = 'drawer-more';
         const summary = document.createElement('summary');
-        summary.textContent = 'خيارات إضافية';
+        summary.textContent = t('ui.drawer.beginnerMore');
         more.appendChild(summary);
         spec.beginnerMore.forEach(key => appendItem(more, key));
         section.appendChild(more);
@@ -126,13 +127,13 @@ export function wireDrawer({ trigger, chipState, mode, engine }) {
     } else {
       // Advanced: predictable two-section grouping.
       if ((spec.advancedKeywords || []).length > 0) {
-        const opsSection = buildSection('عوامل البحث على الكلمات');
+        const opsSection = buildSection(t('ui.drawer.advancedKeywordsHeading'));
         spec.advancedKeywords.forEach(key => appendItem(opsSection, key));
         root.appendChild(opsSection);
       }
 
       if ((spec.advancedSpecials || []).length > 0) {
-        const specialsSection = buildSection('قيود إضافية');
+        const specialsSection = buildSection(t('ui.drawer.advancedSpecialsHeading'));
         spec.advancedSpecials.forEach(key => appendItem(specialsSection, key));
         root.appendChild(specialsSection);
       }

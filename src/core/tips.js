@@ -1,3 +1,5 @@
+import { t as tt } from '../i18n/messages.js';
+
 // Strategy tips system. Beginner-only, single-tip-at-a-time, priority-ordered.
 // Higher priority wins ties. Dismissing a tip hides it for the rest of the session.
 
@@ -18,7 +20,7 @@ export function createTips(tipRegion, getMode) {
     const el = document.createElement('div');
     el.className = 'tip tip-' + t.slug;
     el.id = 'tip-' + t.slug;
-    el.innerHTML = t.messageHtml + ' <button type="button" class="tip-dismiss-btn" aria-label="إخفاء الاقتراح">×</button>';
+    el.innerHTML = t.messageHtml + ' <button type="button" class="tip-dismiss-btn" aria-label="' + tt('ui.tip.dismissAria') + '">×</button>';
     el.querySelector('.tip-dismiss-btn').addEventListener('click', () => {
       t.dismissed = true;
       reflow();

@@ -1,3 +1,5 @@
+import { t } from '../i18n/messages.js';
+
 // Facebook search form — the entire input UI when the Facebook engine is
 // active. Replaces the chip composer + chip area + drawer surface (which
 // the bootstrap hides on engine switch).
@@ -30,9 +32,9 @@ const CATEGORY_LABELS_BY_ID = {};
  * @param {{ requestUpdate: () => void }} args.ctx
  * @returns {{ getState: () => object, reset: () => void, refresh: () => void }}
  */
-export function wireFacebookForm({ host, engine, ctx }) {
+export function wireFacebookForm({ host, engine, ctx, lang }) {
   host.classList.add('fb-form');
-  host.setAttribute('aria-label', 'نموذج البحث في Facebook');
+  host.setAttribute('aria-label', t('ui.fbForm.ariaLabel'));
 
   const state = makeInitialState();
 
@@ -83,13 +85,13 @@ export function wireFacebookForm({ host, engine, ctx }) {
     wrap.className = 'fb-form-section fb-form-categories';
     const legend = document.createElement('h3');
     legend.className = 'fb-form-legend';
-    legend.textContent = 'نوع البحث';
+    legend.textContent = t('ui.fbForm.categoryLegend');
     wrap.appendChild(legend);
 
     const grid = document.createElement('div');
     grid.className = 'fb-cat-grid';
     grid.setAttribute('role', 'radiogroup');
-    grid.setAttribute('aria-label', 'نوع البحث');
+    grid.setAttribute('aria-label', t('ui.fbForm.categoryLegend'));
 
     engine.categories.forEach(cat => {
       const btn = document.createElement('button');
@@ -99,7 +101,7 @@ export function wireFacebookForm({ host, engine, ctx }) {
       btn.setAttribute('aria-checked', cat.value === state.category ? 'true' : 'false');
       if (cat.value === state.category) btn.classList.add('is-active');
       btn.dataset.value = cat.value;
-      btn.innerHTML = `<span class="fb-cat-label">${escapeHtml(cat.label)}</span><span class="fb-cat-hint">${escapeHtml(cat.hint)}</span>`;
+      btn.innerHTML = `<span class="fb-cat-label">${escapeHtml(t(cat.label))}</span><span class="fb-cat-hint">${escapeHtml(t(cat.hint))}</span>`;
       btn.addEventListener('click', () => {
         if (state.category === cat.value) return;
         state.category = cat.value;
@@ -113,7 +115,7 @@ export function wireFacebookForm({ host, engine, ctx }) {
         render();
         ctx.requestUpdate();
       });
-      CATEGORY_LABELS_BY_ID[cat.value] = cat.label;
+      CATEGORY_LABELS_BY_ID[cat.value] = t(cat.label);
       grid.appendChild(btn);
     });
 
@@ -127,17 +129,18 @@ export function wireFacebookForm({ host, engine, ctx }) {
     const legend = document.createElement('label');
     legend.className = 'fb-form-legend';
     legend.htmlFor = 'fb-keyword-input';
-    legend.textContent = 'كلمة البحث';
+    legend.textContent = t('ui.fbForm.keywordLegend');
     const hint = document.createElement('p');
     hint.className = 'fb-form-hint';
-    hint.textContent = 'حقل مطلوب من Facebook. اكتب كلمة (عربية أو إنجليزية)؛ يمكن دمجها مع المرشحات أدناه.';
+    hint.textContent = t('ui.fbForm.keywordHint');
 
     const input = document.createElement('input');
     input.type = 'text';
     input.id = 'fb-keyword-input';
     input.className = 'fb-keyword-input';
+    input.dir = 'auto';
     input.value = state.keyword || '';
-    input.placeholder = 'اكتب كلمة البحث';
+    input.placeholder = t('ui.fbForm.keywordPlaceholder');
     input.autocomplete = 'off';
     input.spellcheck = false;
     input.addEventListener('input', (e) => set({ keyword: e.target.value }));
@@ -155,7 +158,7 @@ export function wireFacebookForm({ host, engine, ctx }) {
     if (!sections.length) {
       const note = document.createElement('p');
       note.className = 'fb-form-empty';
-      note.textContent = 'لا توجد مرشحات إضافية لهذه الفئة.';
+      note.textContent = t('ui.fbForm.noFilters');
       container.appendChild(note);
       return container;
     }
@@ -176,11 +179,11 @@ export function wireFacebookForm({ host, engine, ctx }) {
     const wrap = document.createElement('section');
     wrap.className = 'fb-form-section';
     wrap.setAttribute('role', 'radiogroup');
-    wrap.setAttribute('aria-label', section.legend);
+    wrap.setAttribute('aria-label', t(section.legend));
 
     const legend = document.createElement('h3');
     legend.className = 'fb-form-legend';
-    legend.textContent = section.legend;
+    legend.textContent = t(section.legend);
     wrap.appendChild(legend);
 
     const list = document.createElement('div');
@@ -206,7 +209,7 @@ export function wireFacebookForm({ host, engine, ctx }) {
 
       const labelText = document.createElement('span');
       labelText.className = 'fb-radio-label';
-      labelText.textContent = opt.label;
+      labelText.textContent = t(opt.label);
 
       row.appendChild(radio);
       row.appendChild(labelText);
@@ -217,7 +220,7 @@ export function wireFacebookForm({ host, engine, ctx }) {
         idInput.type = 'text';
         idInput.className = 'fb-id-input';
         idInput.dir = opt.idField.dir || 'ltr';
-        idInput.placeholder = opt.idField.placeholder || '';
+        idInput.placeholder = t(opt.idField.placeholder) || '';
         idInput.value = sel.idValue || '';
         idInput.autocomplete = 'off';
         idInput.spellcheck = false;
@@ -234,7 +237,7 @@ export function wireFacebookForm({ host, engine, ctx }) {
         if (opt.idField.hint) {
           const hint = document.createElement('span');
           hint.className = 'fb-id-hint';
-          hint.textContent = opt.idField.hint;
+          hint.textContent = t(opt.idField.hint);
           row.appendChild(hint);
         }
       }
@@ -252,7 +255,7 @@ export function wireFacebookForm({ host, engine, ctx }) {
 
     const legend = document.createElement('h3');
     legend.className = 'fb-form-legend';
-    legend.textContent = section.legend;
+    legend.textContent = t(section.legend);
     wrap.appendChild(legend);
 
     const row = document.createElement('label');
@@ -265,7 +268,7 @@ export function wireFacebookForm({ host, engine, ctx }) {
 
     const labelText = document.createElement('span');
     labelText.className = 'fb-radio-label';
-    labelText.textContent = section.toggleLabel || 'تفعيل';
+    labelText.textContent = section.toggleLabel ? t(section.toggleLabel) : t('ui.fbForm.toggleDefault');
 
     row.appendChild(cb);
     row.appendChild(labelText);
@@ -279,7 +282,7 @@ export function wireFacebookForm({ host, engine, ctx }) {
 
     const legend = document.createElement('h3');
     legend.className = 'fb-form-legend';
-    legend.textContent = section.legend;
+    legend.textContent = t(section.legend);
     wrap.appendChild(legend);
 
     const row = document.createElement('div');
@@ -289,7 +292,7 @@ export function wireFacebookForm({ host, engine, ctx }) {
     input.type = 'text';
     input.className = 'fb-id-input';
     input.dir = section.idField.dir || 'ltr';
-    input.placeholder = section.idField.placeholder || '';
+    input.placeholder = t(section.idField.placeholder) || '';
     input.value = (state.ids && state.ids[section.id]) || '';
     input.autocomplete = 'off';
     input.spellcheck = false;
@@ -302,7 +305,7 @@ export function wireFacebookForm({ host, engine, ctx }) {
     if (section.idField.hint) {
       const hint = document.createElement('span');
       hint.className = 'fb-id-hint';
-      hint.textContent = section.idField.hint;
+      hint.textContent = t(section.idField.hint);
       row.appendChild(hint);
     }
     wrap.appendChild(row);
@@ -315,12 +318,12 @@ export function wireFacebookForm({ host, engine, ctx }) {
 
     const legend = document.createElement('h3');
     legend.className = 'fb-form-legend';
-    legend.textContent = section.legend;
+    legend.textContent = t(section.legend);
     wrap.appendChild(legend);
 
     const hint = document.createElement('p');
     hint.className = 'fb-form-hint';
-    hint.textContent = 'اختر تاريخي البداية والنهاية. اتركه فارغاً لتجاهل المرشّح.';
+    hint.textContent = t('engine.facebook.sec.datePosted.hint');
     wrap.appendChild(hint);
 
     const row = document.createElement('div');
@@ -328,7 +331,7 @@ export function wireFacebookForm({ host, engine, ctx }) {
 
     const startLabel = document.createElement('label');
     startLabel.className = 'fb-date-label';
-    startLabel.textContent = 'من';
+    startLabel.textContent = t('engine.facebook.sec.datePosted.from');
     const startInput = document.createElement('input');
     startInput.type = 'date';
     startInput.className = 'fb-date-input';
@@ -353,7 +356,7 @@ export function wireFacebookForm({ host, engine, ctx }) {
 
     const endLabel = document.createElement('label');
     endLabel.className = 'fb-date-label';
-    endLabel.textContent = 'إلى';
+    endLabel.textContent = t('engine.facebook.sec.datePosted.to');
     const endInput = document.createElement('input');
     endInput.type = 'date';
     endInput.className = 'fb-date-input';
@@ -384,6 +387,15 @@ export function wireFacebookForm({ host, engine, ctx }) {
   }
 
   render();
+
+  // Re-render whole form on language change so legends, options, hints,
+  // placeholders all pick up the new language.
+  if (lang && typeof lang.on === 'function') {
+    lang.on(() => {
+      host.setAttribute('aria-label', t('ui.fbForm.ariaLabel'));
+      render();
+    });
+  }
 
   function refresh() { render(); }
   return { getState: () => state, reset, refresh };

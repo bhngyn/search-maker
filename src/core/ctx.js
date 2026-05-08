@@ -14,6 +14,8 @@
  * @property {(text: string) => string} normalize
  * @property {() => 'beginner' | 'advanced'} getMode
  * @property {(cb: (mode: string) => void) => void} onModeChange
+ * @property {() => 'ar' | 'en'} getLang
+ * @property {(cb: (lang: string) => void) => void} onLangChange
  */
 
 /**
@@ -24,9 +26,10 @@
  * @param {{ render: (slug: string, html: string) => void, clear: (slug: string) => void }} args.warnings
  * @param {{ add: (slug: string, opts: any) => void, remove: (slug: string) => void }} args.tips
  * @param {{ get: () => 'beginner' | 'advanced', on: (cb: (mode: string) => void) => void }} args.mode
+ * @param {{ get: () => 'ar' | 'en', on: (cb: (lang: string) => void) => void }} [args.lang]
  * @returns {Ctx}
  */
-export function createCtx({ segments, normalize, requestUpdate, warnings, tips, mode }) {
+export function createCtx({ segments, normalize, requestUpdate, warnings, tips, mode, lang }) {
   return {
     registerSegment(order, fn) { segments.push({ order, fn }); },
     requestUpdate,
@@ -37,5 +40,7 @@ export function createCtx({ segments, normalize, requestUpdate, warnings, tips, 
     normalize,
     getMode: mode.get,
     onModeChange: mode.on,
+    getLang: lang ? lang.get : () => 'ar',
+    onLangChange: lang ? lang.on : () => {},
   };
 }

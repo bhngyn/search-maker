@@ -1,5 +1,6 @@
 import { renderWarningGlyph } from '../ui/chip-popover.js';
 import { getActiveEngine } from '../core/engine.js';
+import { t } from '../i18n/messages.js';
 
 // Date-range chip — wraps the active engine's date-bound operators in a
 // single chip with two date inputs. Google emits `after:` / `before:`; X /
@@ -9,7 +10,7 @@ import { getActiveEngine } from '../core/engine.js';
 // changes — so chips survive engine switches.
 
 export const type = 'date-range';
-export const label = 'نطاق زمني';
+export const label = 'engine.google.drawer.dateRange.label';
 
 export function defaultProps() {
   return { after: '', before: '' };
@@ -35,8 +36,8 @@ export function validate(chip) {
   if (after && before && after > before) {
     issues.push({
       severity: 'warning',
-      message: 'النطاق الزمني مقلوب — تاريخ "بعد" أحدث من "قبل"، لن تكون هناك نتائج.',
-      fix: { label: 'بدّل التاريخين', apply: () => ({ after: before, before: after }) },
+      message: t('chip.dateRange.validate.inverted'),
+      fix: { label: t('chip.dateRange.validate.invertedFix'), apply: () => ({ after: before, before: after }) },
     });
   }
   return issues;
@@ -50,7 +51,7 @@ export function render(chip, handlers) {
   const del = document.createElement('button');
   del.type = 'button';
   del.className = 'chip-delete-btn';
-  del.setAttribute('aria-label', 'حذف النطاق الزمني');
+  del.setAttribute('aria-label', t('chip.dateRange.deleteAria'));
   del.textContent = '×';
   del.addEventListener('click', (e) => { e.stopPropagation(); handlers.onDelete(); });
 
@@ -66,11 +67,11 @@ export function render(chip, handlers) {
 
   const afterLabel = document.createElement('span');
   afterLabel.className = 'chip-wide-input-label';
-  afterLabel.textContent = 'بعد:';
+  afterLabel.textContent = t('chip.dateRange.afterLabel');
   const afterInput = document.createElement('input');
   afterInput.type = 'date';
   afterInput.className = 'chip-wide-input chip-wide-input-date';
-  afterInput.setAttribute('aria-label', 'بعد تاريخ');
+  afterInput.setAttribute('aria-label', t('chip.dateRange.afterAria'));
   afterInput.value = chip.props.after || '';
   afterInput.addEventListener('input', () => {
     if (handlers.onChangeProps) handlers.onChangeProps({ after: afterInput.value });
@@ -79,11 +80,11 @@ export function render(chip, handlers) {
 
   const beforeLabel = document.createElement('span');
   beforeLabel.className = 'chip-wide-input-label';
-  beforeLabel.textContent = 'قبل:';
+  beforeLabel.textContent = t('chip.dateRange.beforeLabel');
   const beforeInput = document.createElement('input');
   beforeInput.type = 'date';
   beforeInput.className = 'chip-wide-input chip-wide-input-date';
-  beforeInput.setAttribute('aria-label', 'قبل تاريخ');
+  beforeInput.setAttribute('aria-label', t('chip.dateRange.beforeAria'));
   beforeInput.value = chip.props.before || '';
   beforeInput.addEventListener('input', () => {
     if (handlers.onChangeProps) handlers.onChangeProps({ before: beforeInput.value });

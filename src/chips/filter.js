@@ -1,4 +1,5 @@
 import { renderWarningGlyph } from '../ui/chip-popover.js';
+import { t } from '../i18n/messages.js';
 
 // Filter chip — wraps Twitter's `filter:<flag>` family in a single
 // dropdown chip with a built-in negate toggle.
@@ -12,26 +13,26 @@ import { renderWarningGlyph } from '../ui/chip-popover.js';
 //     toggle on this value emits the include: form rather than -filter:.
 
 export const type = 'filter';
-export const label = 'تصفية';
+export const label = 'engine.x.drawer.filter.label';
 
 export const FILTERS = [
-  { value: '',               label: 'بدون تحديد',                    negatable: false },
-  { value: 'media',          label: 'وسائط (صور أو فيديو)',          negatable: true },
-  { value: 'images',         label: 'صور فقط',                        negatable: true },
-  { value: 'videos',         label: 'فيديو فقط',                      negatable: true },
-  { value: 'native_video',   label: 'فيديو تويتر الأصلي',             negatable: true },
-  { value: 'spaces',         label: 'تويتر سبيسز',                    negatable: true },
-  { value: 'links',          label: 'يحتوي رابط',                     negatable: true },
-  { value: 'mentions',       label: 'يذكر حساباً',                    negatable: true },
-  { value: 'hashtags',       label: 'يحتوي هاشتاج',                   negatable: true },
-  { value: 'replies',        label: 'ردود على تغريدات',               negatable: true },
-  { value: 'quote',          label: 'اقتباسات',                       negatable: true },
-  { value: 'nativeretweets', label: 'إعادات تغريد أصلية',             negatable: true, includeForm: true },
-  { value: 'retweets',       label: 'إعادات تغريد قديمة (RT)',        negatable: true },
-  { value: 'verified',       label: 'حسابات موثّقة (قديمة)',          negatable: true },
-  { value: 'blue_verified',  label: 'حسابات Twitter Blue',            negatable: true },
-  { value: 'follows',        label: 'حسابات أتابعها',                 negatable: false },
-  { value: 'has_engagement', label: 'لديها تفاعل',                    negatable: true },
+  { value: '',               labelKey: 'chip.filter.opt.none',          negatable: false },
+  { value: 'media',          labelKey: 'chip.filter.opt.media',          negatable: true },
+  { value: 'images',         labelKey: 'chip.filter.opt.images',         negatable: true },
+  { value: 'videos',         labelKey: 'chip.filter.opt.videos',         negatable: true },
+  { value: 'native_video',   labelKey: 'chip.filter.opt.native_video',   negatable: true },
+  { value: 'spaces',         labelKey: 'chip.filter.opt.spaces',         negatable: true },
+  { value: 'links',          labelKey: 'chip.filter.opt.links',          negatable: true },
+  { value: 'mentions',       labelKey: 'chip.filter.opt.mentions',       negatable: true },
+  { value: 'hashtags',       labelKey: 'chip.filter.opt.hashtags',       negatable: true },
+  { value: 'replies',        labelKey: 'chip.filter.opt.replies',        negatable: true },
+  { value: 'quote',          labelKey: 'chip.filter.opt.quote',          negatable: true },
+  { value: 'nativeretweets', labelKey: 'chip.filter.opt.nativeretweets', negatable: true, includeForm: true },
+  { value: 'retweets',       labelKey: 'chip.filter.opt.retweets',       negatable: true },
+  { value: 'verified',       labelKey: 'chip.filter.opt.verified',       negatable: true },
+  { value: 'blue_verified',  labelKey: 'chip.filter.opt.blue_verified',  negatable: true },
+  { value: 'follows',        labelKey: 'chip.filter.opt.follows',        negatable: false },
+  { value: 'has_engagement', labelKey: 'chip.filter.opt.has_engagement', negatable: true },
 ];
 
 function findFilter(value) {
@@ -64,8 +65,8 @@ export function validate(chip) {
   if (chip.props.negate && f && !f.negatable) {
     issues.push({
       severity: 'warning',
-      message: 'هذا النوع من التصفية لا يمكن نفيه. أزل النفي أو اختر نوعاً آخر.',
-      fix: { label: 'إلغاء النفي', apply: () => ({ negate: false }) },
+      message: t('chip.filter.validate.notNegatable'),
+      fix: { label: t('chip.filter.validate.notNegatableFix'), apply: () => ({ negate: false }) },
     });
   }
   return issues;
@@ -80,7 +81,7 @@ export function render(chip, handlers) {
   const del = document.createElement('button');
   del.type = 'button';
   del.className = 'chip-delete-btn';
-  del.setAttribute('aria-label', 'حذف التصفية');
+  del.setAttribute('aria-label', t('chip.filter.deleteAria'));
   del.textContent = '×';
   del.addEventListener('click', (e) => { e.stopPropagation(); handlers.onDelete(); });
 
@@ -91,11 +92,11 @@ export function render(chip, handlers) {
 
   const select = document.createElement('select');
   select.className = 'chip-wide-select';
-  select.setAttribute('aria-label', 'اختر نوع التصفية');
-  FILTERS.forEach(({ value, label }) => {
+  select.setAttribute('aria-label', t('chip.filter.selectAria'));
+  FILTERS.forEach(({ value, labelKey }) => {
     const opt = document.createElement('option');
     opt.value = value;
-    opt.textContent = label;
+    opt.textContent = t(labelKey);
     if (value === chip.props.value) opt.selected = true;
     select.appendChild(opt);
   });
@@ -112,8 +113,8 @@ export function render(chip, handlers) {
     negBtn.type = 'button';
     negBtn.className = 'chip-tool-btn';
     negBtn.setAttribute('aria-pressed', chip.props.negate ? 'true' : 'false');
-    negBtn.setAttribute('aria-label', chip.props.negate ? 'إلغاء النفي' : 'نفي (-)');
-    negBtn.title = chip.props.negate ? 'إلغاء النفي' : 'نفي (-)';
+    negBtn.setAttribute('aria-label', chip.props.negate ? t('chip.filter.notOn') : t('chip.filter.notOff'));
+    negBtn.title = chip.props.negate ? t('chip.filter.notOn') : t('chip.filter.notOff');
     negBtn.textContent = '−';
     negBtn.addEventListener('click', (e) => {
       e.stopPropagation();

@@ -1,3 +1,5 @@
+import { t } from '../i18n/messages.js';
+
 // Live query preview, copy-to-clipboard, Google search redirect, and the
 // two-tap inline reset confirmation.
 //
@@ -30,7 +32,7 @@ export function createPreview({
   assembleQuery, warnings, tips,
   getQueryFragments,
   getSearchUrl,
-  emptyMessage = 'ابدأ بكتابة كلمات البحث',
+  emptyMessage = '',
   postRenderHooks = [],
   onResetHooks = [],
 }) {
@@ -129,10 +131,10 @@ export function createPreview({
     }
     if (copied) {
       const original = copyBtn.textContent;
-      copyBtn.textContent = 'تم النسخ';
+      copyBtn.textContent = t('app.copyBtnDone');
       setTimeout(() => { copyBtn.textContent = original; }, 1500);
     } else {
-      showToast('تعذر النسخ — يرجى نسخ الاستعلام يدوياً');
+      showToast(t('app.copyFailed'));
     }
   });
 
@@ -148,15 +150,15 @@ export function createPreview({
   resetBtn.addEventListener('click', () => {
     if (!resetArmed) {
       resetArmed = true;
-      resetBtn.textContent = 'تأكيد المسح';
+      resetBtn.textContent = t('app.resetBtnConfirm');
       resetTimer = setTimeout(() => {
         resetArmed = false;
-        resetBtn.textContent = 'مسح الكل';
+        resetBtn.textContent = t('app.resetBtn');
       }, 3000);
     } else {
       clearTimeout(resetTimer);
       resetArmed = false;
-      resetBtn.textContent = 'مسح الكل';
+      resetBtn.textContent = t('app.resetBtn');
       // Run reset hooks (chip-state.clear etc.).
       onResetHooks.forEach(hook => { try { hook(); } catch (e) { console.warn('reset hook failed', e); } });
       // Clear all warnings and tips too.

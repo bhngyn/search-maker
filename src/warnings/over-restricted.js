@@ -1,3 +1,5 @@
+import { t } from '../i18n/messages.js';
+
 // Warns when too many operator-bearing chips are active simultaneously.
 // Highly restricted queries often return zero results.
 
@@ -27,8 +29,7 @@ export function register(ctx, deps) {
   function onRender() {
     const count = chipState.getAll().filter(isRestricting).length;
     if (count > 4) {
-      ctx.addWarning('over-restricted',
-        '⚠️ فعّلت ' + count + ' قيود بحث في نفس الوقت. الاستعلامات المقيدة جداً غالباً لا تُعيد نتائج. ابدأ بقيود أقل وأضف المزيد إذا كانت النتائج واسعة.');
+      ctx.addWarning('over-restricted', t('warning.overRestricted', { count }));
     } else {
       ctx.removeWarning('over-restricted');
     }

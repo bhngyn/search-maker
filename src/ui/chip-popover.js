@@ -1,3 +1,5 @@
+import { t } from '../i18n/messages.js';
+
 // Per-chip warning glyph + popover.
 //
 // A chip type module exports `validate(chip)` returning an array of issues:
@@ -45,7 +47,7 @@ function openPopover(anchor, issues, handlers) {
   const pop = document.createElement('div');
   pop.className = 'chip-warning-popover';
   pop.setAttribute('role', 'dialog');
-  pop.setAttribute('aria-label', 'تنبيه على الكلمة');
+  pop.setAttribute('aria-label', t('ui.popover.ariaLabel'));
 
   issues.forEach(issue => {
     const wrap = document.createElement('div');
@@ -140,7 +142,7 @@ export function renderWarningGlyph(chip, issues, handlers) {
   btn.className = 'chip-warning-glyph chip-warning-glyph-' + severity;
   btn.textContent = severity === 'warning' ? '⚠' : 'ℹ';
   btn.title = issues.map(i => i.message).join(' • ');
-  btn.setAttribute('aria-label', 'تنبيه: ' + btn.title);
+  btn.setAttribute('aria-label', t('ui.popover.glyphAriaLabel', { text: btn.title }));
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (activeAnchor === btn) {

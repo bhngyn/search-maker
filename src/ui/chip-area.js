@@ -10,6 +10,7 @@
 
 import { chipTypes } from '../chips/_registry.js';
 import { getTemplates, applyTemplate } from './templates.js';
+import { t } from '../i18n/messages.js';
 
 /**
  * Selection observable shared with the bulk-actions toolbar. A simple
@@ -39,7 +40,7 @@ export function createChipSelection() {
  * @param {() => void} [args.focusComposer]  used by the empty-state templates to focus the composer after applying
  * @param {(chipId: string) => void} [args.onChipHighlight]  invoked when a chip is added or focused; preview uses it to flash the matching fragment
  */
-export function wireChipArea({ host, chipState, mode, selection, focusComposer, onChipHighlight, engine }) {
+export function wireChipArea({ host, chipState, mode, selection, focusComposer, onChipHighlight, engine, lang }) {
   host.classList.add('chip-area');
   host.setAttribute('aria-live', 'polite');
   host.setAttribute('aria-relevant', 'additions removals');
@@ -49,6 +50,13 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
   }
 
   let draggedChipId = null;
+
+  function isOrKindConnector(c) {
+    return c && c.type === 'or-connector' && (c.props == null || c.props.kind !== 'and');
+  }
+  function isAndKindConnector(c) {
+    return c && c.type === 'or-connector' && c.props && c.props.kind === 'and';
+  }
 
   function render() {
     const chips = chipState.getAll();
@@ -61,33 +69,46 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
     host.classList.remove('chip-area-is-empty');
     host.innerHTML = '';
     // Build a per-index map of OR-group containers. We walk chips and group
-    // any contiguous run of [keyword, or-connector, keyword, ...] into a
-    // single .chip-or-group span. Non-grouped chips render directly into
-    // host. The grouping is render-only — chip-state stays flat.
+    // any contiguous run of [keyword, or-connector(kind=or), keyword, ...]
+    // into a single .chip-or-group span. AND-kind connectors break the run
+    // and render as standalone connector chips. Non-grouped chips render
+    // directly into host. The grouping is render-only — chip-state stays flat.
     const groupRanges = computeOrGroupRanges(chips);
     let cursor = 0;
     let unitsRendered = 0;
+    let prevWasConnector = false;
     while (cursor < chips.length) {
       const groupEnd = groupRanges.get(cursor);
       if (typeof groupEnd === 'number') {
         // [cursor .. groupEnd] is one OR group (inclusive on both ends).
-        if (unitsRendered > 0) appendAndSeam(host);
+        if (unitsRendered > 0 && !prevWasConnector) appendAndSeam(host);
         host.appendChild(renderOrGroup(chips, cursor, groupEnd));
         cursor = groupEnd + 1;
         unitsRendered++;
+        prevWasConnector = false;
       } else {
-        // Defensive: skip stale or-connectors that landed outside a complete
-        // [term, OR, term] run. cleanupConnectors() should prevent this in
-        // practice, but rendering a lone connector pill as a standalone chip
-        // would look broken.
-        if (chips[cursor] && chips[cursor].type === 'or-connector') {
+        const c = chips[cursor];
+        if (isAndKindConnector(c)) {
+          // AND-kind connector renders inline as a real chip — its presence
+          // IS the separator between the surrounding terms, so suppress the
+          // implicit AND seam on either side.
+          appendChipEl(host, c);
+          cursor++;
+          unitsRendered++;
+          prevWasConnector = true;
+          continue;
+        }
+        if (c && c.type === 'or-connector') {
+          // Stale OR connector outside a complete [term, OR, term] run.
+          // cleanupConnectors() should prevent this; skip defensively.
           cursor++;
           continue;
         }
-        if (unitsRendered > 0) appendAndSeam(host);
-        appendChipEl(host, chips[cursor]);
+        if (unitsRendered > 0 && !prevWasConnector) appendAndSeam(host);
+        appendChipEl(host, c);
         cursor++;
         unitsRendered++;
+        prevWasConnector = false;
       }
     }
   }
@@ -102,7 +123,7 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
     const groupEl = document.createElement('span');
     groupEl.className = 'chip-or-group';
     groupEl.setAttribute('role', 'group');
-    groupEl.setAttribute('aria-label', 'مجموعة "أو"');
+    groupEl.setAttribute('aria-label', t('ui.chipArea.orGroupAriaLabel'));
 
     // Header row.
     const labelEl = document.createElement('span');
@@ -113,10 +134,10 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
     icon.textContent = '⫦';
     const labelText = document.createElement('span');
     labelText.className = 'chip-or-group-label-text';
-    labelText.textContent = 'أيٌ مما يلي';
+    labelText.textContent = t('ui.chipArea.orGroupLabel');
     const helper = document.createElement('span');
     helper.className = 'chip-or-group-label-helper';
-    helper.textContent = 'تطابق أيّ كلمة من هذه الكلمات.';
+    helper.textContent = t('ui.chipArea.orGroupHelper');
     labelEl.appendChild(icon);
     labelEl.appendChild(labelText);
     labelEl.appendChild(helper);
@@ -133,9 +154,9 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
     addBtn.className = 'chip-or-group-add';
-    addBtn.textContent = '+ بديل آخر';
-    addBtn.title = 'إضافة بديل آخر بـ "أو"';
-    addBtn.setAttribute('aria-label', 'إضافة بديل آخر بـ "أو"');
+    addBtn.textContent = t('ui.chipArea.orGroupAdd');
+    addBtn.title = t('ui.chipArea.orGroupAddTitle');
+    addBtn.setAttribute('aria-label', t('ui.chipArea.orGroupAddTitle'));
     const lastMemberId = chips[end].id;
     addBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -150,7 +171,7 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
     const seam = document.createElement('span');
     seam.className = 'chip-and-seam';
     seam.setAttribute('aria-hidden', 'true');
-    seam.textContent = 'و';
+    seam.textContent = t('ui.chipArea.andSeam');
     parent.appendChild(seam);
   }
 
@@ -169,7 +190,7 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
 
     const heading = document.createElement('h3');
     heading.className = 'chip-area-empty-heading';
-    heading.textContent = 'ابدأ من قالب جاهز:';
+    heading.textContent = t('ui.chipArea.emptyHeading');
     wrap.appendChild(heading);
 
     const grid = document.createElement('div');
@@ -187,13 +208,13 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
       icon.setAttribute('aria-hidden', 'true');
       icon.textContent = tpl.icon;
       const titleText = document.createElement('span');
-      titleText.textContent = tpl.title;
+      titleText.textContent = t(tpl.title);
       titleLine.appendChild(icon);
       titleLine.appendChild(titleText);
 
       const desc = document.createElement('span');
       desc.className = 'chip-area-empty-card-desc';
-      desc.textContent = tpl.description;
+      desc.textContent = t(tpl.description);
 
       card.appendChild(titleLine);
       card.appendChild(desc);
@@ -206,14 +227,14 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
 
     const hint = document.createElement('p');
     hint.className = 'chip-area-empty-hint';
-    hint.textContent = 'أو اكتب كلمة في الأسفل وابدأ من الصفر.';
+    hint.textContent = t('ui.chipArea.emptyHint');
     wrap.appendChild(hint);
 
     // Plain Advanced-mode fallback. CSS keeps only one of these visible
     // depending on body.mode-* class.
     const fallback = document.createElement('p');
     fallback.className = 'chip-area-empty';
-    fallback.textContent = 'لم تُضف أي كلمات بعد. اكتب كلمة في الأسفل واضغط Enter.';
+    fallback.textContent = t('ui.chipArea.emptyAdvancedFallback');
 
     host.appendChild(wrap);
     host.appendChild(fallback);
@@ -230,11 +251,12 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
     while (i < chips.length) {
       const c = chips[i];
       if (!c || c.type === 'or-connector') { i++; continue; }
-      // Walk forward across [term, OR, term, ...] pairs.
+      // Walk forward across [term, OR(kind=or), term, ...] pairs. AND-kind
+      // connectors break the run.
       let end = i;
       while (
         end + 2 < chips.length &&
-        chips[end + 1] && chips[end + 1].type === 'or-connector' &&
+        isOrKindConnector(chips[end + 1]) &&
         chips[end + 2] && chips[end + 2].type !== 'or-connector'
       ) {
         end += 2;
@@ -279,10 +301,11 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
     const all = chipState.getAll();
     let idx = all.findIndex(c => c.id === chipId);
     if (idx < 0) return;
-    // Walk forward through any [OR, term] pairs to find the end of the run.
+    // Walk forward through [OR(kind=or), term] pairs to find the end of the
+    // contiguous OR run. AND-kind connectors break the run.
     while (
       idx + 2 < all.length &&
-      all[idx + 1] && all[idx + 1].type === 'or-connector' &&
+      isOrKindConnector(all[idx + 1]) &&
       all[idx + 2] && all[idx + 2].type !== 'or-connector'
     ) {
       idx += 2;
@@ -319,7 +342,7 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
     // Make the chip itself focusable so keyboard users can target the
     // reorder handlers without going through inner editable widgets.
     if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
-    el.title = 'اضغط Alt+سهم لتحريك الكلمة';
+    el.title = t('ui.chipArea.dragHint');
     el.addEventListener('dragstart', (e) => {
       const target = e.target;
       if (target && target.matches && target.matches('[contenteditable], input, select, textarea, button')) {
@@ -450,6 +473,9 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
   // Engine switch may change empty-state templates and the operator
   // surface visible on existing chips; rerender to pick those up.
   if (engine && engine.on) engine.on(() => render());
+  // Lang switch — chip render functions resolve their localized strings on
+  // every render, so we just need to re-run render().
+  if (lang && lang.on) lang.on(() => render());
 
   // Focus binding: when a chip element gains focus (tab, click, or focus()
   // call), highlight its fragment in the preview. Uses focusin so it bubbles

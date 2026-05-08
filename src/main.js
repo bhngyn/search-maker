@@ -1,4 +1,4 @@
-// Bootstrap for the Arabic Boolean Query Builder.
+// Bootstrap for the chip-based query builder.
 //
 // Phase 5: the form is gone. The entire input UI is chip-based:
 //   - chip-state.js       holds the canonical chip array and registers ONE
@@ -7,9 +7,9 @@
 //   - composer + drawer   commit chips from typed text or operator menus
 //   - chip-area           subscribes to chip-state and renders the chip list
 //
-// Warnings and tips read from chip state via deps. Each module that needs
-// to recompute on every preview update returns { onRender } and the
-// bootstrap pushes that callback into postRenderHooks.
+// Phase 6: i18n. Every Arabic literal lives in src/i18n/messages.js keyed
+// by stable ID; the lang controller flips between Arabic and English and
+// notifies every UI module that subscribes. Refresh resets to Arabic.
 
 import './styles/tokens.css';
 import './styles/base.css';
@@ -21,10 +21,12 @@ import { createAssembler } from './core/assemble.js';
 import { createWarnings } from './core/warnings.js';
 import { createTips } from './core/tips.js';
 import { createModeController } from './core/mode.js';
+import { createLangController } from './core/lang.js';
 import { createPreview } from './core/preview.js';
 import { createCtx } from './core/ctx.js';
 import { createChipState } from './core/chip-state.js';
 import { createEngineController } from './core/engine.js';
+import { t } from './i18n/messages.js';
 
 import googleEngine from './engines/google.js';
 import xEngine from './engines/x.js';
@@ -57,15 +59,32 @@ const modeBtnAdvanced = document.getElementById('mode-btn-advanced');
 const engineBtnGoogle = document.getElementById('engine-btn-google');
 const engineBtnX = document.getElementById('engine-btn-x');
 const engineBtnFacebook = document.getElementById('engine-btn-facebook');
+const langBtnAr = document.getElementById('lang-btn-ar');
+const langBtnEn = document.getElementById('lang-btn-en');
 const facebookFormHost = document.getElementById('facebook-form');
 const subtitleEl = document.getElementById('app-subtitle');
 const toastEl = document.getElementById('toast');
+
+// Static-shell IDs (re-painted on every language change).
+const titleEl = document.getElementById('app-title');
+const titleMetaEl = document.getElementById('app-title-meta');
+const engineGroup = document.getElementById('engine-toggle-group');
+const modeGroup = document.getElementById('mode-toggle-group');
+const langGroup = document.getElementById('lang-toggle-group');
+const engineBtnXLabel = document.getElementById('engine-btn-x');
+const normalizeLabelText = document.getElementById('normalize-label-text');
+const welcomeBlurb = document.getElementById('welcome-blurb');
+const welcomeCloseBtn = document.getElementById('welcome-close-btn');
+const welcomeReopenBtn = document.getElementById('welcome-reopen-btn');
+const chipSectionHeading = document.getElementById('chip-section-heading');
+const previewHeading = document.getElementById('preview-heading');
+const fbFormHeading = document.getElementById('facebook-form-heading');
 
 // ===== Core state =====
 const segments = [];
 
 // ===== Core systems =====
-// The engine controller is constructed first so every downstream consumer
+// Engine controller is constructed first so every downstream consumer
 // (keyword chip, composer pills, drawer items, preview search-URL, paste
 // parser) can read the active engine descriptor lazily on every call.
 const engine = createEngineController({
@@ -75,6 +94,16 @@ const engine = createEngineController({
   googleEngine,
   xEngine,
   facebookEngine,
+});
+
+// Language controller — singleton + listener fan-out, mirrors mode.js.
+// Default 'ar' preserves the existing UX; English is opt-in per session.
+const lang = createLangController({
+  btnAr: langBtnAr,
+  btnEn: langBtnEn,
+  body: document.body,
+  html: document.documentElement,
+  initial: 'ar',
 });
 
 const normalize = createNormalizer(() => normalizeInput.checked);
@@ -101,11 +130,7 @@ const tips = createTips(tipRegion, mode.get);
 mode.on(() => tips.reflow());
 
 // `postRenderHooks` is captured by reference so warnings/tips registered
-// after createPreview can still push into it. `onResetHooks` is similar
-// — chip-state pushes its `clear` callback after construction.
-// `getQueryFragmentsRef` lets preview call into chip-state's fragment
-// emitter once chip-state has been constructed (chip-state needs ctx,
-// ctx needs preview, preview is constructed first — wire via a thunk).
+// after createPreview can still push into it. `onResetHooks` is similar.
 const postRenderHooks = [];
 const onResetHooks = [];
 let chipStateRef = null;
@@ -114,8 +139,6 @@ const preview = createPreview({
   previewBox, copyBtn, searchBtn, resetBtn, toastEl,
   assembleQuery, warnings, tips,
   postRenderHooks, onResetHooks,
-  // Chip fragments only make sense for chip-based engines. For Facebook,
-  // returning [] makes preview.js fall back to plain text rendering.
   getQueryFragments: () => {
     if (engine.getActive().id === 'facebook') return [];
     return chipStateRef ? chipStateRef.getQueryFragments() : [];
@@ -126,32 +149,24 @@ const preview = createPreview({
 const ctx = createCtx({
   segments, normalize,
   requestUpdate: preview.render,
-  warnings, tips, mode,
+  warnings, tips, mode, lang,
 });
 
 // ===== Chip state (the only segment producer in chip-only mode) =====
-// Order=1 keeps the segment registry tidy; with no other producers, the
-// number doesn't matter functionally but a low number is conventionally
-// the "main content" slot.
 const chipState = createChipState({ ctx, segmentOrder: 1 });
 chipStateRef = chipState;
 
-// Wire chip clearing into the global reset (second-tap branch).
 onResetHooks.push(() => chipState.clear());
 
 // ===== UI wiring =====
 wireWelcomePanel();
 
-// Selection store for multi-select (Advanced mode).
 const chipSelection = createChipSelection();
 
 let composerHandle = null;
 const chipAreaHost = document.getElementById('chip-area');
 const composerHost = document.getElementById('composer');
 const chipToolbarHost = document.getElementById('chip-toolbar');
-// chip-area is wired before the composer exists — pass a thunk that
-// resolves the composer's focus method lazily so empty-state template
-// cards can move focus to the composer once it's mounted.
 if (chipAreaHost) wireChipArea({
   host: chipAreaHost,
   chipState,
@@ -160,10 +175,11 @@ if (chipAreaHost) wireChipArea({
   focusComposer: () => { if (composerHandle && composerHandle.focus) composerHandle.focus(); },
   onChipHighlight: id => preview.highlightChip(id),
   engine,
+  lang,
 });
-if (chipToolbarHost) wireChipToolbar({ host: chipToolbarHost, chipState, selection: chipSelection, mode });
+if (chipToolbarHost) wireChipToolbar({ host: chipToolbarHost, chipState, selection: chipSelection, mode, lang });
 if (composerHost) {
-  composerHandle = wireComposer({ host: composerHost, chipState, engine });
+  composerHandle = wireComposer({ host: composerHost, chipState, engine, lang });
   if (composerHandle.drawerTrigger) {
     wireDrawer({ trigger: composerHandle.drawerTrigger, chipState, mode, engine });
   }
@@ -196,39 +212,73 @@ wireNormalizeToggle({
 
 // ===== Facebook form (mounted but only visible when engine === facebook) =====
 if (facebookFormHost) {
-  facebookFormHandle = wireFacebookForm({ host: facebookFormHost, engine: facebookEngine, ctx });
-  // Reset hook clears the form state when the user taps "مسح الكل" twice.
+  facebookFormHandle = wireFacebookForm({ host: facebookFormHost, engine: facebookEngine, ctx, lang });
   onResetHooks.push(() => facebookFormHandle.reset());
 }
 
 // ===== Engine-driven DOM strings =====
-// Subtitle, search-button label, and empty-preview placeholder all live on
-// the active engine descriptor. We push them into the static DOM here on
-// boot, and re-push on every engine switch.
 function applyEngineLabels() {
   const active = engine.getActive();
   if (subtitleEl && active.labels && active.labels.subtitle) {
-    subtitleEl.textContent = active.labels.subtitle;
+    subtitleEl.textContent = t(active.labels.subtitle);
   }
   if (searchBtn && active.labels && active.labels.searchBtnLabel) {
-    searchBtn.textContent = active.labels.searchBtnLabel;
+    searchBtn.textContent = t(active.labels.searchBtnLabel);
   }
-  // Toggle a body class so CSS can swap chip section ↔ Facebook form.
   ['google', 'x', 'facebook'].forEach(id => {
     document.body.classList.toggle('engine-' + id, active.id === id);
   });
-  // Empty-preview placeholder lives on the engine; preview.js reads its
-  // emptyMessage at construction time, so we push it onto preview each switch.
   if (preview && typeof preview.setEmptyMessage === 'function' && active.labels && active.labels.emptyPreview) {
-    preview.setEmptyMessage(active.labels.emptyPreview);
+    preview.setEmptyMessage(t(active.labels.emptyPreview));
   }
 }
-applyEngineLabels();
 
-// On engine switch: re-apply DOM labels and re-render the preview so the
-// assembled string reflects the new engine. chip-area, composer, and
-// drawer each subscribe to engine.on() themselves to refresh their own
-// surfaces.
+// ===== Lang-driven DOM strings =====
+// Painted on first boot AND on every language switch. Engine-driven labels
+// are folded in here so the cascade stays simple: lang change → repaint
+// shell + repaint engine labels → trigger preview re-render.
+function applyLangLabels() {
+  if (titleEl) titleEl.textContent = t('app.title');
+  if (titleMetaEl) titleMetaEl.textContent = t('app.title');
+  if (engineGroup) engineGroup.setAttribute('aria-label', t('app.engineToggleLabel'));
+  if (modeGroup) modeGroup.setAttribute('aria-label', t('app.modeToggleLabel'));
+  if (langGroup) langGroup.setAttribute('aria-label', t('app.langToggleLabel'));
+  if (langBtnAr) langBtnAr.textContent = t('app.langArabic');
+  if (langBtnEn) langBtnEn.textContent = t('app.langEnglish');
+  if (modeBtnBeginner) modeBtnBeginner.textContent = t('app.modeBeginner');
+  if (modeBtnAdvanced) modeBtnAdvanced.textContent = t('app.modeAdvanced');
+  if (engineBtnXLabel) engineBtnXLabel.textContent = t('engine.x.label');
+  if (normalizeLabelText) normalizeLabelText.textContent = t('app.normalizeLabel');
+  if (normalizeInfoBtn) normalizeInfoBtn.title = t('app.normalizeInfoTitle');
+  if (normalizeInfoPanel) normalizeInfoPanel.textContent = t('app.normalizeInfoBody');
+  if (welcomeBlurb) welcomeBlurb.innerHTML = t('app.welcomeBlurbHtml');
+  if (welcomeCloseBtn) {
+    welcomeCloseBtn.textContent = t('app.welcomeCloseText');
+    welcomeCloseBtn.setAttribute('aria-label', t('app.welcomeCloseLabel'));
+  }
+  if (welcomeReopenBtn) welcomeReopenBtn.textContent = t('app.welcomeReopen');
+  if (chipSectionHeading) chipSectionHeading.textContent = t('app.chipSectionHeading');
+  if (previewHeading) previewHeading.textContent = t('app.previewHeading');
+  if (fbFormHeading) fbFormHeading.textContent = t('app.fbFormHeading');
+  if (copyBtn) copyBtn.textContent = t('app.copyBtn');
+  if (resetBtn) resetBtn.textContent = t('app.resetBtn');
+  // Engine labels overlap with lang (subtitle, search-btn label, empty-preview).
+  // Always re-apply — the engine's strings are themselves i18n keys.
+  applyEngineLabels();
+}
+applyLangLabels();
+
+lang.on(() => {
+  applyLangLabels();
+  preview.render();
+  // Warnings/tips are recomputed on every preview render via postRenderHooks,
+  // so calling preview.render() above is sufficient to re-emit their messages
+  // in the new language.
+});
+
+// On engine switch: re-apply engine-driven labels and re-render the preview.
+// chip-area, composer, drawer, and facebook-form each subscribe to engine.on()
+// themselves to refresh their own surfaces.
 engine.on(() => {
   applyEngineLabels();
   preview.render();

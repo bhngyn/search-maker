@@ -27,6 +27,7 @@
 import { parseQuery } from '../core/parse-query.js';
 import { getOperatorsForActive } from '../chips/keyword.js';
 import { getActiveEngine } from '../core/engine.js';
+import { t } from '../i18n/messages.js';
 
 // Beginner-mode "convert to" pills shown under the ghost preview while the
 // user is typing. The pill list is engine-driven (see src/engines/<id>.js
@@ -42,8 +43,9 @@ import { getActiveEngine } from '../core/engine.js';
  * @param {HTMLElement} args.host
  * @param {{ add: Function, last: Function, remove: Function, removeMany: Function, getAll: Function }} args.chipState
  * @param {{ on: (cb: Function) => void }} [args.engine] - engine controller; rebuilds pills on switch
+ * @param {{ on: (cb: Function) => void }} [args.lang] - lang controller; re-paints strings on switch
  */
-export function wireComposer({ host, chipState, engine }) {
+export function wireComposer({ host, chipState, engine, lang }) {
   host.classList.add('composer');
   host.innerHTML = `
     <div class="composer-input-row">
@@ -51,52 +53,78 @@ export function wireComposer({ host, chipState, engine }) {
         type="text"
         class="composer-input"
         id="composer-input"
-        placeholder="اكتب كلمة، ثم اضغط Enter لإضافتها"
+        dir="auto"
         autocomplete="off"
         spellcheck="false"
-        aria-label="إضافة كلمة بحث جديدة"
         aria-describedby="composer-ghost-hint"
       />
     </div>
     <div class="composer-ghost-row" id="composer-ghost-row" aria-hidden="true">
       <div class="composer-ghost-line">
-        <span class="composer-ghost-label">سيُضاف:</span>
+        <span class="composer-ghost-label" id="composer-ghost-label-text"></span>
         <span class="composer-ghost-chip" id="composer-ghost-chip"></span>
       </div>
-      <div class="composer-op-pills" id="composer-op-pills" role="group" aria-label="نوع الإضافة"></div>
+      <div class="composer-op-pills" id="composer-op-pills" role="group"></div>
       <div class="composer-quote-row" id="composer-quote-row">
         <button
           type="button"
           class="composer-quote-toggle"
           id="composer-quote-toggle"
           aria-pressed="false"
-          aria-label="اقتباس حرفي"
-          title='اقتباس حرفي — يطابق العبارة كما هي. اختصار: اكتب "العبارة" بين علامتي اقتباس.'
         >
           <span class="composer-quote-toggle-glyph" dir="ltr">"&nbsp;"</span>
-          <span class="composer-quote-toggle-label">اقتباس حرفي</span>
+          <span class="composer-quote-toggle-label" id="composer-quote-toggle-label-text"></span>
         </button>
-        <p class="composer-quote-hint">يطابق العبارة بالضبط. اختصار: اكتب "كلمة" أو "عبارة" بين علامتَي اقتباس.</p>
+        <p class="composer-quote-hint" id="composer-quote-hint-text"></p>
       </div>
-      <p class="composer-ghost-paste-hint" id="composer-ghost-paste-hint" aria-live="polite">سيُضاف ككلمة واحدة. اضغط Enter لتأكيد، أو الصق نصاً مع علامات اقتباس للحصول على شظايا منفصلة.</p>
+      <p class="composer-ghost-paste-hint" id="composer-ghost-paste-hint" aria-live="polite"></p>
     </div>
-    <div class="composer-commit-row" role="group" aria-label="إضافة الكلمة">
+    <div class="composer-commit-row" role="group" id="composer-commit-row">
       <button type="button" class="composer-btn composer-btn-and" id="composer-btn-and" disabled>
-        أضف
       </button>
-      <button type="button" class="composer-btn composer-btn-add" id="composer-btn-add" aria-label="إضافة عامل خاص">
-        + إضافة
+      <button type="button" class="composer-btn composer-btn-add" id="composer-btn-add">
       </button>
     </div>
-    <p class="composer-hint" id="composer-ghost-hint">اكتب كلمة واضغط Enter. ستظهر كـ«كلمة بحث» — اضغطها بعد ذلك لتعديلها.</p>
+    <p class="composer-hint" id="composer-ghost-hint"></p>
   `;
 
   const input = host.querySelector('#composer-input');
   const btnAnd = host.querySelector('#composer-btn-and');
+  const btnAdd = host.querySelector('#composer-btn-add');
   const ghostRow = host.querySelector('#composer-ghost-row');
   const ghostChip = host.querySelector('#composer-ghost-chip');
+  const ghostLabel = host.querySelector('#composer-ghost-label-text');
   const pillsRow = host.querySelector('#composer-op-pills');
   const quoteToggle = host.querySelector('#composer-quote-toggle');
+  const quoteToggleLabel = host.querySelector('#composer-quote-toggle-label-text');
+  const quoteHint = host.querySelector('#composer-quote-hint-text');
+  const pasteHintEl = host.querySelector('#composer-ghost-paste-hint');
+  const helpHint = host.querySelector('#composer-ghost-hint');
+  const commitRow = host.querySelector('#composer-commit-row');
+
+  function paintStaticStrings() {
+    if (input) {
+      input.placeholder = t('ui.composer.placeholder');
+      input.setAttribute('aria-label', t('ui.composer.ariaLabel'));
+    }
+    if (ghostLabel) ghostLabel.textContent = t('ui.composer.ghostLabel');
+    if (pillsRow) pillsRow.setAttribute('aria-label', t('ui.composer.opPillsLabel'));
+    if (quoteToggle) {
+      quoteToggle.setAttribute('aria-label', t('ui.composer.quoteToggleLabel'));
+      quoteToggle.setAttribute('title', t('ui.composer.quoteToggleTitle'));
+    }
+    if (quoteToggleLabel) quoteToggleLabel.textContent = t('ui.composer.quoteToggleLabel');
+    if (quoteHint) quoteHint.textContent = t('ui.composer.quoteHint');
+    if (pasteHintEl) pasteHintEl.textContent = t('ui.composer.pasteHint');
+    if (commitRow) commitRow.setAttribute('aria-label', t('ui.composer.commitGroupLabel'));
+    if (btnAnd) btnAnd.textContent = t('ui.composer.btnAnd');
+    if (btnAdd) {
+      btnAdd.textContent = t('ui.composer.btnAddSpecial');
+      btnAdd.setAttribute('aria-label', t('ui.composer.btnAddSpecialAria'));
+    }
+    if (helpHint) helpHint.textContent = t('ui.composer.helpText');
+  }
+  paintStaticStrings();
 
   // Pre-commit operator selection. Lives only here — chip-state never sees
   // it until commit() builds the keyword chip's props.
@@ -108,7 +136,7 @@ export function wireComposer({ host, chipState, engine }) {
   function buildPills() {
     pillsRow.innerHTML = '';
     const eng = getActiveEngine();
-    const pills = eng.composerPills || [{ op: 'none', label: 'كلمة عادية' }];
+    const pills = eng.composerPills || [{ op: 'none', label: 'engine.google.pill.none' }];
     const ops = getOperatorsForActive();
     // If the chosen op isn't in this engine's catalogue (e.g. user switched
     // engines mid-typing), reset to 'none' so commit doesn't blow up.
@@ -124,7 +152,7 @@ export function wireComposer({ host, chipState, engine }) {
         ? opEntry.badge
         : (opEntry.opName ? opEntry.opName + ':' : '—');
       pill.innerHTML = `
-        <span class="composer-op-pill-label">${label}</span>
+        <span class="composer-op-pill-label">${t(label)}</span>
         <span class="composer-op-pill-badge" dir="ltr">${badgeText}</span>
       `;
       pill.addEventListener('click', (e) => {
@@ -238,7 +266,7 @@ export function wireComposer({ host, chipState, engine }) {
     // the operator prefix when one is chosen so the user sees exactly what
     // will commit.
     const ops = getOperatorsForActive();
-    const op = ops[chosenOp] || ops.none || { opName: '', dir: 'rtl', quotable: true };
+    const op = ops[chosenOp] || ops.none || { opName: '', dir: 'auto', quotable: true };
     const willQuote = (chosenQuoted || shortcutQuoted) && op.quotable;
     ghostChip.className = 'composer-ghost-chip'
       + (negate ? ' composer-ghost-chip-negate' : '')
@@ -259,7 +287,7 @@ export function wireComposer({ host, chipState, engine }) {
       ghostChip.appendChild(document.createTextNode(' '));
     }
     const term = document.createElement('span');
-    term.dir = op.dir || 'rtl';
+    term.dir = op.dir || 'auto';
     term.textContent = willQuote ? '"' + raw + '"' : raw;
     ghostChip.appendChild(term);
     ghostRow.classList.add('visible');
@@ -290,11 +318,11 @@ export function wireComposer({ host, chipState, engine }) {
     clearToast();
     toastEl.classList.add('toast-with-action');
     const msg = document.createElement('span');
-    msg.textContent = 'أُضيفت ' + addedIds.length + ' كلمة من اللصق — ';
+    msg.textContent = t('ui.composer.pasteToast', { count: addedIds.length });
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'toast-undo-btn';
-    btn.textContent = 'تراجع';
+    btn.textContent = t('ui.composer.pasteUndo');
     btn.addEventListener('click', () => {
       chipState.removeMany(addedIds);
       clearToast();
@@ -395,6 +423,17 @@ export function wireComposer({ host, chipState, engine }) {
     engine.on(() => {
       buildPills();
       syncQuoteToggleEnabled();
+      refresh();
+    });
+  }
+
+  // On language change, re-paint the static labels (placeholder, button text,
+  // hints) and rebuild the pill list (its labels are i18n keys resolved at
+  // build time).
+  if (lang && typeof lang.on === 'function') {
+    lang.on(() => {
+      paintStaticStrings();
+      buildPills();
       refresh();
     });
   }
