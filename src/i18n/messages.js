@@ -494,6 +494,15 @@ export const MESSAGES = {
   // ===== Tip framework =====
   'ui.tip.dismissAria':            { ar: 'إخفاء الاقتراح',                  en: 'Dismiss tip' },
 
+  // ===== Idiom panel chrome =====
+  'idiom.empty':       { ar: 'لا توجد وصفات لهذا المحرك.', en: 'No recipes for this engine.' },
+  'idiom.pillCount':   {
+    ar: (v) => v.n + ' وصفة',
+    en: (v) => v.n + ' recipe' + (v.n === 1 ? '' : 's'),
+  },
+  'idiom.toggleShow':  { ar: '📖 شروح',           en: '📖 Descriptions' },
+  'idiom.toggleHide':  { ar: '📖 إخفاء الشروح',   en: '📖 Hide descriptions' },
+
   // ===== Warnings =====
   'warning.queryTooLong':          {
     ar: (v) => '⚠️ الاستعلام طويل (' + v.count + ' كلمة). Google قد يُعيد نتائج قليلة أو لا شيء عند تجاوز نحو 32 كلمة. حاول تبسيط البحث.',
