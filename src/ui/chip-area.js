@@ -244,6 +244,10 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer }
   function wireDrag(el, chipId) {
     el.draggable = true;
     el.classList.add('chip-draggable');
+    // Make the chip itself focusable so keyboard users can target the
+    // reorder handlers without going through inner editable widgets.
+    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+    el.title = 'اضغط Alt+سهم لتحريك الكلمة';
     el.addEventListener('dragstart', (e) => {
       const target = e.target;
       if (target && target.matches && target.matches('[contenteditable], input, select, textarea, button')) {
@@ -259,6 +263,29 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer }
       el.classList.remove('chip-dragging');
       clearDropIndicator();
       draggedChipId = null;
+    });
+    // Alt+Arrow nudges the chip forward/back in the array. We use Alt
+    // so plain arrow keys remain available for cursor movement inside
+    // the chip's contenteditable text. After a reorder the chip array
+    // re-renders; focus the moved chip via data-chip-id so the user can
+    // keep nudging.
+    el.addEventListener('keydown', (e) => {
+      if (!e.altKey) return;
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      if (!chipState.reorder) return;
+      const all = chipState.getAll();
+      const idx = all.findIndex(c => c.id === chipId);
+      if (idx < 0) return;
+      const delta = e.key === 'ArrowRight' ? 1 : -1;
+      const target = idx + delta;
+      if (target < 0 || target > all.length - 1) return;
+      e.preventDefault();
+      e.stopPropagation();
+      chipState.reorder(chipId, target);
+      requestAnimationFrame(() => {
+        const moved = host.querySelector('[data-chip-id="' + chipId + '"]');
+        if (moved && typeof moved.focus === 'function') moved.focus();
+      });
     });
   }
 

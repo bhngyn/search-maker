@@ -794,3 +794,11 @@ body.mode-advanced .chip-area-empty-state { display: none; }
 body.mode-beginner .chip-area > .chip-area-empty { display: none; }
 
 /* === Keyboard reorder hint (B4) === */
+/* Draggable chips get a tabindex in Advanced mode so Alt+Arrow can
+   nudge them. Give the chip itself a visible focus ring distinct from
+   the inner contenteditable's ring so the user can tell which keystroke
+   target they're on. */
+.chip-draggable:focus-visible {
+  outline: 2px dashed var(--accent);
+  outline-offset: 3px;
+}
