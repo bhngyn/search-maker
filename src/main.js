@@ -51,7 +51,6 @@ const toastEl = document.getElementById('toast');
 
 // ===== Core state =====
 const segments = [];
-const fieldRegistry = new Map(); // empty in chip-only mode; reset still iterates it (a no-op).
 
 // ===== Core systems =====
 const normalize = createNormalizer(() => normalizeInput.checked);
@@ -74,12 +73,12 @@ const postRenderHooks = [];
 const onResetHooks = [];
 const preview = createPreview({
   previewBox, copyBtn, searchBtn, resetBtn, toastEl,
-  assembleQuery, fieldRegistry, warnings, tips,
+  assembleQuery, warnings, tips,
   postRenderHooks, onResetHooks,
 });
 
 const ctx = createCtx({
-  segments, fieldRegistry, normalize,
+  segments, normalize,
   requestUpdate: preview.render,
   warnings, tips, mode,
 });
