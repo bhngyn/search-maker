@@ -332,3 +332,30 @@ For approachability and recovery, the following must hold true. Every filled fie
 ## Source attribution
 
 The operator definitions and quirks documented in this spec are derived from Daniel M. Russell's "Advanced Search Operators" reference dated February 8, 2024. When in doubt about an operator's exact behavior, consult that document.
+
+## Implementation status
+
+Repository: https://github.com/bhngyn/search-maker
+
+The deliverable is a single self-contained `index.html` with no build step, no external dependencies, and no network requests beyond the Google search the user explicitly triggers.
+
+**Fields implemented (14 total, covering all 15 query-assembly segments):**
+keywords, exact-phrase, excluded, site, intitle, inurl, intext, inanchor, filetype, date-range (before + after are separate segments), proximity (AROUND), wildcard, number-range, or-groups.
+
+**Strategy tips (5):** filetype=PDF → suggest site restriction; keywords with quoted multi-word name → suggest normalization; both date inputs set → suggest combining with intitle; proximity filled → OSINT distance guidance; keywords-only with no other restrictions → suggest narrowing.
+
+**Coaching warnings (6+):** multi-word value in intitle/intext/inanchor without exact-phrase toggle (fires per-field); reversed date range; Arabic characters in site or inurl field; single-word exact-phrase quoting (keywords and wildcard); query exceeds 32 words; more than 4 operator-restricted fields active simultaneously.
+
+**Mode system:** Beginner mode (default) shows welcome panel, three template buttons, inline helper sentences, operator-name badges, and the more-options disclosure (collapsed by default). Advanced mode hides welcome/templates/helpers/disclosure and renders all fields in a two-column grid (≥720 px viewport). All field values are preserved across mode switches within a session. Tips are suppressed in Advanced mode; warnings remain active in both.
+
+**Arabic normalization (opt-in, off by default):** strips diacritics and tatweel; unifies alef variants (أ إ آ ٱ → ا); unifies alef maksura (ى → ي); converts ta marbuta (ة → ه). Normalization applies only to Arabic-content fields; site, inurl, filetype, dates, and number range pass through untouched. Preview reflects normalized form before the user acts.
+
+**Recovery controls:** every filled field shows a per-field clear button (×); global reset uses a two-tap inline confirmation (label changes to تأكيد المسح for 3 s, requires a second click to execute). No modal dialogs.
+
+**Visual:** light theme with `#2563eb` accent; `prefers-color-scheme: dark` dark theme; system Arabic font stack; RTL document with explicit LTR contexts for the query preview, site/inurl inputs, date inputs, and number inputs.
+
+**Deviations from spec:**
+- Template button #2 label is "بحث في الوثائق" (neutral framing) rather than "بحث عن وثائق مسربة" — editorial decision agreed before implementation began.
+- Touch targets in Beginner mode are ≥36 px (secondary clear buttons) and ≥44 px (primary action buttons), rather than a uniform 44 px everywhere — secondary controls are visually subordinate and the relaxed minimum was applied deliberately.
+
+**How to verify:** Open `index.html` directly via `file://` in any modern browser (Chrome, Firefox, or Safari); no server or network connection required.

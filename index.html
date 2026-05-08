@@ -76,9 +76,11 @@
   .normalize-toggle input { accent-color: var(--accent); }
   .normalize-info-btn {
     background: transparent; border: 1px solid var(--border); color: var(--fg-muted);
-    width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
     font-size: 12px; line-height: 1; padding: 0;
+    min-width: 28px; min-height: 28px;
   }
+  .normalize-info-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .normalize-info-panel {
     background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px;
     padding: 12px; margin-top: 8px; font-size: 13px; color: var(--fg-muted);
@@ -122,8 +124,8 @@
 
   .field-clear-btn {
     background: transparent; border: 0; color: var(--fg-muted);
-    cursor: pointer; font-size: 18px; line-height: 1; padding: 4px 8px;
-    align-self: flex-start;
+    cursor: pointer; font-size: 18px; line-height: 1; padding: 6px 10px;
+    align-self: flex-start; min-width: 36px; min-height: 36px;
   }
   .field-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
   .field-clear-btn[hidden] { display: none; }
@@ -222,7 +224,7 @@
   .field-filetype { display: flex; flex-direction: column; gap: var(--gap-tight); }
 .field-filetype .field-filetype-header { display: flex; align-items: center; gap: var(--gap-tight); }
 .field-filetype .field-filetype-header label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-.field-filetype .field-filetype-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 2px 7px; color: var(--fg-muted); min-width: 28px; min-height: 28px; transition: background 150ms; }
+.field-filetype .field-filetype-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 4px 9px; color: var(--fg-muted); min-width: 36px; min-height: 36px; transition: background 150ms; }
 .field-filetype .field-filetype-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
 .field-filetype .field-filetype-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .field-filetype select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--fg); cursor: pointer; min-height: 44px; }
@@ -232,7 +234,7 @@
   .field-date-range { display: flex; flex-direction: column; gap: var(--gap-tight); }
 .field-date-range .field-date-range-header { display: flex; align-items: center; gap: var(--gap-tight); }
 .field-date-range .field-date-range-outer-label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-.field-date-range .field-date-range-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 2px 7px; color: var(--fg-muted); min-width: 28px; min-height: 28px; transition: background 150ms; }
+.field-date-range .field-date-range-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 4px 9px; color: var(--fg-muted); min-width: 36px; min-height: 36px; transition: background 150ms; }
 .field-date-range .field-date-range-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
 .field-date-range .field-date-range-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .field-date-range .field-date-range-inputs { display: flex; flex-wrap: wrap; gap: var(--gap); }
@@ -262,7 +264,7 @@
   .field-number-range { display: flex; flex-direction: column; gap: var(--gap-tight); }
 .field-number-range .field-number-range-header { display: flex; align-items: center; gap: var(--gap-tight); }
 .field-number-range .field-number-range-header > label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-.field-number-range .field-number-range-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 2px 7px; color: var(--fg-muted); min-width: 28px; min-height: 28px; transition: background 150ms; }
+.field-number-range .field-number-range-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 4px 9px; color: var(--fg-muted); min-width: 36px; min-height: 36px; transition: background 150ms; }
 .field-number-range .field-number-range-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
 .field-number-range .field-number-range-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .field-number-range .field-number-range-inputs { display: flex; flex-direction: row; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
@@ -279,7 +281,7 @@
   .field-or-groups { display: flex; flex-direction: column; gap: var(--gap-tight); }
 .field-or-groups .field-or-groups-header { display: flex; align-items: center; gap: var(--gap-tight); }
 .field-or-groups .field-or-groups-header label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-.field-or-groups .field-or-groups-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 2px 7px; color: var(--fg-muted); min-width: 28px; min-height: 28px; transition: background 150ms; }
+.field-or-groups .field-or-groups-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 4px 9px; color: var(--fg-muted); min-width: 36px; min-height: 36px; transition: background 150ms; }
 .field-or-groups .field-or-groups-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
 .field-or-groups .field-or-groups-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .field-or-groups #field-or-groups-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--fg); min-height: 44px; box-sizing: border-box; }
@@ -301,8 +303,8 @@
   .welcome-close-btn {
     position: absolute; top: 12px; left: 12px;
     background: transparent; border: 0; color: var(--fg-muted);
-    cursor: pointer; font-size: 13px; padding: 4px 10px; border-radius: 4px;
-    min-height: 32px;
+    cursor: pointer; font-size: 13px; padding: 6px 10px; border-radius: 4px;
+    min-height: 36px;
   }
   .welcome-close-btn:hover { background: var(--bg); color: var(--fg); }
   .welcome-close-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -832,7 +834,7 @@
     const el = document.createElement('div');
     el.className = 'tip tip-' + t.slug;
     el.id = 'tip-' + t.slug;
-    el.innerHTML = t.messageHtml + ' <button type="button" aria-label="إخفاء الاقتراح" style="margin-inline-start:8px;background:transparent;border:0;color:inherit;cursor:pointer;font-size:16px;line-height:1;">×</button>';
+    el.innerHTML = t.messageHtml + ' <button type="button" aria-label="إخفاء الاقتراح" style="margin-inline-start:8px;background:transparent;border:0;color:inherit;cursor:pointer;font-size:16px;line-height:1;min-width:36px;min-height:36px;padding:4px 8px;vertical-align:middle;">×</button>';
     el.querySelector('button').addEventListener('click', () => {
       t.dismissed = true;
       reflowTips();
