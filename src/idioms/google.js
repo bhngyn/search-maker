@@ -313,21 +313,17 @@ export const IDIOMS = [
     },
   },
   {
-    id: 'year-window',
-    title: { ar: 'نافذة سنة', en: 'Single-year window' },
+    id: 'custom-range',
+    title: { ar: 'نطاق زمني مخصص', en: 'Custom date range' },
     icon: '📆',
-    pattern: 'after:Y-1-1 before:Y-12-31',
+    pattern: 'after:YYYY-MM-DD before:YYYY-MM-DD',
     description: {
-      ar: 'تأطير زمني بسنة كاملة. مفيد لتحديد الفترة التي حدث فيها شيء أو لتأطير حقبة.',
-      en: 'A full-calendar-year window. Useful for pinning down when something happened or framing an era.',
+      ar: 'تحديد فترة زمنية بأي تاريخين تختارهما. مفيد عندما تحقق في حدث في تاريخ معروف بدقة، أو حين تريد تأطير نتائجك في نافذة زمنية لا تطابق آخر شهر أو آخر سنة. اضغط على حقلَي التاريخ في البطاقة المضافة لاختيار البداية والنهاية.',
+      en: 'Pick any two dates as your time window. Useful when investigating an event with a known date, or when you need a window that doesn\'t match the last-30-days or last-12-months preset. Click the two date fields in the added chip to choose start and end.',
     },
     group: 'time',
     apply(chipState) {
-      const year = new Date().getFullYear();
-      chipState.add('date-range', {
-        after: `${year}-01-01`,
-        before: `${year}-12-31`,
-      });
+      chipState.add('date-range', { after: '', before: '' });
     },
   },
   {

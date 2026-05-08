@@ -132,24 +132,17 @@ export const IDIOMS = [
   },
 
   {
-    id: 'breaking-arabic',
-    title: { ar: 'عاجل بالعربية', en: 'Breaking news in Arabic' },
-    icon: '🔴',
-    pattern: '"عاجل" _____ lang:ar -filter:retweets since:_ until:_',
+    id: 'custom-range',
+    title: { ar: 'نطاق زمني مخصص', en: 'Custom date range' },
+    icon: '📆',
+    pattern: 'since:YYYY-MM-DD until:YYYY-MM-DD',
     description: {
-      ar: 'كلمة "عاجل" هي العَلَم الفعلي للأخبار الكاسرة بالعربية. الاقتباس الحرفي يحصر النتائج على هذا التأطير المحلي.',
-      en: 'The word "عاجل" is the de facto flag for breaking news in Arabic. The literal quote restricts results to that local framing.',
+      ar: 'تحديد فترة زمنية بأي تاريخين تختارهما. مفيد عندما تحقق في حدث في تاريخ معروف بدقة، أو حين تريد تأطير نتائجك في نافذة زمنية محددة لا تطابق الإعدادات الافتراضية للوصفات الأخرى. اضغط على حقلَي التاريخ في البطاقة المضافة لاختيار البداية والنهاية.',
+      en: 'Pick any two dates as your time window. Useful when investigating an event with a known date, or when you need a specific window that doesn\'t match the defaults baked into the other recipes. Click the two date fields in the added chip to choose start and end.',
     },
     group: 'origin',
     apply(chipState) {
-      chipState.add('keyword', { operator: 'none', text: 'عاجل', quoted: true });
-      chipState.add('keyword', { operator: 'none', text: '' });
-      chipState.add('keyword', { operator: 'lang', text: 'ar' });
-      chipState.add('filter', { value: 'retweets', negate: true });
-      chipState.add('date-range', {
-        after: fmt(daysAgo(7)),
-        before: fmt(today()),
-      });
+      chipState.add('date-range', { after: '', before: '' });
     },
   },
 
