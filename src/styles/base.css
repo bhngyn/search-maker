@@ -22,19 +22,30 @@ body {
 }
 
 /* ===== Header =====
-   Two-row layout: title+subtitle on top, a single horizontal controls
-   strip below. The strip is framed in --bg-subtle so it reads as its
-   own region of chrome and accepts more controls via flex-wrap without
-   crowding the title. */
+   Single-row layout at laptop widths: title block on the leading edge
+   (top-right in RTL), framed controls strip on the trailing edge
+   (top-left). flex-wrap means the strip drops below the title on narrow
+   viewports without extra rules. */
 .app-header {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 16px;
   margin-bottom: 24px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--border);
 }
-.app-header-titles { display: flex; flex-direction: column; gap: 4px; }
+.app-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  /* Take remaining space alongside the controls strip and let the long
+     subtitle wrap inside, instead of forcing the strip onto a new row. */
+  flex: 1 1 240px;
+  min-width: 0;
+}
 .app-title { margin: 0; font-size: 26px; }
 .app-subtitle { margin: 0; color: var(--fg-muted); font-size: 15px; }
 
@@ -47,6 +58,10 @@ body {
   background: var(--bg-subtle);
   border: 1px solid var(--border);
   border-radius: 10px;
+  /* Hold natural size on wide viewports (so the title block shrinks
+     first), but allow shrinking on narrow viewports so the inner
+     control-groups wrap onto multiple rows instead of overflowing. */
+  flex: 0 1 auto;
 }
 .control-group {
   display: inline-flex;
