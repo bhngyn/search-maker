@@ -233,7 +233,7 @@ The tool ships with one visual treatment per mode, sharing the same color palett
 
 System font stack that supports Arabic well: `"Segoe UI", Tahoma, "Geeza Pro", "Arabic Typesetting", system-ui, sans-serif`. Do not load web fonts because they fail offline and add a network dependency.
 
-Color palette: light theme with neutral grays for backgrounds and borders, a single calm accent color for primary actions (`#2563eb`), amber/orange for coaching warnings (red is reserved for true destructive actions, of which the tool has none). Provide a `prefers-color-scheme: dark` media query that flips the palette to a dark theme; do not add a manual dark-mode toggle.
+Color palette: dark theme always — slate-blue backgrounds (`#0f172a` / `#1e293b`), light slate text (`#f1f5f9`), a single calm accent color for primary actions (`#2563eb`), amber/orange for coaching warnings (red is reserved for true destructive actions, of which the tool has none). The dark palette is the only palette; `html` declares `color-scheme: dark` so native form controls (date pickers, checkboxes, scrollbars) render in dark UA chrome. Do not provide a light theme or a manual theme toggle.
 
 The sticky preview at the bottom must be visually distinct from chips: a different background tint, a thin top border, monospace font, slightly larger text than chip labels. It is the most important element on the page and should look like it.
 
@@ -340,7 +340,7 @@ src/
   index.html              shell with mount points (chip section + Facebook form section)
   main.js                 bootstrap: builds engine controller, ctx, wires UI, iterates registries; engine-aware assembleQuery
   styles/
-    tokens.css            :root custom properties (incl. --accent-muted) + dark-mode media query
+    tokens.css            :root custom properties (dark palette only; --page-max-width caps the centered column)
     base.css              global non-chip styles
     chips.css             chip pills, composer, sticky preview, drawer, popover, OR-group, empty-state, etc.
     facebook.css          Facebook form + show/hide rules keyed off body.engine-facebook
@@ -404,3 +404,5 @@ Open `dist/index.html` directly via `file://` in Chrome, Firefox, or Safari. No 
 - The original draft was a Google-only tool. The current implementation is multi-engine: Google (the original), X / Twitter (added on the chip composer; see CLAUDE-X.md), and Facebook (added as a category-aware form because Facebook's filter blob isn't a query language). The engine controller (`src/core/engine.js`) and per-engine descriptors (`src/engines/<id>.js`) keep the Google experience byte-identical while the surface across engines stays unified.
 - The Facebook engine is form-based, not chip-based. When `body.engine-facebook` is on, the chip section, welcome panel, warnings region, tips region, and `+ إضافة` drawer are hidden; `<section id="facebook-form">` shows in their place. The bootstrap's `assembleQuery` calls `facebookEngine.buildUrl(formState)` directly when Facebook is active and bypasses the chip-state segment. The preview box becomes the assembled URL (with `word-break: break-all`); the search button opens it via `searchUrl(q) = q` (identity).
 - `src/core/preview.js` now exposes a `setEmptyMessage(m)` setter on its return value so the bootstrap can swap the empty-preview placeholder per engine. The chip-fragments path falls back to plain text rendering when the structured fragments are empty (Facebook returns no chip fragments — the assembled URL is rendered as a single text node).
+- The light theme has been removed; the tool ships dark-only. The earlier `prefers-color-scheme: dark` media query in `tokens.css` has been collapsed into the default `:root`, and `html { color-scheme: dark }` is set globally so native form controls render in dark UA chrome regardless of the user's OS appearance setting. The Visual style section above has been updated accordingly.
+- The `.app` shell is now a centered single column capped at `--page-max-width: 1080px` with a `calc(100vw - 32px)` floor, instead of the previous `min(1600px, 98vw)` sprawl. The earlier note at the top of `.app` about "the full viewport width" is obsolete. All interior sections (header, chip area, composer, Facebook form, sticky preview) cascade from this constraint without their own widths. UI font sizes were lifted ~1px across the board so nothing visible drops below ~12px and most labels/body text sit at 14–15px, since the narrower column made the previous floor feel cramped on a laptop.
