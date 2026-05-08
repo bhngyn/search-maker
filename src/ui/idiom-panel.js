@@ -134,9 +134,28 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx, lang }) {
     header.innerHTML = '';
     header.classList.add('idiom-panel-header--rebuilt');
 
+    // Top row — title on the leading edge, close on the trailing edge.
+    // Wrapped in a sub-container so they always sit on the same line,
+    // independent of the controls row's flex-wrap behavior on mobile.
+    const topRow = document.createElement('div');
+    topRow.className = 'idiom-panel-header-top';
+
     headerTitle = document.createElement('span');
     headerTitle.className = 'idiom-panel-header-title';
-    header.appendChild(headerTitle);
+    topRow.appendChild(headerTitle);
+
+    closeBtn = document.createElement('button');
+    closeBtn.className = 'idiom-panel-close';
+    closeBtn.type = 'button';
+    closeBtn.textContent = '×';
+    closeBtn.addEventListener('click', closePanel);
+    topRow.appendChild(closeBtn);
+
+    header.appendChild(topRow);
+
+    // Controls row — search, group filters, descriptions toggle. Wraps freely.
+    const controlsRow = document.createElement('div');
+    controlsRow.className = 'idiom-panel-header-controls';
 
     searchInput = document.createElement('input');
     searchInput.className = 'idiom-panel-search';
@@ -147,12 +166,12 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx, lang }) {
       searchQuery = (searchInput.value || '').trim();
       applyFilter();
     });
-    header.appendChild(searchInput);
+    controlsRow.appendChild(searchInput);
 
     groupFilter = document.createElement('div');
     groupFilter.className = 'idiom-panel-group-filter';
     groupFilter.setAttribute('role', 'group');
-    header.appendChild(groupFilter);
+    controlsRow.appendChild(groupFilter);
 
     descToggle = document.createElement('button');
     descToggle.className = 'idiom-panel-descriptions-toggle';
@@ -162,14 +181,9 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx, lang }) {
       const nowVisible = panel.dataset.descriptions !== 'visible';
       setDescriptions(nowVisible);
     });
-    header.appendChild(descToggle);
+    controlsRow.appendChild(descToggle);
 
-    closeBtn = document.createElement('button');
-    closeBtn.className = 'idiom-panel-close';
-    closeBtn.type = 'button';
-    closeBtn.textContent = '▲';
-    closeBtn.addEventListener('click', closePanel);
-    header.appendChild(closeBtn);
+    header.appendChild(controlsRow);
   }
 
   function refreshHeaderText() {
@@ -185,9 +199,9 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx, lang }) {
       descToggle.textContent = isOn ? t('idiom.toggleHide') : t('idiom.toggleShow');
     }
     if (closeBtn) {
-      const closeLabel = (lang && lang.get() === 'en') ? 'Close playbook' : 'إغلاق';
-      closeBtn.setAttribute('aria-label', closeLabel);
-      closeBtn.title = closeLabel;
+      const closeAria = (lang && lang.get() === 'en') ? 'Close playbook' : 'إغلاق';
+      closeBtn.setAttribute('aria-label', closeAria);
+      closeBtn.title = closeAria;
     }
   }
 
