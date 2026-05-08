@@ -24,6 +24,7 @@ import { createLangController } from './core/lang.js';
 import { createPreview } from './core/preview.js';
 import { createCtx } from './core/ctx.js';
 import { createChipState } from './core/chip-state.js';
+import { createHistory } from './core/history.js';
 import { createEngineController } from './core/engine.js';
 import { t } from './i18n/messages.js';
 
@@ -49,6 +50,7 @@ const tipRegion = document.getElementById('tips-region');
 const previewBox = document.getElementById('preview-box');
 const copyBtn = document.getElementById('copy-btn');
 const searchBtn = document.getElementById('search-btn');
+const undoBtn = document.getElementById('undo-btn');
 const resetBtn = document.getElementById('reset-btn');
 const normalizeInput = document.getElementById('normalize-toggle-input');
 const normalizeInfoBtn = document.getElementById('normalize-info-btn');
@@ -147,6 +149,46 @@ const chipState = createChipState({ ctx, segmentOrder: 1 });
 chipStateRef = chipState;
 
 onResetHooks.push(() => chipState.clear());
+
+// ===== Undo / redo =====
+// History subscribes to chipState before any UI module so it captures the
+// initial empty snapshot as the baseline. UI mutations from this point on
+// push to the undo stack; subsequent undo() / redo() calls drive
+// chipState.replaceAll() which short-circuits the stack push via the
+// 'replace' kind.
+const history = createHistory({ chipState });
+function refreshUndoBtn() {
+  if (!undoBtn) return;
+  undoBtn.disabled = !history.canUndo();
+}
+history.subscribe(refreshUndoBtn);
+refreshUndoBtn();
+if (undoBtn) {
+  undoBtn.addEventListener('click', () => {
+    history.undo();
+    if (composerHandle && composerHandle.focus) composerHandle.focus();
+  });
+}
+window.addEventListener('keydown', (e) => {
+  if (e.key !== 'z' && e.key !== 'Z') return;
+  if (!(e.metaKey || e.ctrlKey)) return;
+  // Don't intercept while the user is in a text field — every browser ships
+  // a per-field native undo for inputs/textareas/contenteditable, and
+  // hijacking that would break muscle memory. The visible button still works
+  // regardless of focus.
+  const ae = document.activeElement;
+  if (ae && (
+    ae.tagName === 'INPUT' ||
+    ae.tagName === 'TEXTAREA' ||
+    ae.isContentEditable
+  )) return;
+  // Also skip when Facebook is active — chip undo would silently mutate the
+  // hidden chip array; the user can switch back to Google/X to use undo.
+  if (engine.getActive().id === 'facebook') return;
+  e.preventDefault();
+  if (e.shiftKey) history.redo();
+  else history.undo();
+});
 
 // ===== UI wiring =====
 wireWelcomePanel();
@@ -248,6 +290,10 @@ function applyLangLabels() {
   if (fbFormHeading) fbFormHeading.textContent = t('app.fbFormHeading');
   if (copyBtn) copyBtn.textContent = t('app.copyBtn');
   if (resetBtn) resetBtn.textContent = t('app.resetBtn');
+  if (undoBtn) {
+    undoBtn.textContent = t('app.undoBtn');
+    undoBtn.title = t('app.undoBtnTitle');
+  }
   // Engine labels overlap with lang (subtitle, search-btn label, empty-preview).
   // Always re-apply — the engine's strings are themselves i18n keys.
   applyEngineLabels();

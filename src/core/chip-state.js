@@ -139,6 +139,22 @@ export function createChipState({ ctx, segmentOrder = 100 }) {
     ctx.requestUpdate();
   }
 
+  // Replace the entire chip array with a deep clone of the given snapshot.
+  // Used by the history module (undo / redo) to restore a prior state without
+  // re-emitting per-chip add/remove notifications. The single 'replace' event
+  // lets history's own subscriber distinguish "the user did something" from
+  // "we just restored a snapshot" so it can suspend stack pushes during the
+  // restore.
+  function replaceAll(snapshot) {
+    if (!Array.isArray(snapshot)) return;
+    chips.length = 0;
+    for (const c of snapshot) {
+      chips.push({ id: c.id, type: c.type, props: { ...c.props } });
+    }
+    notify({ kind: 'replace' });
+    ctx.requestUpdate();
+  }
+
   /**
    * Move a chip to a new index. `targetIndex` is the position in the
    * post-removal array — i.e. clamped to [0, chips.length - 1] after the
@@ -207,7 +223,7 @@ export function createChipState({ ctx, segmentOrder = 100 }) {
   }
 
   return {
-    add, addAfter, remove, removeMany, update, reorder, clear, getAll, subscribe,
+    add, addAfter, remove, removeMany, update, reorder, clear, replaceAll, getAll, subscribe,
     getQueryFragments,
     /** Last chip in the list, or null. */
     last() { return chips.length ? chips[chips.length - 1] : null; },

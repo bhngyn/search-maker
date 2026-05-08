@@ -36,6 +36,8 @@ export const MESSAGES = {
   'app.copyBtnDone':        { ar: 'تم النسخ',                            en: 'Copied' },
   'app.resetBtn':           { ar: 'مسح الكل',                            en: 'Clear all' },
   'app.resetBtnConfirm':    { ar: 'تأكيد المسح',                         en: 'Tap again to confirm' },
+  'app.undoBtn':            { ar: 'تراجع',                                en: 'Undo' },
+  'app.undoBtnTitle':       { ar: 'تراجع (Ctrl+Z)',                       en: 'Undo (Ctrl+Z)' },
   'app.copyFailed':         { ar: 'تعذر النسخ — يرجى نسخ الاستعلام يدوياً', en: 'Copy failed — please copy the query manually.' },
   'app.fbFormHeading':      { ar: 'نموذج بحث Facebook',                  en: 'Facebook search form' },
 
