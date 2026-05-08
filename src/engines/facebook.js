@@ -52,7 +52,6 @@ const POSTS_FROM = {
     { id: 'author_friends', label: 'engine.facebook.sec.postsFrom.opt.author_friends', outerKey: 'rp_author', name: 'author_friends_feed' },
     { id: 'author_groups',  label: 'engine.facebook.sec.postsFrom.opt.author_groups',  outerKey: 'rp_author', name: 'my_groups_and_pages_posts' },
     { id: 'author_public',  label: 'engine.facebook.sec.postsFrom.opt.author_public',  outerKey: 'rp_author', name: 'merged_public_posts' },
-    { id: 'author_page',    label: 'engine.facebook.sec.postsFrom.opt.author_page',    outerKey: 'rp_author', name: 'author', idField: { placeholder: 'engine.facebook.sec.postsFrom.idPlaceholder', hint: 'engine.facebook.sec.postsFrom.idHint', dir: 'ltr' } },
   ],
 };
 
@@ -71,16 +70,6 @@ const POSTED_IN_GROUP = {
   options: [
     { id: 'none',          label: 'engine.facebook.sec.postedInGroup.opt.none' },
     { id: 'my_groups',     label: 'engine.facebook.sec.postedInGroup.opt.my_groups', outerKey: 'rp_group', name: 'my_groups_posts' },
-    { id: 'group',         label: 'engine.facebook.sec.postedInGroup.opt.group',     outerKey: 'rp_group', name: 'group_posts', idField: { placeholder: 'engine.facebook.sec.postedInGroup.idPlaceholder', hint: 'engine.facebook.sec.postedInGroup.idHint', dir: 'ltr' } },
-  ],
-};
-
-const TAGGED_LOCATION = {
-  id: 'taggedLocation',
-  legend: 'engine.facebook.sec.taggedLocation.legend',
-  options: [
-    { id: 'none',     label: 'engine.facebook.sec.taggedLocation.opt.none' },
-    { id: 'location', label: 'engine.facebook.sec.taggedLocation.opt.location', outerKey: 'rp_location', name: 'location', idField: { placeholder: 'engine.facebook.sec.taggedLocation.idPlaceholder', hint: 'engine.facebook.sec.taggedLocation.idHint', dir: 'ltr' } },
   ],
 };
 
@@ -113,32 +102,9 @@ const VIDEO_SOURCE = {
   ],
 };
 
-// People-search filter sections. Each option emits a single outer-JSON entry.
-// City/Education/Work each take a single ID input (no enum options).
-const PEOPLE_CITY = {
-  id: 'peopleCity',
-  legend: 'engine.facebook.sec.peopleCity.legend',
-  kind: 'idOnly',
-  outerKey: 'city',
-  name: 'users_location',
-  idField: { placeholder: 'engine.facebook.sec.peopleCity.idPlaceholder', hint: 'engine.facebook.sec.peopleCity.idHint', dir: 'ltr' },
-};
-const PEOPLE_EDUCATION = {
-  id: 'peopleEducation',
-  legend: 'engine.facebook.sec.peopleEducation.legend',
-  kind: 'idOnly',
-  outerKey: 'school',
-  name: 'users_school',
-  idField: { placeholder: 'engine.facebook.sec.peopleEducation.idPlaceholder', hint: 'engine.facebook.sec.peopleEducation.idHint', dir: 'ltr' },
-};
-const PEOPLE_WORK = {
-  id: 'peopleWork',
-  legend: 'engine.facebook.sec.peopleWork.legend',
-  kind: 'idOnly',
-  outerKey: 'employer',
-  name: 'users_employer',
-  idField: { placeholder: 'engine.facebook.sec.peopleWork.idPlaceholder', hint: 'engine.facebook.sec.peopleWork.idHint', dir: 'ltr' },
-};
+// People-search filter sections. ID-driven sections (City/Education/Work) and
+// the ID-bearing "Friends of <user>" option are intentionally omitted: they
+// require opaque numeric IDs that the form can't help users discover.
 const PEOPLE_MUTUAL = {
   id: 'peopleMutual',
   legend: 'engine.facebook.sec.peopleMutual.legend',
@@ -146,7 +112,6 @@ const PEOPLE_MUTUAL = {
     { id: 'none',               label: 'engine.facebook.sec.peopleMutual.opt.none' },
     { id: 'my_friends',         label: 'engine.facebook.sec.peopleMutual.opt.my_friends',         outerKey: 'friends', name: 'users_friends' },
     { id: 'friends_of_friends', label: 'engine.facebook.sec.peopleMutual.opt.friends_of_friends', outerKey: 'friends', name: 'users_friends_of_friends' },
-    { id: 'friends_of',         label: 'engine.facebook.sec.peopleMutual.opt.friends_of',         outerKey: 'friends', name: 'users_friends_of_people', idField: { placeholder: 'engine.facebook.sec.peopleMutual.idPlaceholder', hint: 'engine.facebook.sec.peopleMutual.idHint', dir: 'ltr' } },
   ],
 };
 
@@ -187,11 +152,11 @@ const DATE_POSTED = {
 // Per-category section composition. The form renders sections in this order
 // when the matching category is selected.
 const CATEGORY_SECTIONS = {
-  top:    [SORT_BY, POSTS_FROM, POST_TYPE, POSTED_IN_GROUP, TAGGED_LOCATION, DATE_POSTED],
-  posts:  [POSTS_FROM, POST_TYPE, POSTED_IN_GROUP, TAGGED_LOCATION, DATE_POSTED],
-  people: [PEOPLE_CITY, PEOPLE_EDUCATION, PEOPLE_WORK, PEOPLE_MUTUAL],
-  photos: [POSTS_FROM, PHOTO_TYPE, TAGGED_LOCATION, DATE_POSTED],
-  videos: [VIDEO_SOURCE, TAGGED_LOCATION, DATE_POSTED],
+  top:    [SORT_BY, POSTS_FROM, POST_TYPE, POSTED_IN_GROUP, DATE_POSTED],
+  posts:  [POSTS_FROM, POST_TYPE, POSTED_IN_GROUP, DATE_POSTED],
+  people: [PEOPLE_MUTUAL],
+  photos: [POSTS_FROM, PHOTO_TYPE, DATE_POSTED],
+  videos: [VIDEO_SOURCE, DATE_POSTED],
   pages:  [PAGES_VERIFIED, PAGES_CATEGORY],
 };
 

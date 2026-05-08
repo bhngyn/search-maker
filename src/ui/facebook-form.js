@@ -3,34 +3,23 @@ import { getActiveLang } from '../core/lang.js';
 import { createArabicDateInput } from './arabic-calendar.js';
 
 // Facebook search form — the entire input UI when the Facebook engine is
-// active. Replaces the chip composer + chip area + drawer surface (which
-// the bootstrap hides on engine switch).
+// active. Replaces the chip composer + chip area + drawer surface.
 //
 // State:
 //   {
 //     category: 'top' | 'posts' | 'people' | 'photos' | 'videos' | 'pages',
 //     keyword:  string,
-//     sections: { [sectionId]: { optionId: string, idValue?: string } },
+//     sections: { [sectionId]: { optionId: string } },
 //     toggles:  { [sectionId]: boolean },
-//     ids:      { [sectionId]: string },
 //     date:     null | { startYear, startMonth, startDay, endYear, endMonth, endDay },
 //   }
-//
-// State changes are funneled through `set()` which:
-//   1. Mutates the in-memory state.
-//   2. Calls the bootstrap-supplied `onChange()` so the preview re-renders.
-//
-// The form registers a single segment with ctx (like chip-state) that emits
-// the full Facebook URL as the assembled query. The preview shows that URL
-// directly; the engine's `searchUrl` is identity so the search button opens
-// the URL verbatim.
 
 const CATEGORY_LABELS_BY_ID = {};
 
 /**
  * @param {object} args
- * @param {HTMLElement} args.host - the form mount point
- * @param {object} args.engine - the Facebook engine descriptor
+ * @param {HTMLElement} args.host
+ * @param {object} args.engine
  * @param {{ requestUpdate: () => void }} args.ctx
  * @returns {{ getState: () => object, reset: () => void, refresh: () => void }}
  */
@@ -45,16 +34,12 @@ export function wireFacebookForm({ host, engine, ctx, lang }) {
     ctx.requestUpdate();
   }
 
-  function setSection(sectionId, optionId, idValue) {
-    state.sections = { ...state.sections, [sectionId]: { optionId, idValue: idValue || '' } };
+  function setSection(sectionId, optionId) {
+    state.sections = { ...state.sections, [sectionId]: { optionId } };
     ctx.requestUpdate();
   }
   function setToggle(sectionId, on) {
     state.toggles = { ...state.toggles, [sectionId]: !!on };
-    ctx.requestUpdate();
-  }
-  function setIdOnly(sectionId, value) {
-    state.ids = { ...state.ids, [sectionId]: value };
     ctx.requestUpdate();
   }
   function setDate(patch) {
@@ -74,6 +59,36 @@ export function wireFacebookForm({ host, engine, ctx, lang }) {
     ctx.requestUpdate();
   }
 
+  // ===== DOM helpers =====
+  function el(tag, attrs, children) {
+    const node = document.createElement(tag);
+    if (attrs) {
+      for (const k in attrs) {
+        const v = attrs[k];
+        if (v == null || v === false) continue;
+        if (k === 'class') node.className = v;
+        else if (k === 'text') node.textContent = v;
+        else if (k === 'html') node.innerHTML = v;
+        else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2).toLowerCase(), v);
+        else if (k.startsWith('data-')) node.setAttribute(k, v);
+        else if (k === 'dataset' && typeof v === 'object') Object.assign(node.dataset, v);
+        else if (k in node) {
+          try { node[k] = v; } catch (_) { node.setAttribute(k, v); }
+        } else {
+          node.setAttribute(k, v);
+        }
+      }
+    }
+    if (children) {
+      const arr = Array.isArray(children) ? children : [children];
+      for (const c of arr) {
+        if (c == null || c === false) continue;
+        node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+      }
+    }
+    return node;
+  }
+
   // ===== DOM rendering =====
   function render() {
     while (host.firstChild) host.removeChild(host.firstChild);
@@ -83,42 +98,40 @@ export function wireFacebookForm({ host, engine, ctx, lang }) {
   }
 
   function renderCategoryRow() {
-    const wrap = document.createElement('section');
-    wrap.className = 'fb-form-section fb-form-categories';
-    const legend = document.createElement('h3');
-    legend.className = 'fb-form-legend';
-    legend.textContent = t('ui.fbForm.categoryLegend');
-    wrap.appendChild(legend);
-
-    const grid = document.createElement('div');
-    grid.className = 'fb-cat-grid';
-    grid.setAttribute('role', 'radiogroup');
-    grid.setAttribute('aria-label', t('ui.fbForm.categoryLegend'));
+    const wrap = el('section', {
+      class: 'fb-form-categories',
+      'aria-label': t('ui.fbForm.categoryLegend'),
+    });
+    const grid = el('div', { class: 'fb-cat-grid', role: 'radiogroup' });
 
     engine.categories.forEach(cat => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'fb-cat-btn';
-      btn.setAttribute('role', 'radio');
-      btn.setAttribute('aria-checked', cat.value === state.category ? 'true' : 'false');
-      if (cat.value === state.category) btn.classList.add('is-active');
-      btn.dataset.value = cat.value;
-      btn.innerHTML = `<span class="fb-cat-label">${escapeHtml(t(cat.label))}</span><span class="fb-cat-hint">${escapeHtml(t(cat.hint))}</span>`;
-      btn.addEventListener('click', () => {
-        if (state.category === cat.value) return;
-        state.category = cat.value;
-        // Clear sections/toggles/ids/date when switching category — the
-        // section list is different per category and stale state would leak
-        // across (e.g. a 'pagesCategory' selection while on 'top').
-        state.sections = {};
-        state.toggles = {};
-        state.ids = {};
-        state.date = null;
-        render();
-        ctx.requestUpdate();
-      });
+      const isActive = cat.value === state.category;
+      const hint = t(cat.hint);
+      const btn = el('button', {
+        type: 'button',
+        class: 'fb-cat-btn' + (isActive ? ' is-active' : ''),
+        role: 'radio',
+        'aria-checked': isActive ? 'true' : 'false',
+        'aria-describedby': 'fb-cat-hint-' + cat.value,
+        title: hint,
+        dataset: { cat: cat.value, value: cat.value },
+        onclick: () => {
+          if (state.category === cat.value) return;
+          state.category = cat.value;
+          // Clear sections/toggles/date when switching category — section
+          // lists differ per category and stale state would leak across.
+          state.sections = {};
+          state.toggles = {};
+          state.date = null;
+          render();
+          ctx.requestUpdate();
+        },
+      }, [
+        el('span', { class: 'fb-cat-label', text: t(cat.label) }),
+      ]);
       CATEGORY_LABELS_BY_ID[cat.value] = t(cat.label);
       grid.appendChild(btn);
+      grid.appendChild(el('span', { class: 'sr-only', id: 'fb-cat-hint-' + cat.value, text: hint }));
     });
 
     wrap.appendChild(grid);
@@ -126,210 +139,171 @@ export function wireFacebookForm({ host, engine, ctx, lang }) {
   }
 
   function renderKeywordRow() {
-    const wrap = document.createElement('section');
-    wrap.className = 'fb-form-section fb-form-keyword';
-    const legend = document.createElement('label');
-    legend.className = 'fb-form-legend';
-    legend.htmlFor = 'fb-keyword-input';
-    legend.textContent = t('ui.fbForm.keywordLegend');
-    const hint = document.createElement('p');
-    hint.className = 'fb-form-hint';
-    hint.textContent = t('ui.fbForm.keywordHint');
-
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.id = 'fb-keyword-input';
-    input.className = 'fb-keyword-input';
-    input.dir = 'auto';
-    input.value = state.keyword || '';
-    input.placeholder = t('ui.fbForm.keywordPlaceholder');
-    input.autocomplete = 'off';
-    input.spellcheck = false;
-    input.addEventListener('input', (e) => set({ keyword: e.target.value }));
-
-    wrap.appendChild(legend);
+    const wrap = el('section', { class: 'fb-form-keyword', 'aria-labelledby': 'fb-keyword-legend' });
+    wrap.appendChild(el('label', {
+      id: 'fb-keyword-legend',
+      class: 'fb-form-legend',
+      htmlFor: 'fb-keyword-input',
+      text: t('ui.fbForm.keywordLegend'),
+    }));
+    const input = el('input', {
+      type: 'text',
+      id: 'fb-keyword-input',
+      class: 'fb-keyword-input',
+      dir: 'auto',
+      value: state.keyword || '',
+      placeholder: t('ui.fbForm.keywordPlaceholder'),
+      autocomplete: 'off',
+      spellcheck: false,
+      'aria-describedby': 'fb-keyword-hint fb-keyword-warning',
+      oninput: (e) => set({ keyword: e.target.value }),
+    });
     wrap.appendChild(input);
-    wrap.appendChild(hint);
+    wrap.appendChild(el('p', {
+      id: 'fb-keyword-hint',
+      class: 'fb-form-hint',
+      text: t('ui.fbForm.keywordHint'),
+    }));
+    if (!state.keywordWarningDismissed) {
+      const warning = el('button', {
+        type: 'button',
+        id: 'fb-keyword-warning',
+        class: 'fb-keyword-warning',
+        'aria-label': t('ui.fbForm.keywordWarningDismiss'),
+        title: t('ui.fbForm.keywordWarningDismiss'),
+        onclick: () => {
+          state.keywordWarningDismissed = true;
+          warning.remove();
+          ctx.requestUpdate();
+        },
+      });
+      warning.appendChild(el('span', { class: 'fb-keyword-warning-text', text: t('ui.fbForm.keywordWarning') }));
+      warning.appendChild(el('span', { class: 'fb-keyword-warning-close', 'aria-hidden': 'true', text: '×' }));
+      wrap.appendChild(warning);
+    }
     return wrap;
   }
 
   function renderSections() {
-    const container = document.createElement('div');
-    container.className = 'fb-form-sections';
+    const container = el('div', { class: 'fb-form-sections' });
     const sections = (engine.categorySections && engine.categorySections[state.category]) || [];
     if (!sections.length) {
-      const note = document.createElement('p');
-      note.className = 'fb-form-empty';
-      note.textContent = t('ui.fbForm.noFilters');
-      container.appendChild(note);
+      container.appendChild(el('p', { class: 'fb-form-empty', text: t('ui.fbForm.noFilters') }));
       return container;
     }
-    sections.forEach(section => {
-      container.appendChild(renderSection(section));
-    });
+    sections.forEach(section => container.appendChild(renderSection(section)));
     return container;
   }
 
   function renderSection(section) {
     if (section.kind === 'date')   return renderDateSection(section);
     if (section.kind === 'toggle') return renderToggleSection(section);
-    if (section.kind === 'idOnly') return renderIdOnlySection(section);
     return renderRadioSection(section);
   }
 
   function renderRadioSection(section) {
-    const wrap = document.createElement('section');
-    wrap.className = 'fb-form-section';
-    wrap.setAttribute('role', 'radiogroup');
-    wrap.setAttribute('aria-label', t(section.legend));
+    const legendId = 'fb-sec-' + section.id + '-legend';
+    const wrap = el('section', {
+      class: 'fb-form-section',
+      role: 'radiogroup',
+      'aria-labelledby': legendId,
+      dataset: { section: section.id },
+    });
+    wrap.appendChild(el('h3', { id: legendId, class: 'fb-form-legend', text: t(section.legend) }));
 
-    const legend = document.createElement('h3');
-    legend.className = 'fb-form-legend';
-    legend.textContent = t(section.legend);
-    wrap.appendChild(legend);
-
-    const list = document.createElement('div');
-    list.className = 'fb-radio-list';
-
-    const sel = state.sections[section.id] || { optionId: 'none', idValue: '' };
+    const sel = state.sections[section.id] || { optionId: 'none' };
+    const row = el('div', { class: 'fb-pill-row' });
+    const pills = [];
 
     section.options.forEach(opt => {
-      const row = document.createElement('label');
-      row.className = 'fb-radio-row';
-      const radio = document.createElement('input');
-      radio.type = 'radio';
-      radio.name = 'fb-section-' + section.id;
-      radio.value = opt.id;
-      radio.checked = sel.optionId === opt.id;
-      radio.addEventListener('change', () => {
-        if (radio.checked) {
-          setSection(section.id, opt.id, sel.idValue);
-          // Re-render so id input visibility tracks the new selection.
-          render();
-        }
+      const checked = sel.optionId === opt.id;
+      const pill = el('button', {
+        type: 'button',
+        class: 'fb-pill' + (checked ? ' is-active' : ''),
+        role: 'radio',
+        'aria-checked': checked ? 'true' : 'false',
+        tabindex: checked ? '0' : '-1',
+        dataset: { option: opt.id },
+        text: t(opt.label),
+        onclick: () => {
+          setSection(section.id, opt.id);
+          // Update aria-checked + tabindex + .is-active across the row in
+          // place; no full re-render so focus survives the click.
+          pills.forEach(p => {
+            const isMe = p === pill;
+            p.setAttribute('aria-checked', isMe ? 'true' : 'false');
+            p.setAttribute('tabindex', isMe ? '0' : '-1');
+            p.classList.toggle('is-active', isMe);
+          });
+          pill.focus();
+        },
       });
-
-      const labelText = document.createElement('span');
-      labelText.className = 'fb-radio-label';
-      labelText.textContent = t(opt.label);
-
-      row.appendChild(radio);
-      row.appendChild(labelText);
-
-      // ID input shown only when this option is selected and needs an id.
-      if (opt.idField && sel.optionId === opt.id) {
-        const idInput = document.createElement('input');
-        idInput.type = 'text';
-        idInput.className = 'fb-id-input';
-        idInput.dir = opt.idField.dir || 'ltr';
-        idInput.placeholder = t(opt.idField.placeholder) || '';
-        idInput.value = sel.idValue || '';
-        idInput.autocomplete = 'off';
-        idInput.spellcheck = false;
-        idInput.addEventListener('input', () => {
-          // Update without re-rendering so the input keeps focus.
-          state.sections = {
-            ...state.sections,
-            [section.id]: { optionId: opt.id, idValue: idInput.value },
-          };
-          ctx.requestUpdate();
-        });
-        idInput.addEventListener('click', e => e.preventDefault === undefined ? null : null);
-        row.appendChild(idInput);
-        if (opt.idField.hint) {
-          const hint = document.createElement('span');
-          hint.className = 'fb-id-hint';
-          hint.textContent = t(opt.idField.hint);
-          row.appendChild(hint);
-        }
-      }
-
-      list.appendChild(row);
+      pills.push(pill);
+      row.appendChild(pill);
     });
 
-    wrap.appendChild(list);
-    return wrap;
-  }
+    // Roving-tabindex arrow-key navigation for the radiogroup.
+    row.addEventListener('keydown', (e) => {
+      if (!pills.length) return;
+      const currentIdx = pills.findIndex(p => p === document.activeElement);
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const dir = e.key === 'ArrowRight' ? 1 : -1;
+        const start = currentIdx < 0 ? 0 : currentIdx;
+        const next = (start + dir + pills.length) % pills.length;
+        pills[next].focus();
+        pills[next].click();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        pills[0].focus();
+        pills[0].click();
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        pills[pills.length - 1].focus();
+        pills[pills.length - 1].click();
+      }
+    });
 
-  function renderToggleSection(section) {
-    const wrap = document.createElement('section');
-    wrap.className = 'fb-form-section';
-
-    const legend = document.createElement('h3');
-    legend.className = 'fb-form-legend';
-    legend.textContent = t(section.legend);
-    wrap.appendChild(legend);
-
-    const row = document.createElement('label');
-    row.className = 'fb-toggle-row';
-
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.checked = !!(state.toggles && state.toggles[section.id]);
-    cb.addEventListener('change', () => setToggle(section.id, cb.checked));
-
-    const labelText = document.createElement('span');
-    labelText.className = 'fb-radio-label';
-    labelText.textContent = section.toggleLabel ? t(section.toggleLabel) : t('ui.fbForm.toggleDefault');
-
-    row.appendChild(cb);
-    row.appendChild(labelText);
     wrap.appendChild(row);
     return wrap;
   }
 
-  function renderIdOnlySection(section) {
-    const wrap = document.createElement('section');
-    wrap.className = 'fb-form-section';
-
-    const legend = document.createElement('h3');
-    legend.className = 'fb-form-legend';
-    legend.textContent = t(section.legend);
-    wrap.appendChild(legend);
-
-    const row = document.createElement('div');
-    row.className = 'fb-idonly-row';
-
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'fb-id-input';
-    input.dir = section.idField.dir || 'ltr';
-    input.placeholder = t(section.idField.placeholder) || '';
-    input.value = (state.ids && state.ids[section.id]) || '';
-    input.autocomplete = 'off';
-    input.spellcheck = false;
-    input.addEventListener('input', () => {
-      state.ids = { ...state.ids, [section.id]: input.value };
-      ctx.requestUpdate();
+  function renderToggleSection(section) {
+    const wrap = el('section', {
+      class: 'fb-form-section',
+      dataset: { section: section.id },
     });
+    wrap.appendChild(el('h3', { class: 'fb-form-legend', text: t(section.legend) }));
 
-    row.appendChild(input);
-    if (section.idField.hint) {
-      const hint = document.createElement('span');
-      hint.className = 'fb-id-hint';
-      hint.textContent = t(section.idField.hint);
-      row.appendChild(hint);
-    }
+    const on = !!(state.toggles && state.toggles[section.id]);
+    const row = el('div', { class: 'fb-pill-row' });
+    const pill = el('button', {
+      type: 'button',
+      class: 'fb-pill' + (on ? ' is-active' : ''),
+      'aria-pressed': on ? 'true' : 'false',
+      dataset: { toggle: section.id },
+      text: section.toggleLabel ? t(section.toggleLabel) : t('ui.fbForm.toggleDefault'),
+      onclick: () => {
+        const next = !(state.toggles && state.toggles[section.id]);
+        setToggle(section.id, next);
+        pill.setAttribute('aria-pressed', next ? 'true' : 'false');
+        pill.classList.toggle('is-active', next);
+      },
+    });
+    row.appendChild(pill);
     wrap.appendChild(row);
     return wrap;
   }
 
   function renderDateSection(section) {
-    const wrap = document.createElement('section');
-    wrap.className = 'fb-form-section fb-form-date';
+    const wrap = el('section', {
+      class: 'fb-form-section fb-form-date',
+      dataset: { section: 'datePosted' },
+      'aria-describedby': 'fb-sec-datePosted-hint',
+    });
+    wrap.appendChild(el('h3', { class: 'fb-form-legend', text: t(section.legend) }));
 
-    const legend = document.createElement('h3');
-    legend.className = 'fb-form-legend';
-    legend.textContent = t(section.legend);
-    wrap.appendChild(legend);
-
-    const hint = document.createElement('p');
-    hint.className = 'fb-form-hint';
-    hint.textContent = t('engine.facebook.sec.datePosted.hint');
-    wrap.appendChild(hint);
-
-    const row = document.createElement('div');
-    row.className = 'fb-date-row';
+    const row = el('div', { class: 'fb-date-row' });
 
     function applyStart(v) {
       const parsed = parseDateStr(v);
@@ -360,20 +334,9 @@ export function wireFacebookForm({ host, engine, ctx, lang }) {
       });
     }
 
-    const startLabel = document.createElement('label');
-    startLabel.className = 'fb-date-label';
-    startLabel.textContent = t('engine.facebook.sec.datePosted.from');
-
-    const endLabel = document.createElement('label');
-    endLabel.className = 'fb-date-label';
-    endLabel.textContent = t('engine.facebook.sec.datePosted.to');
-
-    // Same locale-driven swap as the date-range chip — Arabic mode gets the
-    // custom calendar; English mode keeps the native picker.
     const isArabic = getActiveLang() === 'ar';
     // state.date stores Facebook's preferred un-padded form ('2026-5-15');
-    // input widgets need padded ISO ('2026-05-15'). Pad here so a value
-    // round-trips correctly across language toggles.
+    // input widgets need padded ISO ('2026-05-15').
     const startValue = padIsoDate(state.date && state.date.startDay);
     const endValue = padIsoDate(state.date && state.date.endDay);
 
@@ -389,29 +352,36 @@ export function wireFacebookForm({ host, engine, ctx, lang }) {
         ariaLabel: t('engine.facebook.sec.datePosted.to'),
         onChange: applyEnd,
       }).el;
+      // Keep the existing visual class for CSS hooks alongside the new one.
+      if (startEl && startEl.classList) startEl.classList.add('fb-date-input');
+      if (endEl && endEl.classList)   endEl.classList.add('fb-date-input');
     } else {
-      const startInput = document.createElement('input');
-      startInput.type = 'date';
-      startInput.className = 'fb-date-input';
-      startInput.dir = 'ltr';
-      startInput.value = startValue;
-      startInput.addEventListener('input', () => applyStart(startInput.value));
-      startEl = startInput;
-
-      const endInput = document.createElement('input');
-      endInput.type = 'date';
-      endInput.className = 'fb-date-input';
-      endInput.dir = 'ltr';
-      endInput.value = endValue;
-      endInput.addEventListener('input', () => applyEnd(endInput.value));
-      endEl = endInput;
+      startEl = el('input', {
+        type: 'date',
+        class: 'fb-date-input',
+        dir: 'ltr',
+        value: startValue,
+        oninput: (e) => applyStart(e.target.value),
+      });
+      endEl = el('input', {
+        type: 'date',
+        class: 'fb-date-input',
+        dir: 'ltr',
+        value: endValue,
+        oninput: (e) => applyEnd(e.target.value),
+      });
     }
 
-    row.appendChild(startLabel);
+    row.appendChild(el('span', { class: 'fb-date-label', text: t('engine.facebook.sec.datePosted.from') }));
     row.appendChild(startEl);
-    row.appendChild(endLabel);
+    row.appendChild(el('span', { class: 'fb-date-label', text: t('engine.facebook.sec.datePosted.to') }));
     row.appendChild(endEl);
     wrap.appendChild(row);
+    wrap.appendChild(el('span', {
+      class: 'sr-only',
+      id: 'fb-sec-datePosted-hint',
+      text: t('engine.facebook.sec.datePosted.hint'),
+    }));
     return wrap;
   }
 
@@ -436,8 +406,8 @@ function makeInitialState() {
     keyword: '',
     sections: {},
     toggles: {},
-    ids: {},
     date: null,
+    keywordWarningDismissed: false,
   };
 }
 
@@ -446,8 +416,7 @@ function makeEmptyDate() {
 }
 
 // Parse 'YYYY-MM-DD' as the HTML5 date input emits it; return raw (un-padded)
-// month and day strings to match Facebook's preferred form ('2019-1-1' rather
-// than '2019-01-01').
+// month and day strings to match Facebook's preferred form ('2019-1-1').
 function parseDateStr(s) {
   if (!s) return null;
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
@@ -458,19 +427,11 @@ function parseDateStr(s) {
   return { year, monthRaw, dayRaw };
 }
 
-// Pad a Facebook-style un-padded date ('2026-5-15') back to ISO
-// ('2026-05-15') so it can be displayed by either picker. Empty in,
-// empty out.
+// Pad un-padded date ('2026-5-15') back to ISO ('2026-05-15') for display.
 function padIsoDate(s) {
   if (!s) return '';
   const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s);
   if (!m) return '';
   const pad = (x) => x.length < 2 ? '0' + x : x;
   return m[1] + '-' + pad(m[2]) + '-' + pad(m[3]);
-}
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-  })[c]);
 }
