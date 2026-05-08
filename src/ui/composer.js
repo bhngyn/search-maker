@@ -68,6 +68,20 @@ export function wireComposer({ host, chipState }) {
         <span class="composer-ghost-chip" id="composer-ghost-chip"></span>
       </div>
       <div class="composer-op-pills" id="composer-op-pills" role="group" aria-label="نوع الإضافة"></div>
+      <div class="composer-quote-row" id="composer-quote-row">
+        <button
+          type="button"
+          class="composer-quote-toggle"
+          id="composer-quote-toggle"
+          aria-pressed="false"
+          aria-label="اقتباس حرفي"
+          title='اقتباس حرفي — يطابق العبارة كما هي. اختصار: اكتب "العبارة" بين علامتي اقتباس.'
+        >
+          <span class="composer-quote-toggle-glyph" dir="ltr">"&nbsp;"</span>
+          <span class="composer-quote-toggle-label">اقتباس حرفي</span>
+        </button>
+        <p class="composer-quote-hint">يطابق العبارة بالضبط. اختصار: اكتب "كلمة" أو "عبارة" بين علامتَي اقتباس.</p>
+      </div>
       <p class="composer-ghost-paste-hint" id="composer-ghost-paste-hint" aria-live="polite">سيُضاف ككلمة واحدة. اضغط Enter لتأكيد، أو الصق نصاً مع علامات اقتباس للحصول على شظايا منفصلة.</p>
     </div>
     <div class="composer-commit-row" role="group" aria-label="إضافة الكلمة">
@@ -86,10 +100,14 @@ export function wireComposer({ host, chipState }) {
   const ghostRow = host.querySelector('#composer-ghost-row');
   const ghostChip = host.querySelector('#composer-ghost-chip');
   const pillsRow = host.querySelector('#composer-op-pills');
+  const quoteToggle = host.querySelector('#composer-quote-toggle');
 
   // Pre-commit operator selection. Lives only here — chip-state never sees
   // it until commit() builds the keyword chip's props.
   let chosenOp = 'none';
+  // Pre-commit literal-quote selection. Orthogonal to chosenOp. Resets
+  // after each commit so quoting stays explicit per chip.
+  let chosenQuoted = false;
 
   function buildPills() {
     pillsRow.innerHTML = '';
@@ -120,6 +138,33 @@ export function wireComposer({ host, chipState }) {
     pillsRow.querySelectorAll('.composer-op-pill').forEach(p => {
       p.setAttribute('aria-pressed', p.dataset.op === chosenOp ? 'true' : 'false');
     });
+    syncQuoteToggleEnabled();
+  }
+
+  // The quote toggle is meaningful only when the chosen operator is
+  // quotable (site:, inurl: are not). When the user picks a non-quotable
+  // operator we disable the toggle; the on-state survives the disable
+  // (so flipping back to a quotable op restores the previous intent).
+  function syncQuoteToggleEnabled() {
+    if (!quoteToggle) return;
+    const op = OPERATORS[chosenOp] || OPERATORS.none;
+    quoteToggle.disabled = !op.quotable;
+  }
+  function syncQuoteTogglePressed() {
+    if (!quoteToggle) return;
+    quoteToggle.setAttribute('aria-pressed', chosenQuoted ? 'true' : 'false');
+  }
+
+  /**
+   * Detect the leading-and-trailing `"` shortcut. Mirrors the leading-`-`
+   * shortcut for negate. Returns { stripped, quoted } where `stripped` is
+   * the inner text (or the original input if no shortcut was detected).
+   */
+  function applyQuoteShortcut(raw) {
+    if (raw.length >= 2 && raw.startsWith('"') && raw.endsWith('"')) {
+      return { stripped: raw.slice(1, -1).trim(), quoted: true };
+    }
+    return { stripped: raw, quoted: false };
   }
 
   function commit(mode) {
@@ -133,6 +178,14 @@ export function wireComposer({ host, chipState }) {
     }
     if (mode === 'not') negate = true;
 
+    // Leading-and-trailing `"` shortcut → strip and treat as quoted. Only
+    // emits a quoted chip when the chosen operator allows quoting; for
+    // non-quotable ops (site:, inurl:) the quotes are still stripped so
+    // the chip text isn't littered with them, but `quoted` stays false.
+    const { stripped, quoted: shortcutQuoted } = applyQuoteShortcut(raw);
+    raw = stripped;
+    if (!raw) return;
+
     if (mode === 'or') {
       const prev = chipState.last();
       if (prev && prev.type !== 'or-connector') {
@@ -140,11 +193,16 @@ export function wireComposer({ host, chipState }) {
       }
     }
 
-    chipState.add('keyword', { text: raw, operator: chosenOp, negate, quoted: false });
+    const op = OPERATORS[chosenOp] || OPERATORS.none;
+    const quoted = (chosenQuoted || shortcutQuoted) && op.quotable;
+
+    chipState.add('keyword', { text: raw, operator: chosenOp, negate, quoted });
 
     input.value = '';
     chosenOp = 'none';
+    chosenQuoted = false;
     syncPillsPressed();
+    syncQuoteTogglePressed();
     refresh();
     input.focus();
   }
@@ -161,11 +219,23 @@ export function wireComposer({ host, chipState }) {
       negate = true;
       raw = raw.slice(1).trim();
     }
+    // Apply the leading-and-trailing `"` shortcut to the preview so the
+    // ghost chip already reads as quoted before the user presses Enter.
+    const { stripped, quoted: shortcutQuoted } = applyQuoteShortcut(raw);
+    raw = stripped;
+    if (!raw) {
+      ghostRow.classList.remove('visible');
+      ghostChip.textContent = '';
+      return;
+    }
     // Render a faded preview chip mirroring keyword chip shape, including
     // the operator prefix when one is chosen so the user sees exactly what
     // will commit.
     const op = OPERATORS[chosenOp] || OPERATORS.none;
-    ghostChip.className = 'composer-ghost-chip' + (negate ? ' composer-ghost-chip-negate' : '');
+    const willQuote = (chosenQuoted || shortcutQuoted) && op.quotable;
+    ghostChip.className = 'composer-ghost-chip'
+      + (negate ? ' composer-ghost-chip-negate' : '')
+      + (willQuote ? ' composer-ghost-chip-quoted' : '');
     ghostChip.innerHTML = '';
     if (negate) {
       const neg = document.createElement('span');
@@ -183,7 +253,7 @@ export function wireComposer({ host, chipState }) {
     }
     const term = document.createElement('span');
     term.dir = op.dir;
-    term.textContent = raw;
+    term.textContent = willQuote ? '"' + raw + '"' : raw;
     ghostChip.appendChild(term);
     ghostRow.classList.add('visible');
   }
@@ -297,7 +367,19 @@ export function wireComposer({ host, chipState }) {
 
   btnAnd.addEventListener('click', () => commit('and'));
 
+  if (quoteToggle) {
+    quoteToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (quoteToggle.disabled) return;
+      chosenQuoted = !chosenQuoted;
+      syncQuoteTogglePressed();
+      ghostPreview();
+      input.focus();
+    });
+  }
+
   buildPills();
+  syncQuoteToggleEnabled();
 
   // React to chip state changes (e.g. so the input refocuses smoothly when
   // chips are deleted via Backspace and the user is mid-typing).

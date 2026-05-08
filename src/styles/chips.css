@@ -154,8 +154,12 @@ body.mode-beginner .chip-op-select { font-size: 12px; }
 .chip-negate .chip-text { font-weight: 500; }
 .chip-negate .chip-delete-btn { color: var(--warning); }
 
-/* Quoted chip — accent tint. */
-.chip-quoted { border-color: var(--accent); }
+/* Quoted chip — accent tint on border + soft fill so the literal-match
+   state is unmistakable at a glance, not just a hairline border swap. */
+.chip-quoted {
+  border-color: var(--accent);
+  background: var(--accent-muted);
+}
 .chip-quoted .chip-text { font-family: var(--mono); }
 
 /* OR connector — distinct shape (no rounded ends, smaller). */
@@ -814,6 +818,75 @@ body.mode-advanced .welcome-reopen { display: none !important; }
 }
 .composer-op-pill[aria-pressed="true"] .composer-op-pill-badge { opacity: 0.85; }
 
+/* === Composer quote toggle (Beginner only) ===
+   Independent of the operator pills (orthogonal: any operator + quoted).
+   Sits in its own row below the pills so users read the operator choice
+   first, then the literal-match modifier. Disabled when the chosen
+   operator can't be quoted (site:, inurl:). Advanced users use the
+   leading-and-trailing `"` shortcut and never see this control. */
+.composer-quote-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+body.mode-advanced .composer-quote-row { display: none; }
+.composer-quote-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  min-height: 32px;
+  transition: background 120ms, border-color 120ms, color 120ms;
+}
+.composer-quote-toggle:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--bg-subtle);
+}
+.composer-quote-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.composer-quote-toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.composer-quote-toggle[aria-pressed="true"] {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.composer-quote-toggle-glyph {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+}
+.composer-quote-toggle-label { font-weight: 500; }
+.composer-quote-hint {
+  margin: 0;
+  font-size: 11px;
+  color: var(--fg-muted);
+  opacity: 0.85;
+}
+
+/* Ghost-chip quoted styling — accent fill when the pre-commit toggle
+   or the leading/trailing-`"` shortcut is active so the user sees that
+   the term will be wrapped in quotes before pressing Enter. */
+.composer-ghost-chip-quoted {
+  border-color: var(--accent);
+  background: var(--accent-muted);
+  font-family: var(--mono);
+  font-style: normal;
+}
+
 /* === Composer paste-undo (B7) ===
    The base .toast rule has pointer-events: none so the copy-confirmation
    doesn't block anything underneath. The undo toast contains an interactive
@@ -895,41 +968,124 @@ body.mode-beginner .chip-or-handle {
 }
 
 /* Container that wraps a contiguous run of [term, OR, term, ...]. The
-   model stays flat — this is render-only chrome. */
+   model stays flat — this is render-only chrome.
+
+   Filled tinted block (was: thin dashed rectangle). Reads as a contained
+   "set of alternatives". The leading-edge accent border carries the
+   "this is one logical clause" signal; hovering or focusing any member
+   lifts the whole group so the sibling relationship is obvious. */
 .chip-or-group {
   display: inline-flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 14px 6px 6px 6px;
-  border: 1px dashed var(--accent-muted);
-  border-radius: 6px;
+  padding: 8px 10px;
+  background: var(--tip-bg);
+  border: 1px solid var(--accent-muted);
+  border-inline-start: 3px solid var(--tip);
+  border-radius: 8px;
   position: relative;
+  transition: background 150ms, border-color 150ms, box-shadow 150ms;
 }
-.chip-or-group::before {
-  content: 'أيٌ مما يلي:';
-  position: absolute;
-  top: -2px;
-  inset-inline-start: 8px;
-  font-size: 10px;
-  color: var(--fg-muted);
-  background: var(--bg);
-  padding: 0 4px;
+.chip-or-group:hover,
+.chip-or-group:focus-within {
+  border-color: var(--tip);
+  box-shadow: 0 0 0 3px var(--tip-bg);
+}
+
+/* Real-DOM header (replaces the old 10px pseudo-element).
+   Takes the full row via flex-basis so the chips below sit on a fresh
+   line. Beginner mode shows the helper subtitle; Advanced hides it. */
+.chip-or-group-label {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex-basis: 100%;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tip);
+  margin-bottom: 2px;
+}
+.chip-or-group-icon {
+  font-size: 14px;
   line-height: 1;
-  pointer-events: none;
 }
-/* Inside a group, the connector becomes a slim divider — no border, smaller. */
-.chip-or-group .chip-or-connector {
-  background: transparent;
-  border: 0;
-  color: var(--fg-muted);
-  padding: 0 2px;
+.chip-or-group-label-text { font-weight: 600; }
+.chip-or-group-label-helper {
+  margin-inline-start: 2px;
   font-size: 11px;
-  font-weight: 500;
-  opacity: 0.8;
+  font-weight: 400;
+  color: var(--fg-muted);
+}
+body.mode-advanced .chip-or-group-label-helper { display: none; }
+body.mode-advanced .chip-or-group-label { font-size: 11px; margin-bottom: 0; }
+body.mode-advanced .chip-or-group { padding: 6px 8px; gap: 6px; }
+
+/* Inside-group "أو" — small clear pill, not the near-invisible state it
+   was before. Still visually subordinate to the term chips so eye-flow
+   reads "[term] أو [term]" not "[term] [أو] [term]". */
+.chip-or-group .chip-or-connector {
+  background: var(--bg);
+  border: 1px solid var(--accent-muted);
+  border-radius: 999px;
+  color: var(--tip);
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 1;
 }
 .chip-or-group .chip-or-connector .chip-or-text { padding: 0 2px; }
-.chip-or-group .chip-or-connector .chip-delete-btn { display: none; }
+.chip-or-group .chip-or-connector .chip-delete-btn,
+.chip-or-group .chip-or-connector .chip-delete-btn-small { display: none; }
+
+/* Trailing "+ بديل آخر" button — single discoverable add affordance per
+   group, replaces the per-member "+أو" handles which clutter once a chip
+   is already inside a group. */
+.chip-or-group-add {
+  background: transparent;
+  border: 1px dashed var(--tip);
+  color: var(--tip);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 999px;
+  min-height: 28px;
+  white-space: nowrap;
+  transition: background 120ms, border-style 120ms;
+}
+body.mode-beginner .chip-or-group-add {
+  font-size: 13px;
+  min-height: 32px;
+  padding: 4px 12px;
+}
+.chip-or-group-add:hover {
+  background: var(--bg);
+  border-style: solid;
+}
+.chip-or-group-add:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* === AND seam — small "و" between non-grouped adjacent renderable units.
+   Beginner only: the implicit AND is the most fundamental boolean and
+   making it visible by observation teaches the grammar without changing
+   semantics. Advanced users don't need the chrome and the dense layout
+   suppresses it. */
+.chip-and-seam {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-muted);
+  padding: 0 2px;
+  user-select: none;
+  opacity: 0.7;
+}
+body.mode-advanced .chip-and-seam { display: none; }
 
 /* === Empty-state templates (A5) === */
 /* When the chip array is empty, the chip-area renders both an inline
