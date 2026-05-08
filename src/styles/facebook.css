@@ -17,6 +17,7 @@
 #facebook-form { display: none; }
 body.engine-facebook #facebook-form { display: grid; }
 body.engine-facebook .chip-section,
+body.engine-facebook #idiom-panel,
 body.engine-facebook #warnings-region,
 body.engine-facebook #tips-region,
 body.engine-facebook #welcome-panel,

@@ -152,12 +152,16 @@ body {
 /* ===== Live query preview ===== */
 .preview-section { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
 .preview-heading { margin: 0 0 8px 0; font-size: 15px; color: var(--fg-muted); }
+/* Sticky preview box — tightened from 17px / 96px floor so it reads as
+   the *output* of the composer rather than a co-equal twin. The box still
+   flexes upward for long queries; we only shrink the empty / short-query
+   floor so it doesn't dominate. */
 .preview-box {
   direction: ltr; unicode-bidi: isolate;
-  font-family: var(--mono); font-size: 17px;
+  font-family: var(--mono); font-size: 16px;
   background: var(--bg-subtle); color: var(--fg);
   border: 1px solid var(--border); border-radius: 8px;
-  padding: 16px; min-height: 96px;
+  padding: 14px 16px; min-height: 72px;
   white-space: pre-wrap; word-break: break-word;
   text-align: left;
 }

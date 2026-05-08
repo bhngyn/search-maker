@@ -36,7 +36,6 @@ import facebookEngine from './engines/facebook.js';
 import { wireWelcomePanel } from './ui/welcome.js';
 import { wireTemplates } from './ui/templates.js';
 import { wireIdiomPanel } from './ui/idiom-panel.js';
-import { attachIdiomPopover } from './ui/idiom-popover.js';
 import { wireNormalizeToggle } from './ui/normalize-toggle.js';
 import { wireComposer } from './ui/composer.js';
 import { wireChipArea, createChipSelection } from './ui/chip-area.js';
@@ -231,9 +230,7 @@ wireNormalizeToggle({
   onChange: preview.render,
 });
 
-wireIdiomPanel({ chipState, focusComposer: () => { if (composerHandle && composerHandle.focus) composerHandle.focus(); }, ctx: { ...ctx, engine } });
-const idiomPanelEl = document.getElementById('idiom-panel');
-if (idiomPanelEl) attachIdiomPopover(idiomPanelEl);
+wireIdiomPanel({ chipState, focusComposer: () => { if (composerHandle && composerHandle.focus) composerHandle.focus(); }, ctx: { ...ctx, engine }, lang });
 
 // ===== Warnings + tips =====
 [...warningModules, ...tipModules].forEach(mod => {

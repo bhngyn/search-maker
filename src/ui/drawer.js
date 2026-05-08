@@ -51,7 +51,9 @@ export function wireDrawer({ trigger, chipState, engine }) {
 
   function clickFor(item) {
     if (item.kind === 'keyword') {
-      return () => chipState.add('keyword', { operator: item.operator });
+      const props = { operator: item.operator };
+      if (item.text != null) props.text = item.text;
+      return () => chipState.add('keyword', props);
     }
     return () => chipState.add(item.type, item.props || {});
   }
@@ -101,11 +103,18 @@ export function wireDrawer({ trigger, chipState, engine }) {
       if (node) parent.appendChild(node);
     }
 
-    // Predictable two-section grouping: keyword operators, then specials.
+    // Predictable section grouping: keyword operators, social-media site
+    // shortcuts (optional, Google-only today), then specials.
     if ((spec.advancedKeywords || []).length > 0) {
       const opsSection = buildSection(t('ui.drawer.advancedKeywordsHeading'));
       spec.advancedKeywords.forEach(key => appendItem(opsSection, key));
       root.appendChild(opsSection);
+    }
+
+    if ((spec.advancedSocial || []).length > 0) {
+      const socialSection = buildSection(t('ui.drawer.advancedSocialHeading'));
+      spec.advancedSocial.forEach(key => appendItem(socialSection, key));
+      root.appendChild(socialSection);
     }
 
     if ((spec.advancedSpecials || []).length > 0) {

@@ -24,8 +24,8 @@ export const MESSAGES = {
     en: 'When enabled, the tool unifies similar Arabic letters (e.g. أ, إ, آ → ا) before searching, broadening results across spelling variants. Your typed text is not changed — the transformation appears only in the query preview below. Useful when the search terms include Arabic, regardless of the UI language.',
   },
   'app.welcomeBlurbHtml': {
-    ar: 'ابنِ استعلامات بحث Google بالعربية: اكتب كلمة، اضغط <kbd>Enter</kbd> لإضافتها كـ«كلمة بحث»، ثم انسخ الاستعلام أو ابحث به مباشرةً.',
-    en: 'Build search queries by typing a term, pressing <kbd>Enter</kbd> to commit it as a chip, then copying the query or running it directly. Arabic terms are supported — type them straight into a chip and they\'ll render right-to-left while the rest of the UI stays English.',
+    ar: 'ابدأ بوصفة جاهزة من <strong>«وصفات بحث جاهزة»</strong> أدناه، أو اكتب كلمتك واضغط <kbd>Enter</kbd> لبناء استعلامك من الصفر.',
+    en: 'Start with a ready-made recipe from <strong>"Recipes"</strong> below, or type a term and press <kbd>Enter</kbd> to build your query from scratch.',
   },
   'app.welcomeCloseLabel':  { ar: 'إخفاء لوحة الترحيب',                 en: 'Hide welcome panel' },
   'app.welcomeCloseText':   { ar: 'إخفاء',                              en: 'Hide' },
@@ -91,6 +91,24 @@ export const MESSAGES = {
   'engine.google.drawer.proximity.desc':        { ar: 'كلمتان تظهران بقرب بعضهما، مفيد لربط شخصين', en: 'Two words near each other — useful for linking entities' },
   'engine.google.drawer.numberRange.label':     { ar: 'نطاق عددي',                    en: 'Number range' },
   'engine.google.drawer.numberRange.desc':      { ar: 'أرقام بين قيمتين، مثل 100..500',  en: 'Numbers between two values, e.g. 100..500' },
+  'engine.google.drawer.social.telegram.label':     { ar: 'تيليغرام',                                  en: 'Telegram' },
+  'engine.google.drawer.social.telegram.desc':      { ar: 'يحصر النتائج بقنوات ومجموعات تيليغرام العامة', en: 'Limit results to public Telegram channels and groups' },
+  'engine.google.drawer.social.fb-groups.label':    { ar: 'مجموعات فيسبوك',                            en: 'Facebook groups' },
+  'engine.google.drawer.social.fb-groups.desc':     { ar: 'يحصر النتائج بصفحات مجموعات فيسبوك',         en: 'Limit results to Facebook group pages' },
+  'engine.google.drawer.social.fb.label':           { ar: 'فيسبوك',                                    en: 'Facebook' },
+  'engine.google.drawer.social.fb.desc':            { ar: 'الحسابات والصفحات والمنشورات على فيسبوك',     en: 'Profiles, pages, and posts on Facebook' },
+  'engine.google.drawer.social.x.label':            { ar: 'إكس / تويتر',                              en: 'X / Twitter' },
+  'engine.google.drawer.social.x.desc':             { ar: 'المحتوى العام على منصة إكس',                en: 'Public content on X / Twitter' },
+  'engine.google.drawer.social.linkedin.label':     { ar: 'لينكدإن',                                   en: 'LinkedIn' },
+  'engine.google.drawer.social.linkedin.desc':      { ar: 'الحسابات والشركات والمنشورات على لينكدإن',   en: 'Profiles, companies, and posts on LinkedIn' },
+  'engine.google.drawer.social.reddit.label':       { ar: 'ريديت',                                     en: 'Reddit' },
+  'engine.google.drawer.social.reddit.desc':        { ar: 'المنتديات الفرعية والمنشورات والتعليقات على ريديت', en: 'Subreddits, posts, and comments on Reddit' },
+  'engine.google.drawer.social.youtube.label':      { ar: 'يوتيوب',                                    en: 'YouTube' },
+  'engine.google.drawer.social.youtube.desc':       { ar: 'القنوات والفيديوهات والتعليقات على يوتيوب',   en: 'Channels, videos, and comments on YouTube' },
+  'engine.google.drawer.social.instagram.label':    { ar: 'إنستغرام',                                  en: 'Instagram' },
+  'engine.google.drawer.social.instagram.desc':     { ar: 'الحسابات والمنشورات على إنستغرام',           en: 'Profiles and posts on Instagram' },
+  'engine.google.drawer.social.tiktok.label':       { ar: 'تيك توك',                                   en: 'TikTok' },
+  'engine.google.drawer.social.tiktok.desc':        { ar: 'الحسابات والفيديوهات على تيك توك',           en: 'Profiles and videos on TikTok' },
 
   // Google templates
   'engine.google.tpl.site.title':     { ar: 'بحث في موقع محدد',            en: 'Search a specific site' },
@@ -350,6 +368,7 @@ export const MESSAGES = {
   // ===== UI strings (drawer) =====
   'ui.drawer.beginnerMore':        { ar: 'خيارات إضافية',                   en: 'More options' },
   'ui.drawer.advancedKeywordsHeading':{ ar: 'عوامل البحث على الكلمات',       en: 'Keyword operators' },
+  'ui.drawer.advancedSocialHeading':  { ar: 'مواقع التواصل الاجتماعي',         en: 'Social media sites' },
   'ui.drawer.advancedSpecialsHeading':{ ar: 'قيود إضافية',                   en: 'Additional filters' },
 
   // ===== UI strings (chip popover) =====
@@ -493,6 +512,170 @@ export const MESSAGES = {
 
   // ===== Tip framework =====
   'ui.tip.dismissAria':            { ar: 'إخفاء الاقتراح',                  en: 'Dismiss tip' },
+
+  // ===== Idiom panel chrome (existing) =====
+  'idiom.empty':       { ar: 'لا توجد وصفات لهذا المحرك.', en: 'No recipes for this engine.' },
+  'idiom.pillCount':   {
+    ar: (v) => v.n + ' وصفة',
+    en: (v) => v.n + ' recipe' + (v.n === 1 ? '' : 's'),
+  },
+  'idiom.toggleShow':  { ar: '📖 شروح',           en: '📖 Descriptions' },
+  'idiom.toggleHide':  { ar: '📖 إخفاء الشروح',   en: '📖 Hide descriptions' },
+  // idiom.previewHint removed — unused after the inspector redesign.
+
+  // ===== Idiom panel — search + group filter =====
+  'idiom.search.placeholder': { ar: 'ابحث في الوصفات...', en: 'Search recipes...' },
+  'idiom.groupFilter.label':  { ar: 'تصفية حسب المجموعة', en: 'Filter by group' },
+  'idiom.groupFilter.all':    { ar: 'الكل', en: 'All' },
+
+  // ===== Idiom panel — inspector section headings =====
+  'idiom.section.whatItDoes': { ar: 'ما تفعله الوصفة',        en: 'What this recipe does' },
+  'idiom.section.anatomy':    { ar: 'بنية الوصفة',             en: 'Recipe anatomy' },
+  'idiom.section.howto':      { ar: 'كيف تبنيها يدوياً',       en: 'Build it manually' },
+  'idiom.section.assembled':  { ar: 'النص المُجمَّع',           en: 'Assembled query' },
+
+  // ===== Idiom panel — inspector action buttons =====
+  'idiom.applyRecipe':    { ar: 'أضِف الوصفة كاملة',     en: 'Add recipe to query' },
+  'idiom.replaceRecipe':  { ar: 'استبدل البحث الحالي',   en: 'Replace current query' },
+  'idiom.reapply':        { ar: 'أضِف مرة أخرى',          en: 'Apply again' },
+  'idiom.applied':        { ar: 'مُطبَّقة',                en: 'Applied' },
+  'idiom.addThisChip':    { ar: 'أضِف هذه الكلمة فقط',   en: 'Add only this chip' },
+
+  // ===== Idiom panel — empty / fallback states =====
+  'idiom.search.noResults': {
+    ar: (v) => 'لا توجد وصفات تطابق "' + v.q + '"',
+    en: (v) => 'No recipes match "' + v.q + '"',
+  },
+  'idiom.anatomy.unavailable': {
+    ar: 'تعذّر استخراج بنية الوصفة. اضغط أضِف لتجربتها مباشرة.',
+    en: "Couldn't extract this recipe's anatomy. Press Apply to try it directly.",
+  },
+
+  // ===== Idiom panel — "Build it manually" step templates =====
+  //
+  // Strings use [[...]] markers around control names; the renderer replaces
+  // them with `.idiom-control-mention` styled spans.
+  //
+  // One-time convention note at the top of the "Build it manually" section.
+  // Tells the user that whatever appears between «...» / "..." is what they
+  // type into the keyword field — the marks themselves are not typed.
+  'idiom.howto.note': {
+    ar: 'ℹ︎ ما يظهر بين علامتَي «» هو ما تكتبه داخل خانة الكلمة (لا تكتب العلامتين أنفسهما).',
+    en: 'ℹ︎ Whatever appears between the « » marks is what you type into the keyword field (don\'t type the marks themselves).',
+  },
+  // keyword chip — plain word, no operator
+  'idiom.howto.keyword.plain': {
+    ar: (v) => v.text
+      ? 'اكتب «' + v.text + '» داخل خانة الكلمة، ثم اضغط Enter.'
+      : 'اكتب كلمتك داخل خانة الكلمة بين العلامتَين «» (مثلاً: «انتخابات»)، ثم اضغط Enter.',
+    en: (v) => v.text
+      ? 'Type «' + v.text + '» into the keyword field, then press Enter.'
+      : 'Type your keyword between the « » marks (e.g., «election»), then press Enter.',
+  },
+  // keyword chip — with content operator (site:, intitle:, etc.)
+  'idiom.howto.keyword.withOp': {
+    ar: (v) => v.text
+      ? 'اكتب «' + v.text + '» داخل خانة الكلمة، اضغط [[' + v.opLabel + ']] من شريط المؤشرات، ثم Enter.'
+      : 'اكتب كلمتك بين العلامتَين «» (مثلاً: «.gov» مع site: أو «صحفي» مع intitle:)، اضغط [[' + v.opLabel + ']]، ثم Enter.',
+    en: (v) => v.text
+      ? 'Type «' + v.text + '» into the keyword field, click [[' + v.opLabel + ']] in the operator row, then press Enter.'
+      : 'Type your term between the « » marks (e.g., «.gov» with site: or «journalist» with intitle:), click [[' + v.opLabel + ']], then Enter.',
+  },
+  // keyword chip — quoted (literal phrase)
+  'idiom.howto.keyword.quoted': {
+    ar: (v) => {
+      const head = v.text
+        ? 'اكتب «' + v.text + '» داخل خانة الكلمة كعبارة حرفية واحدة'
+        : 'اكتب عبارتك الحرفية بين العلامتَين «» (مثلاً: «جامعة الملك سعود»)';
+      const op = v.opLabel ? '، اضغط [[' + v.opLabel + ']]' : '';
+      return head + op + '، فعّل [[اقتباس حرفي]]، ثم اضغط Enter.';
+    },
+    en: (v) => {
+      const head = v.text
+        ? 'Type «' + v.text + '» into the keyword field as a single literal phrase'
+        : 'Type your literal phrase between the « » marks (e.g., «John F Smith»)';
+      const op = v.opLabel ? ', click [[' + v.opLabel + ']]' : '';
+      return head + op + ', enable [[Literal quote]], then press Enter.';
+    },
+  },
+  // keyword chip — negate (excluded word, no operator)
+  'idiom.howto.keyword.negate': {
+    ar: (v) => v.text
+      ? 'اكتب «' + v.text + '» داخل خانة الكلمة لاستبعادها، اضغط [[− NOT]] قبل Enter (أو ابدأ بـ "-").'
+      : 'اكتب الكلمة التي تريد استبعادها بين العلامتَين «» (مثلاً: «إعلان»)، اضغط [[− NOT]] قبل Enter (أو ابدأ بـ "-").',
+    en: (v) => v.text
+      ? 'Type «' + v.text + '» into the keyword field to exclude it, press [[− NOT]] before Enter (or start with "-").'
+      : 'Type the word to exclude between the « » marks (e.g., «advertisement»), press [[− NOT]] before Enter (or start with "-").',
+  },
+  // keyword chip — negate + operator
+  'idiom.howto.keyword.negateOp': {
+    ar: (v) => v.text
+      ? 'اكتب «' + v.text + '» داخل خانة الكلمة، اضغط [[' + v.opLabel + ']]، ثم [[− NOT]] قبل Enter.'
+      : 'اكتب الكلمة التي تريد استبعادها بين العلامتَين «» (مثلاً: «دعاية»)، اضغط [[' + v.opLabel + ']]، ثم [[− NOT]] قبل Enter.',
+    en: (v) => v.text
+      ? 'Type «' + v.text + '» into the keyword field, click [[' + v.opLabel + ']], then [[− NOT]] before Enter.'
+      : 'Type the word to exclude between the « » marks (e.g., «propaganda»), click [[' + v.opLabel + ']], then [[− NOT]] before Enter.',
+  },
+  // or-connector chip
+  'idiom.howto.or': {
+    ar: 'اضغط [[+أو]] على آخر كلمة، ثم اكتب البديل في خانة الكلمة الجديدة (نفس قاعدة العلامتَين «»).',
+    en: 'Click [[+Or]] on the previous chip, then type the alternative in the new keyword field (same « » convention).',
+  },
+  // special chip — date-range
+  'idiom.howto.special.dateRange': {
+    ar: (v) => {
+      const parts = [];
+      if (v.after)  parts.push('"بعد" ' + v.after);
+      if (v.before) parts.push('"قبل" ' + v.before);
+      const range = parts.length ? '، أدخل ' + parts.join(' و') : '، ثم أدخل التواريخ المطلوبة';
+      return 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]' + range + '.';
+    },
+    en: (v) => {
+      const parts = [];
+      if (v.after)  parts.push('"After" ' + v.after);
+      if (v.before) parts.push('"Before" ' + v.before);
+      const range = parts.length ? ', enter ' + parts.join(' and ') : ', then fill in the dates';
+      return 'Click [[+ Add]], pick [[' + v.itemLabel + ']]' + range + '.';
+    },
+  },
+  // special chip — filetype
+  'idiom.howto.special.filetype': {
+    ar: (v) => 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]، ثم اختر «' + v.value.toUpperCase() + '» من القائمة.',
+    en: (v) => 'Click [[+ Add]], pick [[' + v.itemLabel + ']], then choose "' + v.value.toUpperCase() + '" from the list.',
+  },
+  // special chip — filter (X engine)
+  'idiom.howto.special.filter': {
+    ar: (v) => 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]، حدّد «' + v.filterValue + '»' + (v.negate ? '، ثم فعّل [[− NOT]] لاستبعادها' : '') + '.',
+    en: (v) => 'Click [[+ Add]], pick [[' + v.itemLabel + ']], select "' + v.filterValue + '"' + (v.negate ? ', then enable [[− NOT]] to exclude it' : '') + '.',
+  },
+  // special chip — engagement (X engine)
+  'idiom.howto.special.engagement': {
+    ar: (v) => 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]، اختر «' + v.metric + '» (' + (v.direction === 'min' ? 'حد أدنى' : 'حد أقصى') + ') وأدخل ' + v.value + '.',
+    en: (v) => 'Click [[+ Add]], pick [[' + v.itemLabel + ']], choose "' + v.metric + '" (' + v.direction + ') and enter ' + v.value + '.',
+  },
+  // special chip — proximity
+  'idiom.howto.special.proximity': {
+    ar: (v) => {
+      const t1 = v.term1 ? '«' + v.term1 + '»' : 'الكلمة الأولى بين «» (مثلاً: «انفجار»)';
+      const t2 = v.term2 ? '«' + v.term2 + '»' : 'الكلمة الثانية بين «» (مثلاً: «بيروت»)';
+      return 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]، أدخل ' + t1 + ' و' + t2 + ' بمسافة ' + v.distance + '.';
+    },
+    en: (v) => {
+      const t1 = v.term1 ? '«' + v.term1 + '»' : 'first term between « » (e.g., «explosion»)';
+      const t2 = v.term2 ? '«' + v.term2 + '»' : 'second term between « » (e.g., «Beirut»)';
+      return 'Click [[+ Add]], pick [[' + v.itemLabel + ']], enter ' + t1 + ' and ' + t2 + ' with distance ' + v.distance + '.';
+    },
+  },
+  // special chip — number-range
+  'idiom.howto.special.numberRange': {
+    ar: (v) => 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]، أدخل الحد الأدنى ' + v.low + ' والأقصى ' + v.high + (v.prefix ? ' بالبادئة "' + v.prefix + '"' : '') + '.',
+    en: (v) => 'Click [[+ Add]], pick [[' + v.itemLabel + ']], enter min ' + v.low + ' and max ' + v.high + (v.prefix ? ' with prefix "' + v.prefix + '"' : '') + '.',
+  },
+  // special chip — generic fallback
+  'idiom.howto.special.generic': {
+    ar: (v) => 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']] واضبط الحقول.',
+    en: (v) => 'Click [[+ Add]], pick [[' + v.itemLabel + ']] and fill the fields.',
+  },
 
   // ===== Warnings =====
   'warning.queryTooLong':          {

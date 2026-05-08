@@ -79,6 +79,18 @@ const drawerItems = {
   'date-range':   { kind: 'special', type: 'date-range',   label: 'engine.google.drawer.dateRange.label',    desc: 'engine.google.drawer.dateRange.desc',    badge: 'before: / after:',  tier: 'beginner' },
   proximity:      { kind: 'special', type: 'proximity',    label: 'engine.google.drawer.proximity.label',    desc: 'engine.google.drawer.proximity.desc',    badge: 'AROUND(N)',         tier: 'advanced' },
   'number-range': { kind: 'special', type: 'number-range', label: 'engine.google.drawer.numberRange.label',  desc: 'engine.google.drawer.numberRange.desc',  badge: '..',                tier: 'advanced' },
+
+  // Social-media site: shortcuts. Each commits a keyword chip with operator=site
+  // and a prefilled `text` value; the user appends the channel/handle/path.
+  'social-telegram':     { kind: 'keyword', operator: 'site', text: 't.me/',                 label: 'engine.google.drawer.social.telegram.label',     desc: 'engine.google.drawer.social.telegram.desc',     badge: 'site:t.me/' },
+  'social-fb-groups':    { kind: 'keyword', operator: 'site', text: 'facebook.com/groups/',  label: 'engine.google.drawer.social.fb-groups.label',    desc: 'engine.google.drawer.social.fb-groups.desc',    badge: 'site:facebook.com/groups/' },
+  'social-fb':           { kind: 'keyword', operator: 'site', text: 'facebook.com/',         label: 'engine.google.drawer.social.fb.label',           desc: 'engine.google.drawer.social.fb.desc',           badge: 'site:facebook.com/' },
+  'social-x':            { kind: 'keyword', operator: 'site', text: 'x.com/',                label: 'engine.google.drawer.social.x.label',            desc: 'engine.google.drawer.social.x.desc',            badge: 'site:x.com/' },
+  'social-linkedin':     { kind: 'keyword', operator: 'site', text: 'linkedin.com/',         label: 'engine.google.drawer.social.linkedin.label',     desc: 'engine.google.drawer.social.linkedin.desc',     badge: 'site:linkedin.com/' },
+  'social-reddit':       { kind: 'keyword', operator: 'site', text: 'reddit.com/',           label: 'engine.google.drawer.social.reddit.label',       desc: 'engine.google.drawer.social.reddit.desc',       badge: 'site:reddit.com/' },
+  'social-youtube':      { kind: 'keyword', operator: 'site', text: 'youtube.com/',          label: 'engine.google.drawer.social.youtube.label',      desc: 'engine.google.drawer.social.youtube.desc',      badge: 'site:youtube.com/' },
+  'social-instagram':    { kind: 'keyword', operator: 'site', text: 'instagram.com/',        label: 'engine.google.drawer.social.instagram.label',    desc: 'engine.google.drawer.social.instagram.desc',    badge: 'site:instagram.com/' },
+  'social-tiktok':       { kind: 'keyword', operator: 'site', text: 'tiktok.com/',           label: 'engine.google.drawer.social.tiktok.label',       desc: 'engine.google.drawer.social.tiktok.desc',       badge: 'site:tiktok.com/' },
 };
 
 const templates = [
@@ -131,6 +143,7 @@ export default {
     beginnerOrder: ['date-range', 'filetype', 'site', 'intitle', 'intext', 'inurl', 'inanchor'],
     beginnerMore: ['proximity', 'number-range'],
     advancedKeywords: ['site', 'intitle', 'inurl', 'intext', 'inanchor'],
+    advancedSocial: ['social-telegram', 'social-fb-groups', 'social-fb', 'social-x', 'social-linkedin', 'social-reddit', 'social-youtube', 'social-instagram', 'social-tiktok'],
     advancedSpecials: ['filetype', 'date-range', 'proximity', 'number-range'],
   },
   templates,
