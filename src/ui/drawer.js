@@ -60,6 +60,7 @@ export function wireDrawer({ trigger, chipState, mode }) {
     trigger.setAttribute('aria-expanded', 'false');
     document.removeEventListener('click', onOutsideClick, true);
     document.removeEventListener('keydown', onKey);
+    window.removeEventListener('resize', onResize);
   }
 
   function onOutsideClick(e) {
@@ -145,18 +146,63 @@ export function wireDrawer({ trigger, chipState, mode }) {
     return root;
   }
 
+  // Place the panel so all items are reachable. Default is below the
+  // trigger; if there isn't room below, flip above. Either way clamp
+  // max-height to the actually-available space so internal scroll is
+  // reachable rather than relying on a fixed 60vh that may overflow the
+  // viewport bottom (the original bug).
+  function position() {
+    if (!panel) return;
+    const VGAP = 6;          // gap between trigger and panel
+    const VEDGE = 8;          // breathing room at viewport edges
+    const HEDGE = 8;          // breathing room left/right
+    const triggerRect = trigger.getBoundingClientRect();
+    const vpH = window.innerHeight;
+    const vpW = window.innerWidth;
+
+    const spaceBelow = vpH - triggerRect.bottom - VGAP - VEDGE;
+    const spaceAbove = triggerRect.top - VGAP - VEDGE;
+
+    // Measure natural content height (cap at 70vh as an upper bound).
+    panel.style.maxHeight = 'none';
+    const contentH = panel.scrollHeight;
+    const upperBound = Math.min(Math.round(vpH * 0.7), 600);
+
+    const flipAbove = spaceBelow < Math.min(contentH, 280) && spaceAbove > spaceBelow;
+    const avail = flipAbove ? spaceAbove : spaceBelow;
+    const targetH = Math.min(contentH, avail, upperBound);
+
+    panel.style.position = 'fixed';
+    panel.style.maxHeight = targetH + 'px';
+
+    if (flipAbove) {
+      panel.style.top = Math.max(VEDGE, triggerRect.top - VGAP - targetH) + 'px';
+    } else {
+      panel.style.top = (triggerRect.bottom + VGAP) + 'px';
+    }
+
+    // Horizontal: anchor to trigger's inline-start edge in RTL, then clamp
+    // so the panel stays inside the viewport on narrow widths.
+    const panelW = panel.offsetWidth;
+    let left = triggerRect.left;
+    if (left + panelW > vpW - HEDGE) left = vpW - panelW - HEDGE;
+    if (left < HEDGE) left = HEDGE;
+    panel.style.insetInlineStart = 'auto';
+    panel.style.left = left + 'px';
+  }
+
+  function onResize() { position(); }
+
   function open() {
     if (panel) { close(); return; }
     panel = buildPanel();
-    // Position relative to trigger.
-    const triggerRect = trigger.getBoundingClientRect();
-    panel.style.position = 'fixed';
-    // Anchor: drawer hangs below trigger, aligned to its inline-start edge in RTL.
-    panel.style.top = (triggerRect.bottom + 6) + 'px';
-    panel.style.insetInlineStart = (triggerRect.left) + 'px';
-    panel.style.maxHeight = '60vh';
     document.body.appendChild(panel);
+    position();
     trigger.setAttribute('aria-expanded', 'true');
+    window.addEventListener('resize', onResize);
+    // Re-position when the disclosure inside the panel toggles, since
+    // expanding/collapsing changes scrollHeight and may now fit/overflow.
+    panel.addEventListener('toggle', position, true);
     // Bind closers AFTER attachment so the opening click doesn't immediately close.
     setTimeout(() => {
       document.addEventListener('click', onOutsideClick, true);

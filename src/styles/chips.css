@@ -6,19 +6,23 @@
   background: var(--bg-subtle);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 16px;
+  padding: 14px;
   margin-bottom: var(--gap);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 .chip-section h2 {
   margin: 0;
-  font-size: 15px;
+  font-size: 13px;
   color: var(--fg-muted);
   font-weight: 500;
 }
 body.mode-advanced .chip-section h2 { display: none; }
+/* In Beginner mode, the empty-state templates picker carries its own
+   heading ("ابدأ من قالب جاهز:"); hide the section heading then to
+   avoid two stacked labels competing for the eye. */
+body.mode-beginner .chip-section:has(.chip-area-is-empty) h2 { display: none; }
 
 /* ===== Chip area ===== */
 .chip-area {
@@ -230,8 +234,10 @@ body.mode-beginner .chip-op-select { font-size: 12px; }
 
 .composer-hint {
   margin: 0;
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.4;
   color: var(--fg-muted);
+  opacity: 0.85;
 }
 body.mode-advanced .composer-hint { display: none; }
 
@@ -941,18 +947,18 @@ body.mode-beginner .chip-area.chip-area-is-empty {
 .chip-area-empty-state {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 .chip-area-empty-heading {
   margin: 0;
-  font-size: 14px;
+  font-size: 12px;
   color: var(--fg-muted);
   font-weight: 500;
 }
 .chip-area-empty-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 8px;
 }
 @media (max-width: 600px) {
   .chip-area-empty-grid { grid-template-columns: 1fr; }
@@ -961,15 +967,15 @@ body.mode-beginner .chip-area.chip-area-is-empty {
   background: var(--bg);
   color: var(--fg);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 14px;
+  border-radius: 10px;
+  padding: 10px 12px;
   text-align: start;
   cursor: pointer;
   font: inherit;
-  min-height: 80px;
+  min-height: 60px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 3px;
   transition: border-color 150ms, background 150ms;
 }
 .chip-area-empty-card:hover {
@@ -982,20 +988,20 @@ body.mode-beginner .chip-area.chip-area-is-empty {
 }
 .chip-area-empty-card-title {
   font-weight: 600;
-  font-size: 15px;
+  font-size: 13px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
-.chip-area-empty-card-icon { font-size: 18px; line-height: 1; }
+.chip-area-empty-card-icon { font-size: 14px; line-height: 1; }
 .chip-area-empty-card-desc {
   color: var(--fg-muted);
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: 11px;
+  line-height: 1.4;
 }
 .chip-area-empty-hint {
   margin: 0;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--fg-muted);
 }
 
