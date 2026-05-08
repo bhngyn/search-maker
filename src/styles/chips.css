@@ -891,15 +891,63 @@
   border-color: var(--accent);
   color: var(--accent);
 }
+/* === Composer modifier row ===
+   NOT and OR are pre-commit boolean modifiers — distinct semantics from the
+   operator pills (which select a content operator) and the quote toggle
+   (which wraps in literal-match). They get their own row with a tinted
+   surface and a leading-edge label so the separation reads at a glance. */
+.composer-modifier-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: var(--bg-subtle);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+.composer-modifier-row-label {
+  font-size: 12px;
+  color: var(--fg-muted);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  margin-inline-end: 4px;
+  white-space: nowrap;
+}
+.composer-modifier-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  min-height: 32px;
+  transition: background 120ms, border-color 120ms, color 120ms;
+}
+.composer-modifier-toggle:hover { border-color: var(--accent); background: var(--bg-subtle); }
+.composer-modifier-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.composer-modifier-toggle-glyph {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+}
+.composer-modifier-toggle-label { font-weight: 500; }
 .composer-not-toggle[aria-pressed="true"] {
-  background: var(--warning-soft, rgba(244, 114, 114, 0.18));
-  border-color: var(--warning, #f47272);
-  color: var(--warning, #f47272);
+  background: var(--warning, #fbbf24);
+  border-color: var(--warning, #fbbf24);
+  color: var(--accent-fg, #0f172a);
 }
 .composer-or-toggle[aria-pressed="true"] {
-  background: var(--accent-muted);
+  background: var(--accent);
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--accent-fg);
 }
 .composer-ghost-or {
   font-family: var(--mono);

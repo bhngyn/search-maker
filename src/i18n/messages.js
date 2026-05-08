@@ -290,6 +290,7 @@ export const MESSAGES = {
     ar: 'اقتباس حرفي — يطابق العبارة كما هي. اختصار: اكتب "العبارة" بين علامتي اقتباس.',
     en: 'Exact phrase — match the words as written. Shortcut: wrap the term in "quotes".',
   },
+  'ui.composer.modifierRowLabel': { ar: 'معدِّل',                              en: 'Modifier' },
   'ui.composer.notToggleLabel': { ar: 'استبعاد',                              en: 'Exclude' },
   'ui.composer.notToggleTitle': {
     ar: 'استبعاد هذه الكلمة من النتائج. اختصار: ابدأ الكلمة بـ "−".',

@@ -75,23 +75,26 @@ export function wireComposer({ host, chipState, engine, lang }) {
           <span class="composer-quote-toggle-glyph" dir="ltr">"&nbsp;"</span>
           <span class="composer-quote-toggle-label" id="composer-quote-toggle-label-text"></span>
         </button>
+      </div>
+      <div class="composer-modifier-row" role="group" id="composer-modifier-row">
+        <span class="composer-modifier-row-label" id="composer-modifier-row-label-text"></span>
         <button
           type="button"
-          class="composer-quote-toggle composer-not-toggle"
+          class="composer-modifier-toggle composer-not-toggle"
           id="composer-not-toggle"
           aria-pressed="false"
         >
-          <span class="composer-quote-toggle-glyph" dir="ltr">−</span>
-          <span class="composer-quote-toggle-label" id="composer-not-toggle-label-text"></span>
+          <span class="composer-modifier-toggle-glyph" dir="ltr">−</span>
+          <span class="composer-modifier-toggle-label" id="composer-not-toggle-label-text"></span>
         </button>
         <button
           type="button"
-          class="composer-quote-toggle composer-or-toggle"
+          class="composer-modifier-toggle composer-or-toggle"
           id="composer-or-toggle"
           aria-pressed="false"
         >
-          <span class="composer-quote-toggle-glyph" dir="ltr">⫦</span>
-          <span class="composer-quote-toggle-label" id="composer-or-toggle-label-text"></span>
+          <span class="composer-modifier-toggle-glyph" dir="ltr">⫦</span>
+          <span class="composer-modifier-toggle-label" id="composer-or-toggle-label-text"></span>
         </button>
       </div>
       <p class="composer-quote-hint" id="composer-quote-hint-text"></p>
@@ -119,6 +122,8 @@ export function wireComposer({ host, chipState, engine, lang }) {
   const notToggleLabel = host.querySelector('#composer-not-toggle-label-text');
   const orToggle = host.querySelector('#composer-or-toggle');
   const orToggleLabel = host.querySelector('#composer-or-toggle-label-text');
+  const modifierRow = host.querySelector('#composer-modifier-row');
+  const modifierRowLabel = host.querySelector('#composer-modifier-row-label-text');
   const quoteHint = host.querySelector('#composer-quote-hint-text');
   const pasteHintEl = host.querySelector('#composer-ghost-paste-hint');
   const helpHint = host.querySelector('#composer-ghost-hint');
@@ -146,6 +151,8 @@ export function wireComposer({ host, chipState, engine, lang }) {
       orToggle.setAttribute('title', t('ui.composer.orToggleTitle'));
     }
     if (orToggleLabel) orToggleLabel.textContent = t('ui.composer.orToggleLabel');
+    if (modifierRow) modifierRow.setAttribute('aria-label', t('ui.composer.modifierRowLabel'));
+    if (modifierRowLabel) modifierRowLabel.textContent = t('ui.composer.modifierRowLabel');
     if (quoteHint) quoteHint.textContent = t('ui.composer.quoteHint');
     if (pasteHintEl) pasteHintEl.textContent = t('ui.composer.pasteHint');
     if (commitRow) commitRow.setAttribute('aria-label', t('ui.composer.commitGroupLabel'));
