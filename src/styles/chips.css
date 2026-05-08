@@ -713,4 +713,84 @@ body.mode-beginner .chip-or-handle {
 .chip-or-group .chip-or-connector .chip-delete-btn { display: none; }
 
 /* === Empty-state templates (A5) === */
+/* When the chip array is empty, the chip-area renders both an inline
+   templates picker (Beginner) and a muted fallback line (Advanced). CSS
+   shows exactly one of them based on body.mode-* so chip-area itself
+   doesn't need to re-render on mode change. */
+body.mode-beginner .chip-area.chip-area-is-empty {
+  /* Drop the dashed silhouette when the empty state is the templates
+     picker — the cards carry their own visual weight. */
+  border-color: transparent;
+  background: transparent;
+  padding: 0;
+  display: block;
+}
+.chip-area-empty-state {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.chip-area-empty-heading {
+  margin: 0;
+  font-size: 14px;
+  color: var(--fg-muted);
+  font-weight: 500;
+}
+.chip-area-empty-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .chip-area-empty-grid { grid-template-columns: 1fr; }
+}
+.chip-area-empty-card {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 14px;
+  text-align: start;
+  cursor: pointer;
+  font: inherit;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 150ms, background 150ms;
+}
+.chip-area-empty-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-subtle);
+}
+.chip-area-empty-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.chip-area-empty-card-title {
+  font-weight: 600;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.chip-area-empty-card-icon { font-size: 18px; line-height: 1; }
+.chip-area-empty-card-desc {
+  color: var(--fg-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.chip-area-empty-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+/* In Advanced mode the empty state is just the existing dashed silhouette
+   plus a muted line — hide the templates block. The default chip-area
+   styling (dashed border + padding) is unchanged in Advanced. */
+body.mode-advanced .chip-area-empty-state { display: none; }
+/* In Beginner mode the muted fallback line is hidden — templates take its place. */
+body.mode-beginner .chip-area > .chip-area-empty { display: none; }
+
 /* === Keyboard reorder hint (B4) === */

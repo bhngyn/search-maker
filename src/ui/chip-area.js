@@ -9,6 +9,7 @@
 // reading right-to-left).
 
 import { chipTypes } from '../chips/_registry.js';
+import { TEMPLATES, applyTemplate } from './templates.js';
 
 /**
  * Selection observable shared with the bulk-actions toolbar. A simple
@@ -35,8 +36,9 @@ export function createChipSelection() {
  * @param {{ subscribe: Function, getAll: Function, remove: Function, update: Function, clear: Function, reorder?: Function }} args.chipState
  * @param {{ get: () => 'beginner' | 'advanced', on?: (cb: (mode: string) => void) => void }} [args.mode]
  * @param {ReturnType<typeof createChipSelection>} [args.selection]
+ * @param {() => void} [args.focusComposer]  used by the empty-state templates to focus the composer after applying
  */
-export function wireChipArea({ host, chipState, mode, selection }) {
+export function wireChipArea({ host, chipState, mode, selection, focusComposer }) {
   host.classList.add('chip-area');
   host.setAttribute('aria-live', 'polite');
   host.setAttribute('aria-relevant', 'additions removals');
@@ -50,11 +52,12 @@ export function wireChipArea({ host, chipState, mode, selection }) {
   function render() {
     const chips = chipState.getAll();
     if (chips.length === 0) {
-      host.innerHTML = '<p class="chip-area-empty">لم تُضف أي كلمات بعد. اكتب كلمة في الأسفل واضغط Enter.</p>';
+      renderEmptyState();
       host.classList.remove('chip-area-draggable');
       return;
     }
     host.classList.toggle('chip-area-draggable', isAdvanced());
+    host.classList.remove('chip-area-is-empty');
     host.innerHTML = '';
     // Build a per-index map of OR-group containers. We walk chips and group
     // any contiguous run of [keyword, or-connector, keyword, ...] into a
@@ -80,6 +83,71 @@ export function wireChipArea({ host, chipState, mode, selection }) {
         cursor++;
       }
     }
+  }
+
+  /**
+   * Render the empty-state DOM. In Beginner mode this is the templates
+   * picker (heading + 3 cards + hint). In Advanced mode it falls back to
+   * a silent muted line. CSS hides the templates block when the body is
+   * in advanced mode, so we always render the same DOM regardless of mode
+   * — that way mode toggles don't trigger a re-render here.
+   */
+  function renderEmptyState() {
+    host.innerHTML = '';
+    host.classList.add('chip-area-is-empty');
+    const wrap = document.createElement('div');
+    wrap.className = 'chip-area-empty-state';
+
+    const heading = document.createElement('h3');
+    heading.className = 'chip-area-empty-heading';
+    heading.textContent = 'ابدأ من قالب جاهز:';
+    wrap.appendChild(heading);
+
+    const grid = document.createElement('div');
+    grid.className = 'chip-area-empty-grid';
+    TEMPLATES.forEach(tpl => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'chip-area-empty-card';
+      card.dataset.templateId = tpl.id;
+
+      const titleLine = document.createElement('span');
+      titleLine.className = 'chip-area-empty-card-title';
+      const icon = document.createElement('span');
+      icon.className = 'chip-area-empty-card-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = tpl.icon;
+      const titleText = document.createElement('span');
+      titleText.textContent = tpl.title;
+      titleLine.appendChild(icon);
+      titleLine.appendChild(titleText);
+
+      const desc = document.createElement('span');
+      desc.className = 'chip-area-empty-card-desc';
+      desc.textContent = tpl.description;
+
+      card.appendChild(titleLine);
+      card.appendChild(desc);
+      card.addEventListener('click', () => {
+        applyTemplate(tpl.id, { chipState, focusComposer });
+      });
+      grid.appendChild(card);
+    });
+    wrap.appendChild(grid);
+
+    const hint = document.createElement('p');
+    hint.className = 'chip-area-empty-hint';
+    hint.textContent = 'أو اكتب كلمة في الأسفل وابدأ من الصفر.';
+    wrap.appendChild(hint);
+
+    // Plain Advanced-mode fallback. CSS keeps only one of these visible
+    // depending on body.mode-* class.
+    const fallback = document.createElement('p');
+    fallback.className = 'chip-area-empty';
+    fallback.textContent = 'لم تُضف أي كلمات بعد. اكتب كلمة في الأسفل واضغط Enter.';
+
+    host.appendChild(wrap);
+    host.appendChild(fallback);
   }
 
   /**
