@@ -92,7 +92,11 @@ export function createChipState({ ctx, segmentOrder = 100 }) {
       props: { ...defaultPropsFor(type), ...props },
     };
     chips.splice(idx + 1, 0, chip);
-    cleanupConnectors();
+    // Don't run cleanupConnectors here: the OR-branch flow calls addAfter
+    // twice in sequence (connector, then keyword), and cleanup between the
+    // two would prune the connector before its trailing term lands. The
+    // mutating ops that *can* create stale connectors (remove, reorder)
+    // still cleanup themselves, so the invariant holds.
     notify({ kind: 'add', chip });
     ctx.requestUpdate();
     return chip.id;

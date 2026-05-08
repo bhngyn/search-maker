@@ -715,6 +715,7 @@ body.mode-advanced .chip-area .chip:hover:not(.chip-selected) {
 }
 .welcome-reopen:hover { color: var(--fg); text-decoration: underline; }
 .welcome-reopen:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.welcome-reopen[hidden] { display: none !important; }
 body.mode-advanced .welcome-reopen { display: none !important; }
 
 /* === Composer redesign (A1+A3) ===
