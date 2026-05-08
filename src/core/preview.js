@@ -18,12 +18,14 @@
  * @param {{ clearAll: () => void }} args.tips
  * @param {string} [args.emptyMessage]
  * @param {Array<() => void>} [args.postRenderHooks]
+ * @param {Array<() => void>} [args.onResetHooks] - extra callbacks fired on the second tap of the global reset
  */
 export function createPreview({
   previewBox, copyBtn, searchBtn, resetBtn, toastEl,
   assembleQuery, fieldRegistry, warnings, tips,
   emptyMessage = 'ابدأ بكتابة كلمات البحث',
   postRenderHooks = [],
+  onResetHooks = [],
 }) {
   function render() {
     const q = assembleQuery();
@@ -103,6 +105,8 @@ export function createPreview({
       resetBtn.textContent = 'مسح الكل';
       // Clear every registered field by setting to empty value.
       fieldRegistry.forEach(api => { try { api.setValue(''); } catch (e) {} });
+      // Run any extra reset hooks (chip-state.clear etc.).
+      onResetHooks.forEach(hook => { try { hook(); } catch (e) { console.warn('reset hook failed', e); } });
       // Clear all warnings and tips too.
       warnings.clearAll();
       tips.clearAll();

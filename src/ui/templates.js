@@ -1,27 +1,15 @@
-// Wire the three Beginner-mode template buttons. Each pre-fills fields via
-// ctx.setField(...) and scrolls the user to the keywords field.
-//
-// Template #2 ("بحث في الوثائق") and the date-range template populate fields
-// that live in the Beginner-mode "more options" disclosure, so they pass
-// `requiresAdvanced: true` to expand the disclosure first.
+// Beginner-mode template buttons. Each pre-fills chips and focuses the
+// composer. Clicking a template doesn't auto-submit a search — it just
+// scaffolds the chip state so the user can continue typing.
 
 /**
  * @param {object} args
- * @param {{ setField: (slug: string, value: any) => void }} args.ctx
- * @param {((revealed: boolean) => void) | null} args.setAdvancedRevealed
+ * @param {{ add: Function }} args.chipState
+ * @param {() => void} [args.focusComposer]
  */
-export function wireTemplates({ ctx, setAdvancedRevealed }) {
-  function scrollToKeywords() {
-    const el = document.getElementById('field-keywords-input');
-    if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setTimeout(() => el.focus(), 250);
-  }
-
-  function applyTemplate(fillers, requiresAdvanced) {
-    Object.keys(fillers).forEach(slug => ctx.setField(slug, fillers[slug]));
-    if (requiresAdvanced && setAdvancedRevealed) setAdvancedRevealed(true);
-    scrollToKeywords();
+export function wireTemplates({ chipState, focusComposer }) {
+  function focusAfterApply() {
+    if (focusComposer) setTimeout(focusComposer, 100);
   }
 
   const siteBtn = document.getElementById('template-site');
@@ -30,12 +18,16 @@ export function wireTemplates({ ctx, setAdvancedRevealed }) {
 
   if (siteBtn) {
     siteBtn.addEventListener('click', () => {
-      applyTemplate({ site: 'example.com' }, false);
+      // Seed a site-restricted chip; user types the domain into the chip.
+      chipState.add('keyword', { operator: 'site', text: '' });
+      focusAfterApply();
     });
   }
   if (docsBtn) {
     docsBtn.addEventListener('click', () => {
-      applyTemplate({ filetype: 'pdf' }, true);
+      // Filetype chip preset to PDF (the most common investigation case).
+      chipState.add('filetype', { value: 'pdf' });
+      focusAfterApply();
     });
   }
   if (dateRangeBtn) {
@@ -43,7 +35,8 @@ export function wireTemplates({ ctx, setAdvancedRevealed }) {
       const today = new Date();
       const lastYear = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
       const fmt = (d) => d.toISOString().slice(0, 10);
-      applyTemplate({ 'date-range': { after: fmt(lastYear), before: fmt(today) } }, true);
+      chipState.add('date-range', { after: fmt(lastYear), before: fmt(today) });
+      focusAfterApply();
     });
   }
 }

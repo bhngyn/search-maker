@@ -1,13 +1,18 @@
 // Bootstrap for the Arabic Boolean Query Builder.
 //
-// Phase 3: every field, warning, and tip lives in its own module. This file
-// just wires DOM refs into core systems, builds `ctx`, and iterates the
-// registries. Adding a new field/warning/tip means writing one new file and
-// adding one import line in the corresponding _registry.js.
+// Phase 5: the form is gone. The entire input UI is chip-based:
+//   - chip-state.js       holds the canonical chip array and registers ONE
+//                         segment with ctx that produces the assembled query
+//   - chips/<type>.js     renders and assembles each chip type
+//   - composer + drawer   commit chips from typed text or operator menus
+//   - chip-area           subscribes to chip-state and renders the chip list
+//
+// Warnings and tips read from chip state via deps. Each module that needs
+// to recompute on every preview update returns { onRender } and the
+// bootstrap pushes that callback into postRenderHooks.
 
 import './styles/tokens.css';
 import './styles/base.css';
-import './styles/fields.css';
 import './styles/chips.css';
 
 import { createNormalizer } from './core/normalize.js';
@@ -20,14 +25,12 @@ import { createCtx } from './core/ctx.js';
 import { createChipState } from './core/chip-state.js';
 
 import { wireWelcomePanel } from './ui/welcome.js';
-import { wireMoreOptions } from './ui/disclosure.js';
 import { wireTemplates } from './ui/templates.js';
 import { wireNormalizeToggle } from './ui/normalize-toggle.js';
 import { wireComposer } from './ui/composer.js';
 import { wireChipArea } from './ui/chip-area.js';
 import { wireDrawer } from './ui/drawer.js';
 
-import { fields } from './fields/_registry.js';
 import { warnings as warningModules } from './warnings/_registry.js';
 import { tips as tipModules } from './tips/_registry.js';
 
@@ -47,7 +50,7 @@ const toastEl = document.getElementById('toast');
 
 // ===== Core state =====
 const segments = [];
-const fieldRegistry = new Map();
+const fieldRegistry = new Map(); // empty in chip-only mode; reset still iterates it (a no-op).
 
 // ===== Core systems =====
 const normalize = createNormalizer(() => normalizeInput.checked);
@@ -63,13 +66,15 @@ const mode = createModeController({
 const tips = createTips(tipRegion, mode.get);
 mode.on(() => tips.reflow());
 
-// `postRenderHooks` is captured by reference; cross-field warnings push
-// onto it after registration so their checks run on every preview update.
+// `postRenderHooks` is captured by reference so warnings/tips registered
+// after createPreview can still push into it. `onResetHooks` is similar
+// — chip-state pushes its `clear` callback after construction.
 const postRenderHooks = [];
+const onResetHooks = [];
 const preview = createPreview({
   previewBox, copyBtn, searchBtn, resetBtn, toastEl,
   assembleQuery, fieldRegistry, warnings, tips,
-  postRenderHooks,
+  postRenderHooks, onResetHooks,
 });
 
 const ctx = createCtx({
@@ -78,13 +83,34 @@ const ctx = createCtx({
   warnings, tips, mode,
 });
 
+// ===== Chip state (the only segment producer in chip-only mode) =====
+// Order=1 keeps the segment registry tidy; with no other producers, the
+// number doesn't matter functionally but a low number is conventionally
+// the "main content" slot.
+const chipState = createChipState({ ctx, segmentOrder: 1 });
+
+// Wire chip clearing into the global reset (second-tap branch).
+onResetHooks.push(() => chipState.clear());
+
 // ===== UI wiring =====
 wireWelcomePanel();
-const disclosure = wireMoreOptions();
+
+let composerHandle = null;
+const chipAreaHost = document.getElementById('chip-area');
+const composerHost = document.getElementById('composer');
+if (chipAreaHost) wireChipArea({ host: chipAreaHost, chipState });
+if (composerHost) {
+  composerHandle = wireComposer({ host: composerHost, chipState });
+  if (composerHandle.drawerTrigger) {
+    wireDrawer({ trigger: composerHandle.drawerTrigger, chipState, mode });
+  }
+}
+
 wireTemplates({
-  ctx,
-  setAdvancedRevealed: disclosure ? disclosure.setRevealed : null,
+  chipState,
+  focusComposer: composerHandle ? composerHandle.focus : null,
 });
+
 wireNormalizeToggle({
   normalizeInput,
   infoBtn: normalizeInfoBtn,
@@ -92,36 +118,11 @@ wireNormalizeToggle({
   onChange: preview.render,
 });
 
-// ===== Chip state =====
-// Chip-state registers ONE segment at order=100 (after all form segments at
-// 1–15). During Phase 4 the form and chips coexist; both feed the visualizer.
-const chipState = createChipState({ ctx, segmentOrder: 100 });
-
-// ===== Field registrations =====
-fields.forEach(mod => {
-  if (typeof mod.register === 'function') {
-    try { mod.register(ctx); } catch (e) { console.error('field register failed', e); }
-  }
-});
-
-// ===== Chip UI =====
-const chipAreaHost = document.getElementById('chip-area');
-const composerHost = document.getElementById('composer');
-if (chipAreaHost) wireChipArea({ host: chipAreaHost, chipState });
-if (composerHost) {
-  const composerHandle = wireComposer({ host: composerHost, chipState });
-  if (composerHandle.drawerTrigger) {
-    wireDrawer({ trigger: composerHandle.drawerTrigger, chipState, mode });
-  }
-}
-
 // ===== Warnings + tips =====
-// Each module's register() may return { onRender } if it needs to recompute
-// after every preview update (e.g. query-too-long, over-restricted).
 [...warningModules, ...tipModules].forEach(mod => {
   if (typeof mod.register !== 'function') return;
   try {
-    const out = mod.register(ctx, { previewBox });
+    const out = mod.register(ctx, { previewBox, chipState });
     if (out && typeof out.onRender === 'function') {
       postRenderHooks.push(out.onRender);
     }
@@ -130,5 +131,5 @@ if (composerHost) {
   }
 });
 
-// Initial render — empty state, but wires up disabled buttons + placeholder.
+// Initial render — empty state shows muted placeholder; buttons disabled.
 preview.render();
