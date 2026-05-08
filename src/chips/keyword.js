@@ -279,12 +279,12 @@ export function render(chip, handlers) {
   // Per-chip warning/tip glyph (opens a popover with the issues + fix buttons).
   const glyph = renderWarningGlyph(chip, validate(chip), handlers);
 
-  if (orHandle) el.appendChild(orHandle);
   el.appendChild(del);
   if (opBadge) el.appendChild(opBadge);
   if (glyph) el.appendChild(glyph);
   if (negPrefix) el.appendChild(negPrefix);
   el.appendChild(textEl);
   el.appendChild(tools);
+  if (orHandle) el.appendChild(orHandle);
   return el;
 }

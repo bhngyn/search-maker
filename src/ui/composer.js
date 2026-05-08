@@ -29,7 +29,7 @@ import { getOperatorsForActive } from '../chips/keyword.js';
 import { getActiveEngine } from '../core/engine.js';
 import { t } from '../i18n/messages.js';
 
-// Beginner-mode "convert to" pills shown under the ghost preview while the
+// "Convert to" operator pills shown under the ghost preview while the
 // user is typing. The pill list is engine-driven (see src/engines/<id>.js
 // `composerPills`): Google offers site/intitle/intext/etc.; X offers
 // from/to/mention/hashtag/etc. Picking one re-renders the ghost so the
@@ -333,9 +333,8 @@ export function wireComposer({ host, chipState, engine, lang }) {
     toastTimer = setTimeout(clearToast, 1500);
   }
 
-  // Plain-paste hint sits inside the ghost-row so the existing
-  // mode-advanced display:none rule already keeps it Beginner-only. Auto-
-  // fades after 4 seconds via class transitions.
+  // Plain-paste hint sits inside the ghost-row and auto-fades
+  // after 4 seconds via class transitions.
   let pasteHintTimer = null;
   let pasteHintFadeTimer = null;
   function showPasteHint() {

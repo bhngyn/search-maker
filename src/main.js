@@ -20,7 +20,6 @@ import { createNormalizer } from './core/normalize.js';
 import { createAssembler } from './core/assemble.js';
 import { createWarnings } from './core/warnings.js';
 import { createTips } from './core/tips.js';
-import { createModeController } from './core/mode.js';
 import { createLangController } from './core/lang.js';
 import { createPreview } from './core/preview.js';
 import { createCtx } from './core/ctx.js';
@@ -54,8 +53,6 @@ const resetBtn = document.getElementById('reset-btn');
 const normalizeInput = document.getElementById('normalize-toggle-input');
 const normalizeInfoBtn = document.getElementById('normalize-info-btn');
 const normalizeInfoPanel = document.getElementById('normalize-info-panel');
-const modeBtnBeginner = document.getElementById('mode-btn-beginner');
-const modeBtnAdvanced = document.getElementById('mode-btn-advanced');
 const engineBtnGoogle = document.getElementById('engine-btn-google');
 const engineBtnX = document.getElementById('engine-btn-x');
 const engineBtnFacebook = document.getElementById('engine-btn-facebook');
@@ -69,7 +66,6 @@ const toastEl = document.getElementById('toast');
 const titleEl = document.getElementById('app-title');
 const titleMetaEl = document.getElementById('app-title-meta');
 const engineGroup = document.getElementById('engine-toggle-group');
-const modeGroup = document.getElementById('mode-toggle-group');
 const langGroup = document.getElementById('lang-toggle-group');
 const engineBtnXLabel = document.getElementById('engine-btn-x');
 const normalizeLabelText = document.getElementById('normalize-label-text');
@@ -96,7 +92,7 @@ const engine = createEngineController({
   facebookEngine,
 });
 
-// Language controller — singleton + listener fan-out, mirrors mode.js.
+// Language controller — singleton + listener fan-out.
 // Default 'ar' preserves the existing UX; English is opt-in per session.
 const lang = createLangController({
   btnAr: langBtnAr,
@@ -120,14 +116,8 @@ const assembleQuery = () => {
 };
 const warnings = createWarnings(warningRegion);
 
-const mode = createModeController({
-  btnBeginner: modeBtnBeginner,
-  btnAdvanced: modeBtnAdvanced,
-  body: document.body,
-});
-
-const tips = createTips(tipRegion, mode.get);
-mode.on(() => tips.reflow());
+const tips = createTips(tipRegion);
+tips.reflow();
 
 // `postRenderHooks` is captured by reference so warnings/tips registered
 // after createPreview can still push into it. `onResetHooks` is similar.
@@ -149,7 +139,7 @@ const preview = createPreview({
 const ctx = createCtx({
   segments, normalize,
   requestUpdate: preview.render,
-  warnings, tips, mode, lang,
+  warnings, tips, lang,
 });
 
 // ===== Chip state (the only segment producer in chip-only mode) =====
@@ -170,18 +160,17 @@ const chipToolbarHost = document.getElementById('chip-toolbar');
 if (chipAreaHost) wireChipArea({
   host: chipAreaHost,
   chipState,
-  mode,
   selection: chipSelection,
   focusComposer: () => { if (composerHandle && composerHandle.focus) composerHandle.focus(); },
   onChipHighlight: id => preview.highlightChip(id),
   engine,
   lang,
 });
-if (chipToolbarHost) wireChipToolbar({ host: chipToolbarHost, chipState, selection: chipSelection, mode, lang });
+if (chipToolbarHost) wireChipToolbar({ host: chipToolbarHost, chipState, selection: chipSelection, lang });
 if (composerHost) {
   composerHandle = wireComposer({ host: composerHost, chipState, engine, lang });
   if (composerHandle.drawerTrigger) {
-    wireDrawer({ trigger: composerHandle.drawerTrigger, chipState, mode, engine });
+    wireDrawer({ trigger: composerHandle.drawerTrigger, chipState, engine });
   }
 }
 
@@ -241,12 +230,9 @@ function applyLangLabels() {
   if (titleEl) titleEl.textContent = t('app.title');
   if (titleMetaEl) titleMetaEl.textContent = t('app.title');
   if (engineGroup) engineGroup.setAttribute('aria-label', t('app.engineToggleLabel'));
-  if (modeGroup) modeGroup.setAttribute('aria-label', t('app.modeToggleLabel'));
   if (langGroup) langGroup.setAttribute('aria-label', t('app.langToggleLabel'));
   if (langBtnAr) langBtnAr.textContent = t('app.langArabic');
   if (langBtnEn) langBtnEn.textContent = t('app.langEnglish');
-  if (modeBtnBeginner) modeBtnBeginner.textContent = t('app.modeBeginner');
-  if (modeBtnAdvanced) modeBtnAdvanced.textContent = t('app.modeAdvanced');
   if (engineBtnXLabel) engineBtnXLabel.textContent = t('engine.x.label');
   if (normalizeLabelText) normalizeLabelText.textContent = t('app.normalizeLabel');
   if (normalizeInfoBtn) normalizeInfoBtn.title = t('app.normalizeInfoTitle');

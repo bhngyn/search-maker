@@ -1,4 +1,4 @@
-// Bulk-actions toolbar for multi-select (Advanced mode only).
+// Bulk-actions toolbar for multi-select.
 //
 // Subscribes to a selection observable + chip state. When selection is
 // non-empty, renders a toolbar with bulk actions:
@@ -6,8 +6,6 @@
 //   - "نفي" / "إلغاء النفي" toggle (only if all selected can be negated)
 //   - "حذف" — delete all selected
 //   - "إلغاء التحديد" — clear selection
-//
-// In Beginner mode the toolbar stays hidden.
 
 import { getOperatorsForActive, getOperatorKeysForActive } from '../chips/keyword.js';
 import { t } from '../i18n/messages.js';
@@ -17,14 +15,11 @@ import { t } from '../i18n/messages.js';
  * @param {HTMLElement} args.host
  * @param {{ getAll: () => any[], update: Function, remove: Function }} args.chipState
  * @param {{ get: () => Set<string>, subscribe: (cb: () => void) => void, clear: () => void }} args.selection
- * @param {{ get: () => 'beginner' | 'advanced', on?: (cb: () => void) => void }} [args.mode]
  */
-export function wireChipToolbar({ host, chipState, selection, mode, lang }) {
+export function wireChipToolbar({ host, chipState, selection, lang }) {
   host.classList.add('chip-toolbar');
   host.setAttribute('role', 'toolbar');
   host.setAttribute('aria-label', t('ui.toolbar.ariaLabel'));
-
-  function isAdvanced() { return !mode || !mode.get || mode.get() === 'advanced'; }
 
   function selectedChips() {
     const ids = selection.get();
@@ -39,7 +34,7 @@ export function wireChipToolbar({ host, chipState, selection, mode, lang }) {
 
   function render() {
     const sel = selectedChips();
-    const showing = isAdvanced() && sel.length > 0;
+    const showing = sel.length > 0;
     if (!showing) {
       host.hidden = true;
       host.innerHTML = '';
@@ -130,7 +125,6 @@ export function wireChipToolbar({ host, chipState, selection, mode, lang }) {
 
   selection.subscribe(render);
   chipState.subscribe(render);
-  if (mode && mode.on) mode.on(render);
   if (lang && lang.on) lang.on(() => {
     host.setAttribute('aria-label', t('ui.toolbar.ariaLabel'));
     render();

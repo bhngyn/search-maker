@@ -14,12 +14,9 @@ export const MESSAGES = {
   // ===== HTML shell =====
   'app.title':              { ar: 'أداة بناء استعلامات البحث',        en: 'Search Query Builder' },
   'app.engineToggleLabel':  { ar: 'محرك البحث',                       en: 'Search engine' },
-  'app.modeToggleLabel':    { ar: 'وضع الواجهة',                       en: 'Interface mode' },
   'app.langToggleLabel':    { ar: 'لغة الواجهة',                       en: 'Interface language' },
-  'app.langArabic':         { ar: 'العربية',                           en: 'العربية' },
-  'app.langEnglish':        { ar: 'English',                           en: 'English' },
-  'app.modeBeginner':       { ar: 'وضع المبتدئ',                       en: 'Beginner' },
-  'app.modeAdvanced':       { ar: 'وضع المتقدم',                       en: 'Advanced' },
+  'app.langArabic':         { ar: 'AR',                                en: 'AR' },
+  'app.langEnglish':        { ar: 'EN',                                en: 'EN' },
   'app.normalizeLabel':     { ar: 'توحيد الأحرف العربية',              en: 'Arabic normalization' },
   'app.normalizeInfoTitle': { ar: 'ما هذا؟',                            en: 'What is this?' },
   'app.normalizeInfoBody':  {

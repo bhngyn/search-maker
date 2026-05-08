@@ -35,19 +35,14 @@ export function createChipSelection() {
  * @param {object} args
  * @param {HTMLElement} args.host
  * @param {{ subscribe: Function, getAll: Function, remove: Function, update: Function, clear: Function, reorder?: Function }} args.chipState
- * @param {{ get: () => 'beginner' | 'advanced', on?: (cb: (mode: string) => void) => void }} [args.mode]
  * @param {ReturnType<typeof createChipSelection>} [args.selection]
  * @param {() => void} [args.focusComposer]  used by the empty-state templates to focus the composer after applying
  * @param {(chipId: string) => void} [args.onChipHighlight]  invoked when a chip is added or focused; preview uses it to flash the matching fragment
  */
-export function wireChipArea({ host, chipState, mode, selection, focusComposer, onChipHighlight, engine, lang }) {
+export function wireChipArea({ host, chipState, selection, focusComposer, onChipHighlight, engine, lang }) {
   host.classList.add('chip-area');
   host.setAttribute('aria-live', 'polite');
   host.setAttribute('aria-relevant', 'additions removals');
-
-  function isAdvanced() {
-    return mode && mode.get && mode.get() === 'advanced';
-  }
 
   let draggedChipId = null;
 
@@ -65,7 +60,7 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
       host.classList.remove('chip-area-draggable');
       return;
     }
-    host.classList.toggle('chip-area-draggable', isAdvanced());
+    host.classList.add('chip-area-draggable');
     host.classList.remove('chip-area-is-empty');
     host.innerHTML = '';
     // Build a per-index map of OR-group containers. We walk chips and group
@@ -176,11 +171,7 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
   }
 
   /**
-   * Render the empty-state DOM. In Beginner mode this is the templates
-   * picker (heading + 3 cards + hint). In Advanced mode it falls back to
-   * a silent muted line. CSS hides the templates block when the body is
-   * in advanced mode, so we always render the same DOM regardless of mode
-   * — that way mode toggles don't trigger a re-render here.
+   * Render the empty-state DOM: templates picker (heading + 3 cards + hint).
    */
   function renderEmptyState() {
     host.innerHTML = '';
@@ -230,14 +221,7 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
     hint.textContent = t('ui.chipArea.emptyHint');
     wrap.appendChild(hint);
 
-    // Plain Advanced-mode fallback. CSS keeps only one of these visible
-    // depending on body.mode-* class.
-    const fallback = document.createElement('p');
-    fallback.className = 'chip-area-empty';
-    fallback.textContent = t('ui.chipArea.emptyAdvancedFallback');
-
     host.appendChild(wrap);
-    host.appendChild(fallback);
   }
 
   /**
@@ -283,8 +267,8 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
       onAddOrBranch: inOrGroup ? null : () => addOrBranch(chip.id),
     });
     if (selection && selection.has(chip.id)) el.classList.add('chip-selected');
-    if (selection && isAdvanced()) wireSelectionClick(el, chip.id);
-    if (isAdvanced() && chipState.reorder) {
+    if (selection) wireSelectionClick(el, chip.id);
+    if (chipState.reorder) {
       wireDrag(el, chip.id);
     }
     parent.appendChild(el);
@@ -469,7 +453,6 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
     }
   });
   if (selection) selection.subscribe(() => render());
-  if (mode && mode.on) mode.on(() => render());
   // Engine switch may change empty-state templates and the operator
   // surface visible on existing chips; rerender to pick those up.
   if (engine && engine.on) engine.on(() => render());

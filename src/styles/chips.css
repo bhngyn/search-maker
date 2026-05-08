@@ -18,11 +18,6 @@
   color: var(--fg-muted);
   font-weight: 500;
 }
-body.mode-advanced .chip-section h2 { display: none; }
-/* In Beginner mode, the empty-state templates picker carries its own
-   heading ("ابدأ من قالب جاهز:"); hide the section heading then to
-   avoid two stacked labels competing for the eye. */
-body.mode-beginner .chip-section:has(.chip-area-is-empty) h2 { display: none; }
 
 /* ===== Chip area ===== */
 .chip-area {
@@ -116,7 +111,7 @@ body.mode-beginner .chip-section:has(.chip-area-is-empty) h2 { display: none; }
   border: 1px solid var(--border);
   border-radius: 4px;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--fg-muted);
   padding: 2px 4px;
   cursor: pointer;
@@ -124,7 +119,6 @@ body.mode-beginner .chip-section:has(.chip-area-is-empty) h2 { display: none; }
 }
 .chip-op-select:hover { border-color: var(--accent); color: var(--fg); }
 .chip-op-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-body.mode-beginner .chip-op-select { font-size: 12px; }
 
 .chip-has-op { padding-inline-start: 2px; }
 
@@ -225,18 +219,26 @@ body.mode-beginner .chip-op-select { font-size: 12px; }
 .composer-input-row { width: 100%; }
 .composer-input {
   width: 100%;
-  padding: 12px 14px;
+  padding: 16px 18px;
   font: inherit;
-  font-size: 16px;
+  font-size: 17px;
   background: var(--bg);
   color: var(--fg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  border: 1.5px solid var(--accent-muted);
+  border-radius: 10px;
+  box-shadow: 0 1px 0 var(--bg-subtle), 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: border-color 150ms, box-shadow 150ms;
+}
+.composer-input::placeholder {
+  font-style: italic;
+  color: var(--fg-muted);
+  opacity: 1;
 }
 .composer-input:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline: 3px solid var(--accent);
+  outline-offset: 0;
   border-color: var(--accent);
+  box-shadow: 0 1px 0 var(--bg-subtle), 0 4px 12px rgba(37, 99, 235, 0.15);
 }
 .composer-commit-row {
   display: flex;
@@ -285,7 +287,6 @@ body.mode-beginner .chip-op-select { font-size: 12px; }
   color: var(--fg-muted);
   opacity: 0.85;
 }
-body.mode-advanced .composer-hint { display: none; }
 
 /* ===== Ghost chip preview =====
    Mirrors what would commit on Enter. Sits between the input and the
@@ -324,7 +325,6 @@ body.mode-advanced .composer-hint { display: none; }
   border-color: var(--warning);
   color: var(--warning);
 }
-body.mode-advanced .composer-ghost-row { display: none; }
 
 /* ===== Sticky visualizer (the bottom query bar) ===== */
 .preview-section.preview-section-sticky {
@@ -458,15 +458,6 @@ body.mode-advanced .composer-ghost-row { display: none; }
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   background: var(--bg);
-}
-body.mode-advanced .chip-area .chip {
-  /* In Advanced mode, give chips a subtle hint that they're selectable
-     by hovering. The cursor is overridden by chip-draggable to grab
-     during drag mode. */
-  cursor: pointer;
-}
-body.mode-advanced .chip-area .chip:hover:not(.chip-selected) {
-  border-color: var(--accent);
 }
 
 .chip-toolbar {
@@ -783,7 +774,6 @@ body.mode-advanced .chip-area .chip:hover:not(.chip-selected) {
 .welcome-reopen:hover { color: var(--fg); text-decoration: underline; }
 .welcome-reopen:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .welcome-reopen[hidden] { display: none !important; }
-body.mode-advanced .welcome-reopen { display: none !important; }
 
 /* === Composer redesign (A1+A3) ===
    New rules added after the redesign. Older composer rules above remain for
@@ -887,7 +877,6 @@ body.mode-advanced .welcome-reopen { display: none !important; }
   gap: 8px;
   flex-wrap: wrap;
 }
-body.mode-advanced .composer-quote-row { display: none; }
 .composer-quote-toggle {
   display: inline-flex;
   align-items: center;
@@ -969,10 +958,9 @@ body.mode-advanced .composer-quote-row { display: none; }
 .toast-undo-btn:hover { background: var(--bg); color: var(--fg); }
 .toast-undo-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* Plain-paste hint sits inside the ghost row so the existing
-   mode-advanced display:none on .composer-ghost-row already keeps it out of
-   Advanced. Hidden by default; the JS adds .composer-ghost-row-paste-hint
-   to reveal it for 4s then .composer-ghost-row-paste-hint-fading to fade. */
+/* Plain-paste hint sits inside the ghost row. Hidden by default;
+   the JS adds .composer-ghost-row-paste-hint to reveal it for 4s
+   then .composer-ghost-row-paste-hint-fading to fade. */
 .composer-ghost-paste-hint {
   display: none;
   margin: 0;
@@ -994,34 +982,36 @@ body.mode-advanced .composer-quote-row { display: none; }
    the chip pill via document flow (it's the first child appended). */
 .chip-or-handle {
   background: transparent;
-  border: 1px solid var(--accent-muted);
-  color: var(--tip);
+  border: 1px dashed var(--accent-muted);
+  color: var(--fg-muted);
   cursor: pointer;
   font-family: inherit;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
-  padding: 3px 6px;
-  border-radius: 999px;
-  min-width: 36px;
-  min-height: 24px;
-  margin-inline-end: 2px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  min-width: 32px;
+  min-height: 28px;
+  margin-inline-start: 4px;
   white-space: nowrap;
-  transition: background 120ms, border-color 120ms, color 120ms;
+  transition: background 120ms, border-color 120ms, color 120ms, border-style 120ms;
+}
+.chip:hover .chip-or-handle,
+.chip:focus-within .chip-or-handle {
+  color: var(--tip);
+  border-style: solid;
+  border-color: var(--tip);
 }
 .chip-or-handle:hover {
   background: var(--tip-bg);
   border-color: var(--tip);
   color: var(--tip);
+  border-style: solid;
 }
 .chip-or-handle:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
-}
-body.mode-beginner .chip-or-handle {
-  font-size: 12px;
-  min-height: 28px;
-  padding: 4px 8px;
 }
 
 /* Container that wraps a contiguous run of [term, OR, term, ...]. The
@@ -1075,9 +1065,6 @@ body.mode-beginner .chip-or-handle {
   font-weight: 400;
   color: var(--fg-muted);
 }
-body.mode-advanced .chip-or-group-label-helper { display: none; }
-body.mode-advanced .chip-or-group-label { font-size: 11px; margin-bottom: 0; }
-body.mode-advanced .chip-or-group { padding: 6px 8px; gap: 6px; }
 
 /* Inside-group "أو" — small clear pill, not the near-invisible state it
    was before. Still visually subordinate to the term chips so eye-flow
@@ -1104,19 +1091,14 @@ body.mode-advanced .chip-or-group { padding: 6px 8px; gap: 6px; }
   border: 1px dashed var(--tip);
   color: var(--tip);
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
-  min-height: 28px;
+  min-height: 32px;
   white-space: nowrap;
   transition: background 120ms, border-style 120ms;
-}
-body.mode-beginner .chip-or-group-add {
-  font-size: 13px;
-  min-height: 32px;
-  padding: 4px 12px;
 }
 .chip-or-group-add:hover {
   background: var(--bg);
@@ -1135,23 +1117,19 @@ body.mode-beginner .chip-or-group-add {
 .chip-and-seam {
   display: inline-flex;
   align-items: center;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--fg-muted);
-  padding: 0 2px;
+  padding: 0 8px;
   user-select: none;
-  opacity: 0.7;
+  opacity: 0.55;
 }
-body.mode-advanced .chip-and-seam { display: none; }
 
 /* === Empty-state templates (A5) === */
-/* When the chip array is empty, the chip-area renders both an inline
-   templates picker (Beginner) and a muted fallback line (Advanced). CSS
-   shows exactly one of them based on body.mode-* so chip-area itself
-   doesn't need to re-render on mode change. */
-body.mode-beginner .chip-area.chip-area-is-empty {
-  /* Drop the dashed silhouette when the empty state is the templates
-     picker — the cards carry their own visual weight. */
+/* When the chip array is empty, the chip-area renders an inline
+   templates picker. Drop the dashed silhouette — the cards carry their
+   own visual weight. */
+.chip-area.chip-area-is-empty {
   border-color: transparent;
   background: transparent;
   padding: 0;
@@ -1218,12 +1196,8 @@ body.mode-beginner .chip-area.chip-area-is-empty {
   color: var(--fg-muted);
 }
 
-/* In Advanced mode the empty state is just the existing dashed silhouette
-   plus a muted line — hide the templates block. The default chip-area
-   styling (dashed border + padding) is unchanged in Advanced. */
-body.mode-advanced .chip-area-empty-state { display: none; }
-/* In Beginner mode the muted fallback line is hidden — templates take its place. */
-body.mode-beginner .chip-area > .chip-area-empty { display: none; }
+/* The muted fallback line is hidden — templates take its place. */
+.chip-area > .chip-area-empty { display: none; }
 
 /* === Keyboard reorder hint (B4) === */
 /* Draggable chips get a tabindex in Advanced mode so Alt+Arrow can

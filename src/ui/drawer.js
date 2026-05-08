@@ -6,11 +6,6 @@
 // a muted one-line description, and a trailing-edge mono badge with the
 // technical operator name so users gradually learn the syntax.
 //
-// Beginner mode reorders by frequency-of-use and tucks proximity/number-range
-// behind a "خيارات إضافية" disclosure. Advanced mode keeps the original
-// two-section grouping (keyword operators, then specials) flat for fast
-// scanning.
-//
 // The drawer renders as a popover anchored to its trigger button. Clicking
 // outside or pressing Escape closes it.
 
@@ -31,10 +26,9 @@ function getDrawerSpec() {
  * @param {object} args
  * @param {HTMLElement} args.trigger - the button that opens the drawer
  * @param {{ add: Function }} args.chipState
- * @param {{ get: () => 'beginner' | 'advanced' }} args.mode
  * @param {{ on?: (cb: Function) => void }} [args.engine] - close drawer on engine switch
  */
-export function wireDrawer({ trigger, chipState, mode, engine }) {
+export function wireDrawer({ trigger, chipState, engine }) {
   let panel = null;
 
   function close() {
@@ -96,7 +90,6 @@ export function wireDrawer({ trigger, chipState, mode, engine }) {
   }
 
   function buildPanel() {
-    const isBeginner = mode.get() === 'beginner';
     const root = document.createElement('div');
     root.className = 'drawer-panel';
     root.setAttribute('role', 'menu');
@@ -107,36 +100,17 @@ export function wireDrawer({ trigger, chipState, mode, engine }) {
       if (node) parent.appendChild(node);
     }
 
-    if (isBeginner) {
-      // Single flat list ordered by frequency-of-use; advanced specials
-      // hidden behind a disclosure.
-      const section = buildSection(null);
-      (spec.beginnerOrder || []).forEach(key => appendItem(section, key));
+    // Predictable two-section grouping: keyword operators, then specials.
+    if ((spec.advancedKeywords || []).length > 0) {
+      const opsSection = buildSection(t('ui.drawer.advancedKeywordsHeading'));
+      spec.advancedKeywords.forEach(key => appendItem(opsSection, key));
+      root.appendChild(opsSection);
+    }
 
-      if ((spec.beginnerMore || []).length > 0) {
-        const more = document.createElement('details');
-        more.className = 'drawer-more';
-        const summary = document.createElement('summary');
-        summary.textContent = t('ui.drawer.beginnerMore');
-        more.appendChild(summary);
-        spec.beginnerMore.forEach(key => appendItem(more, key));
-        section.appendChild(more);
-      }
-
-      root.appendChild(section);
-    } else {
-      // Advanced: predictable two-section grouping.
-      if ((spec.advancedKeywords || []).length > 0) {
-        const opsSection = buildSection(t('ui.drawer.advancedKeywordsHeading'));
-        spec.advancedKeywords.forEach(key => appendItem(opsSection, key));
-        root.appendChild(opsSection);
-      }
-
-      if ((spec.advancedSpecials || []).length > 0) {
-        const specialsSection = buildSection(t('ui.drawer.advancedSpecialsHeading'));
-        spec.advancedSpecials.forEach(key => appendItem(specialsSection, key));
-        root.appendChild(specialsSection);
-      }
+    if ((spec.advancedSpecials || []).length > 0) {
+      const specialsSection = buildSection(t('ui.drawer.advancedSpecialsHeading'));
+      spec.advancedSpecials.forEach(key => appendItem(specialsSection, key));
+      root.appendChild(specialsSection);
     }
 
     return root;

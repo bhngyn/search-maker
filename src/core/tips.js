@@ -5,14 +5,12 @@ import { t as tt } from '../i18n/messages.js';
 
 /**
  * @param {HTMLElement} tipRegion
- * @param {() => 'beginner' | 'advanced'} getMode
  */
-export function createTips(tipRegion, getMode) {
+export function createTips(tipRegion) {
   const active = new Map(); // slug -> { slug, priority, messageHtml, dismissed }
 
   function reflow() {
     tipRegion.innerHTML = '';
-    if (getMode() !== 'beginner') return;
     const tips = Array.from(active.values()).filter(t => !t.dismissed);
     if (!tips.length) return;
     tips.sort((a, b) => b.priority - a.priority);
