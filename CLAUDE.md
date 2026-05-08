@@ -2,9 +2,11 @@
 
 ## Purpose of this document
 
-This file tells you, the implementing model, exactly what to build. The product is a chip-based interactive query composer that helps Arabic speakers construct Google search queries using English-language operators (`site:`, `intitle:`, `OR`, `AROUND`, etc.) without forcing them to fight bidirectional text rendering or constantly switch keyboard layouts. The user's primary problem today is that mixing Arabic (right-to-left) terms with Latin (left-to-right) operators in a single text field causes the cursor to jump unpredictably and the visible character order to diverge from the logical order, making OSINT-style search work painful and error-prone.
+This file tells you, the implementing model, exactly what to build. The product is an interactive query composer that helps Arabic speakers construct advanced search queries across multiple engines (Google, X / Twitter, Facebook) using their respective English-language operators and filter conventions, without forcing them to fight bidirectional text rendering or constantly switch keyboard layouts. The user's primary problem today is that mixing Arabic (right-to-left) terms with Latin (left-to-right) operators in a single text field causes the cursor to jump unpredictably and the visible character order to diverge from the logical order, making OSINT-style search work painful and error-prone.
 
-The solution is a chip composer: each search term lives in its own chip (a single-script container — Arabic term inside an LTR operator prefix), each boolean and content operator is a UI control rather than typed text, and the assembled query string only appears in a read-only LTR-rendered preview at the bottom. The user never has to manually mix scripts.
+The default solution is a **chip composer** for engines whose query language is a string of operators (Google, X / Twitter): each search term lives in its own chip (a single-script container — Arabic term inside an LTR operator prefix), each boolean and content operator is a UI control rather than typed text, and the assembled query string only appears in a read-only LTR-rendered preview at the bottom. The user never has to manually mix scripts.
+
+For engines that don't expose a query language (Facebook, where filters are a base64'd JSON blob in the URL), the tool drops the chip metaphor and substitutes a category-aware **form** in the same shell. The header, normalization toggle, mode toggle, and sticky preview/copy/search row stay common; only the input surface swaps. See "Search engines" below.
 
 ## Hard constraints
 
@@ -32,17 +34,48 @@ A single prominent toggle in the header switches the tool to **Advanced mode**. 
 
 Within both modes, the tool *teaches* operators by letting users observe cause and effect in the live preview. The operator name (`site:`, `intitle:`, etc.) is always visible somewhere on every operator-bearing chip even in Beginner mode, so the user gradually learns the syntax and graduates to Advanced mode at their own pace.
 
+## Search engines
+
+The header carries an engine toggle (`Google` / `X / تويتر` / `Facebook`) — a segmented control next to the Beginner/Advanced toggle. Engine state lives in memory only; refreshing the page resets to the default (Google), matching the no-persistence security constraint. Switching engines preserves all chip state for the chip-based engines (Google ↔ X), so a user who built up a chip query on Google can flip to X and see the same chips re-rendered against X's operator catalogue. The Facebook engine has its own form state, kept independent.
+
+The engine controller (`src/core/engine.js`) holds the active engine and fans changes out to subscribers (composer, drawer, chip-area, preview, paste parser). Each engine is a descriptor object exported from `src/engines/<id>.js`; see the engine.js docblock for the locked descriptor shape. Adding an engine = one new file + entries in main.js, the HTML toggle, and the body-class CSS list.
+
+### Chip-based engines (Google, X)
+
+These share the entire chip composer, drawer, OR-group machinery, paste parser, warnings/tips infrastructure, and sticky preview. The descriptor supplies what differs: keyword operator catalogue, composer pills, drawer items + grouping, templates, search URL + button label, date-range op names (`before`/`after` for Google vs `since`/`until` for X), addable chip types, Arabic-forbidden operators (e.g. `site:`/`inurl:` on Google, all Latin-only operators on X), the multi-word warning set, and paste-parser keyword + prefix operators (`@`/`#`/`$` on X).
+
+The Google surface is the original spec body of this document. The X surface is documented separately in `CLAUDE-X.md` — operator catalogue, canonical assembly order, X-specific coaching warnings (time-only query, reversed `since`/`until`, `source:` casing transformation, `filter:nativeretweets` time window), and X-specific strategy tips. When working on X, read CLAUDE-X.md as the authoritative source for that engine's operator quirks.
+
+### Form-based engine (Facebook)
+
+Facebook search isn't a query language — the URL carries a required free-text `q=` parameter plus a `filters=` parameter that decodes to a base64'd JSON blob. Filter keys vary by category (`/search/top/`, `/search/posts/`, `/search/people/`, `/search/photos/`, `/search/videos/`, `/search/pages/`); filters within a section are mutually exclusive; many filters need an opaque numeric ID (page ID, group ID, location ID, school ID, employer ID, user ID).
+
+A chip metaphor doesn't fit. So the Facebook engine ships a **category-aware form** that takes its place when the engine is active. The form lives in `src/ui/facebook-form.js`, mounts in `<section id="facebook-form">`, and is shown/hidden by `body.engine-facebook` CSS toggles. When active, the chip section, welcome panel, warnings region, tips region, and `+ إضافة` drawer are all hidden via `display: none !important` (CSS in `src/styles/facebook.css`).
+
+Form layout (top to bottom):
+
+1. **Category cards** — six tiles (`الأعلى`, `المنشورات`, `الأشخاص`, `الصور`, `الفيديو`, `الصفحات`) in a responsive grid. The active card is highlighted with an inset accent ring + tinted fill.
+2. **Required keyword input** — Facebook rejects empty `q=`. The field is labeled with a hint that explains the requirement; the keyword is sent verbatim (URL-encoded only) to preserve the user's exact input.
+3. **Per-category filter sections** — radio groups for "كاتب المنشور" (Posts From), "نوع المنشور" (Post Type), "ضمن مجموعة" (Posted In Group), "في موقع" (Tagged Location), "الترتيب" (Sort By for `/search/top/`), "نوع الصور" (Photo Type for photos), "مصدر الفيديو" (Video Source for videos), and the people-only/pages-only sections (City, Education, Work, Mutual Friends, Verified, Page Category). Options that need an ID expose a mono-font ID input inline next to the selected option, with a placeholder example ID as a hint.
+4. **Date range** — two HTML5 date pickers wired to the `rp_creation_time` filter. The form re-emits Facebook's preferred un-padded date strings (`2019-1-1`, not `2019-01-01`) and the triple-nested JSON Facebook expects.
+
+URL assembly: the engine descriptor exposes `buildUrl(state)` that walks the active category's section list, collects `[outerKey, JSON.stringify({ name, args })]` pairs, builds the outer JSON object, runs UTF-8-safe base64 (`btoa(unescape(encodeURIComponent(json)))`), strips the trailing `=` per the WhoPostedWhat doc, and returns the full `https://www.facebook.com/search/{category}/?q=ENCODED&epa=FILTERS&filters=BASE64` URL. The bootstrap's engine-aware `assembleQuery` calls `buildUrl(formState)` directly when the active engine is Facebook, bypassing the chip-state segment entirely; the engine's `searchUrl(q)` is the identity function so the search button opens the URL verbatim.
+
+The Arabic normalization toggle is a no-op for Facebook — keyword text passes through untouched. The mode toggle (Beginner/Advanced) currently has no effect on the Facebook form; the form is the same in both modes.
+
+Source attribution: Facebook filter values, JSON keys, and encoding sequence are derived from the WhoPostedWhat reference (`whopostedwhat.com`). When in doubt about a filter's exact `name` / `args` / `outerKey` mapping, that document is authoritative.
+
 ## Information architecture and workflow
 
 The page is a single vertical column at all viewport widths. From top to bottom:
 
-1. **Header** — Arabic title, one-sentence subtitle, mode toggle (Beginner / Advanced), Arabic normalization toggle with info popover.
+1. **Header** — Arabic title, one-sentence subtitle (engine-driven), engine toggle (Google / X / Facebook), mode toggle (Beginner / Advanced), Arabic normalization toggle with info popover.
 2. **Welcome panel** (Beginner only, collapsible) — a single-line in-flow blurb at the top of `main` that names the tool and points at the Enter-to-commit flow, with an inline `إخفاء` link at its trailing edge. Once dismissed, a small `↩ إظهار الترحيب` link appears in its place so the user can re-open without losing chip state to a refresh. The blurb is intentionally lightweight so the chip section is the visual anchor on first paint.
 3. **Chip section** — heading "ابنِ بحثك بإضافة كلمات", chip area. When the chip array is empty in Beginner mode the chip area itself renders as the templates picker (heading "ابدأ من قالب جاهز:" + three template cards with descriptions + "أو اكتب كلمة في الأسفل وابدأ من الصفر."). Once any chip exists, chips replace the picker. The standalone templates row that used to live above the chip section has been retired. Below the chip area: composer input with one primary commit button (`أضف`) and the `+ إضافة` drawer trigger. A ghost-chip preview sits between the input and commit buttons in Beginner mode showing what would commit on Enter, below it a row of operator-conversion pills (`كلمة عادية`, `في الموقع`, `في عنوان الصفحة`, `في رابط الصفحة`, `في نص الصفحة`, `في الروابط الواردة`) so the user can pick the operator before commit, and below the pills a `اقتباس حرفي` toggle that pre-marks the term as a literal phrase. The toggle disables when the chosen operator is non-quotable (`site:`, `inurl:`) and resets after each commit, like the operator selection.
 4. **Bulk-actions toolbar** (Advanced only, visible when ≥1 chip is selected) — appears below the chip area with the selection count, a shared-operator dropdown, a bulk negate toggle, a bulk delete, and a clear-selection button.
 5. **Warnings region** — coaching warnings appear here, dismissible per session. Banner warnings cover only aggregate concerns (query too long, too many restrictions, Latin-only operator with Arabic chars). Issues local to a single chip live as per-chip glyphs on the chip itself.
 6. **Tips region** — strategy tips appear here in Beginner mode only, single-tip queue, priority-ordered.
-7. **Sticky preview** — the assembled query in a read-only LTR monospace box, sticking to the bottom of the viewport. Each chip's contribution is wrapped in a `.preview-frag[data-chip-id]` span so the chip-area can flash the matching fragment when a chip is added or focused. Click the box to copy. Below it, three buttons: نسخ (copy), البحث في Google (search), مسح الكل (reset).
+7. **Sticky preview** — the assembled query (or, for Facebook, the assembled URL) in a read-only LTR monospace box, sticking to the bottom of the viewport. For chip-based engines each chip's contribution is wrapped in a `.preview-frag[data-chip-id]` span so the chip-area can flash the matching fragment when a chip is added or focused; for Facebook the box holds the full URL with `word-break: break-all` and a slightly smaller font. Click the box to copy. Below it, three buttons: نسخ (copy), engine-driven search button (`البحث في Google` / `البحث في X` / `البحث في Facebook`), مسح الكل (reset).
 
 ### Commit flow (the heart of the tool)
 
@@ -242,13 +275,13 @@ Do not add a free-form raw-query textarea where users can type a mix of Arabic a
 
 Do not add accounts, login, syncing, sharing, or any backend.
 
-Do not add analytics, telemetry, or any network calls beyond the Google search the user explicitly triggers via the search button. No fonts, no CDN scripts, no external CSS, no third-party tracking. Treat any non-essential network call as a privacy violation and refuse to add it.
+Do not add analytics, telemetry, or any network calls beyond the search the user explicitly triggers via the search button (Google, X, or Facebook). No fonts, no CDN scripts, no external CSS, no third-party tracking. Treat any non-essential network call as a privacy violation and refuse to add it.
 
 Do not add a "share this query" feature that generates a shareable URL — that would encode the user's investigation into a link that could be intercepted, logged, or shoulder-surfed.
 
 Do not add language detection or auto-switching. The tool is in Arabic. If a future version needs to support other languages, that is a separate project.
 
-Do not add support for Bing, DuckDuckGo, or other search engines in v1.
+Do not add support for Bing, DuckDuckGo, LinkedIn, TikTok, Instagram, Reddit, or other search engines beyond the three currently shipped (Google, X, Facebook). Adding a fourth engine is a deliberate scope decision, not an incremental ask — discuss before implementing.
 
 Do not add the deprecated operators (`link:`, `info:`, `~` synonym, `+` verbatim, `related:`, `filetype:csv`, `filetype:mp3`).
 
@@ -272,11 +305,13 @@ Pasting a Google-style query into the composer (e.g., `"محمد" OR "علي" si
 
 The `+ إضافة` drawer opens and closes on click, dismisses on outside click and Escape, and contains all six keyword operators plus four specialized chip types (with proximity and number-range hidden behind a disclosure in Beginner mode). Each item shows a user-language Arabic primary label, a one-line description, and a small mono operator badge on the trailing edge. Beginner mode reorders for frequency-of-use (date-range, filetype, site first); Advanced keeps the operators-then-specials grouping. Clicking a drawer item adds the corresponding chip.
 
-The sticky preview at the bottom updates on every chip mutation. Each chip's contribution is wrapped in a `.preview-frag[data-chip-id]` span; when a chip is added or focused, that span flashes accent-tinted for ~600ms. Clicking the preview box copies the query to the clipboard and shows visible confirmation. The Google-search button URL-encodes the query and opens it in a new tab with `target="_blank"` and `rel="noopener noreferrer"`.
+The sticky preview at the bottom updates on every chip mutation. Each chip's contribution is wrapped in a `.preview-frag[data-chip-id]` span; when a chip is added or focused, that span flashes accent-tinted for ~600ms. Clicking the preview box copies the query to the clipboard and shows visible confirmation. The search button URL-encodes the query and opens the engine-specific search URL in a new tab with `target="_blank"` and `rel="noopener noreferrer"`.
 
-The Arabic normalization toggle, when enabled, transforms the preview to use bare alef and dotted ya forms and strips diacritics — only on chip props flagged Arabic-aware.
+The Arabic normalization toggle, when enabled, transforms the preview to use bare alef and dotted ya forms and strips diacritics — only on chip props flagged Arabic-aware. (Facebook is unaffected; the keyword field passes through verbatim.)
 
-Refreshing the page resets all chip state. No network requests are made except the Google search the user explicitly triggers.
+Refreshing the page resets all chip state, the Facebook form state, and the active-engine selection (back to Google). No network requests are made except the search the user explicitly triggers.
+
+The engine toggle in the header switches between Google, X / Twitter, and Facebook. Switching Google ↔ X preserves the chip array. Switching to Facebook hides the chip section, welcome panel, warnings region, and tips region; the Facebook form replaces them. The preview box shows the assembled `https://www.facebook.com/search/{category}/?q=…&epa=FILTERS&filters={base64}` URL on every form change. The Facebook form's category cards switch the visible filter sections; switching categories resets the within-category filter selections (since section lists vary). The required keyword field is passed verbatim (URL-encoded only). Combining "Posts From a Page" (with a numeric page ID) and "Posts You've Seen" produces a `filters=` parameter whose base64 decodes to the WhoPostedWhat reference's exact JSON: `{"rp_author":"{\"name\":\"author\",\"args\":\"<id>\"}","interacted_posts":"{\"name\":\"interacted_posts\",\"args\":\"\"}"}`. The "Date Posted" range emits Facebook's nested-args form with un-padded month/day strings (`2019-1-1`, not `2019-01-01`).
 
 In Beginner mode, the empty chip-area renders three template cards as the start-here affordance. Clicking a card pre-seeds chips and moves focus to the composer.
 
@@ -290,24 +325,25 @@ Build: `npm run build` produces `dist/index.html` with no runtime dependencies, 
 
 ## Source attribution
 
-The operator definitions and quirks documented in this spec are derived from Daniel M. Russell's "Advanced Search Operators" reference dated February 8, 2024. When in doubt about an operator's exact behavior, consult that document.
+Google operator definitions and quirks are derived from Daniel M. Russell's "Advanced Search Operators" reference dated February 8, 2024. X / Twitter operators are sourced from Igor Brigadir's `twitter-advanced-search` reference (see CLAUDE-X.md). Facebook filter encoding is derived from the WhoPostedWhat reference (`whopostedwhat.com`). When in doubt about a specific operator or filter's exact behavior, consult the matching upstream document.
 
 ## Implementation status
 
 Repository: https://github.com/bhngyn/search-maker
 
-The deliverable is `dist/index.html` — a single self-contained file built from `src/` via Vite + `vite-plugin-singlefile`. No runtime dependencies, no network calls beyond user-triggered Google searches, no persistence.
+The deliverable is `dist/index.html` — a single self-contained file built from `src/` via Vite + `vite-plugin-singlefile`. No runtime dependencies, no network calls beyond the search the user explicitly triggers (Google, X, or Facebook), no persistence.
 
 **Architecture (under `src/`)**:
 
 ```
 src/
-  index.html              shell with mount points
-  main.js                 bootstrap: builds ctx, wires UI, iterates registries
+  index.html              shell with mount points (chip section + Facebook form section)
+  main.js                 bootstrap: builds engine controller, ctx, wires UI, iterates registries; engine-aware assembleQuery
   styles/
     tokens.css            :root custom properties (incl. --accent-muted) + dark-mode media query
     base.css              global non-chip styles
     chips.css             chip pills, composer, sticky preview, drawer, popover, OR-group, empty-state, etc.
+    facebook.css          Facebook form + show/hide rules keyed off body.engine-facebook
   core/
     ctx.js                the integration seam; passed to every register*
     assemble.js           segment-ordered query string builder
@@ -315,13 +351,14 @@ src/
     warnings.js           slug-keyed coaching banner system
     tips.js               Beginner-only single-tip priority queue
     mode.js               Beginner/Advanced toggle + listener fan-out
-    engine.js             active-engine controller (Google/X/...) + getActiveEngine() module-level accessor
-    preview.js            live render with .preview-frag spans, copy, search (engine-driven URL), two-tap reset, highlightChip
+    engine.js             active-engine controller (Google/X/Facebook) + getActiveEngine() module-level accessor
+    preview.js            live render with .preview-frag spans + setEmptyMessage; copy, search (engine-driven URL), two-tap reset, highlightChip
     chip-state.js         canonical chip array; add/addAfter/remove/removeMany/update/reorder/getQueryFragments
     parse-query.js        tokenize + walk pasted query strings into chip descriptors (engine-aware: keyword ops, prefix ops, date ops)
   engines/
     google.js             Google descriptor (keyword ops, drawer, templates, search URL)
     x.js                  X / Twitter descriptor (keyword ops incl. prefix-style @/#/$, drawer, templates, search URL)
+    facebook.js           Facebook descriptor: form-based (formBased: true), categories[], categorySections{}, buildUrl(state) — base64'd JSON filter encoder
   chips/
     _registry.js          chip-type map (one entry per file)
     keyword.js, or-connector.js, filetype.js, date-range.js,
@@ -335,6 +372,7 @@ src/
     chip-toolbar.js       Advanced-mode bulk-actions toolbar (operator change, negate, delete, clear)
     chip-popover.js       per-chip warning glyph + viewport-clamped popover
     drawer.js             + إضافة popover; user-language items + descriptions + operator badges
+    facebook-form.js      Facebook form: category cards, required keyword input, per-category radio sections, ID inputs, date pickers; owns its own state, requestUpdate-driven
   warnings/
     _registry.js + 3 modules (banner-only; chip-local issues live as glyphs in chip types)
   tips/
@@ -363,3 +401,6 @@ Open `dist/index.html` directly via `file://` in Chrome, Firefox, or Safari. No 
 - The OR-group container was upgraded from a thin dashed rectangle with a 10px `::before` pseudo-label to a filled tinted block with a real-DOM `⫦ أيٌ مما يلي` header (plus a Beginner-only helper subtitle), a single trailing `+ بديل آخر` add-button per group, and a small clear `أو` pill divider inside. The per-chip `+أو` handle is suppressed on members of an existing group; the trailing button is the single add-affordance once a group exists. Beginner mode also renders a faint `و` AND-seam between non-grouped adjacent renderable units to make implicit AND visible without changing semantics.
 - Quoting gained three discoverable entry points on top of the in-chip `"` toggle that already existed: a `اقتباس حرفي` toggle in the composer (Beginner only, sits below the operator pills), a leading-and-trailing-`"` shortcut (typing `"phrase"` commits a quoted chip with the inner text — mirrors the leading-`-` negate shortcut), and a stronger `.chip-quoted` visual (accent-tinted fill, not just a hairline border swap). The model side is unchanged; the `quoted` boolean and `OPERATORS[op].quotable` gating already lived on the keyword chip.
 - The welcome panel was demoted from a card-weight component (h2 + three paragraphs) to a single-line in-flow blurb with an inline `إخفاء` link at its trailing edge. The chip section is the visual anchor on first paint; the welcome stays informational rather than commanding the page.
+- The original draft was a Google-only tool. The current implementation is multi-engine: Google (the original), X / Twitter (added on the chip composer; see CLAUDE-X.md), and Facebook (added as a category-aware form because Facebook's filter blob isn't a query language). The engine controller (`src/core/engine.js`) and per-engine descriptors (`src/engines/<id>.js`) keep the Google experience byte-identical while the surface across engines stays unified.
+- The Facebook engine is form-based, not chip-based. When `body.engine-facebook` is on, the chip section, welcome panel, warnings region, tips region, and `+ إضافة` drawer are hidden; `<section id="facebook-form">` shows in their place. The bootstrap's `assembleQuery` calls `facebookEngine.buildUrl(formState)` directly when Facebook is active and bypasses the chip-state segment. The preview box becomes the assembled URL (with `word-break: break-all`); the search button opens it via `searchUrl(q) = q` (identity).
+- `src/core/preview.js` now exposes a `setEmptyMessage(m)` setter on its return value so the bootstrap can swap the empty-preview placeholder per engine. The chip-fragments path falls back to plain text rendering when the structured fragments are empty (Facebook returns no chip fragments — the assembled URL is rendered as a single text node).
