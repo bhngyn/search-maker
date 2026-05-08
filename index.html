@@ -288,6 +288,66 @@
 
   /* === STYLES_INSERT === */
 
+  /* ===== Welcome panel (Beginner only) ===== */
+  .welcome-panel {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 22px; margin-bottom: 24px;
+    position: relative;
+  }
+  .welcome-panel h2 { margin: 0 0 12px 0; font-size: 18px; }
+  .welcome-panel p { margin: 0 0 8px 0; font-size: 14px; line-height: 1.6; color: var(--fg); }
+  .welcome-panel p:last-of-type { margin-bottom: 0; }
+  .welcome-close-btn {
+    position: absolute; top: 12px; left: 12px;
+    background: transparent; border: 0; color: var(--fg-muted);
+    cursor: pointer; font-size: 13px; padding: 4px 10px; border-radius: 4px;
+    min-height: 32px;
+  }
+  .welcome-close-btn:hover { background: var(--bg); color: var(--fg); }
+  .welcome-close-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  body.mode-advanced .welcome-panel { display: none; }
+  body.welcome-collapsed .welcome-panel { display: none; }
+
+  /* ===== Templates row (Beginner only) ===== */
+  .templates-row {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin-bottom: 24px;
+  }
+  @media (max-width: 600px) { .templates-row { grid-template-columns: 1fr; } }
+  body.mode-advanced .templates-row { display: none; }
+  .template-btn {
+    background: var(--bg); color: var(--fg);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 14px; text-align: start; cursor: pointer;
+    font: inherit; min-height: 88px;
+    display: flex; flex-direction: column; gap: 6px;
+    transition: border-color 150ms, background 150ms;
+  }
+  .template-btn:hover { border-color: var(--accent); background: var(--bg-subtle); }
+  .template-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .template-btn-title { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .template-btn-icon { font-size: 18px; line-height: 1; }
+  .template-btn-subtitle { color: var(--fg-muted); font-size: 12px; line-height: 1.5; }
+
+  /* ===== More-options disclosure (Beginner only) ===== */
+  body.mode-beginner #fields-container > .field:nth-child(n+5) { display: none; }
+  body.mode-beginner.advanced-revealed #fields-container > .field:nth-child(n+5) { display: flex; }
+  .more-options-toggle {
+    display: none;
+    width: 100%; margin-top: var(--gap);
+    background: var(--bg-subtle); color: var(--fg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 18px; font: inherit; font-size: 15px;
+    cursor: pointer; min-height: 44px;
+  }
+  .more-options-toggle:hover { border-color: var(--accent); }
+  .more-options-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .more-options-toggle .chevron { display: inline-block; transition: transform 200ms; }
+  body.advanced-revealed .more-options-toggle .chevron { transform: rotate(90deg); }
+  body.mode-beginner .more-options-toggle { display: flex; align-items: center; justify-content: space-between; }
+  body.mode-advanced .more-options-toggle { display: none; }
+
 </style>
 </head>
 <body class="mode-beginner">
@@ -317,6 +377,29 @@
   </header>
 
   <main>
+    <section id="welcome-panel" class="welcome-panel" aria-labelledby="welcome-heading">
+      <button type="button" class="welcome-close-btn" id="welcome-close-btn" aria-label="إخفاء لوحة الترحيب">إخفاء</button>
+      <h2 id="welcome-heading">مرحباً بك</h2>
+      <p>هذه الأداة تساعد متحدثي العربية في بناء استعلامات بحث متقدمة في Google دون الحاجة إلى الكتابة بالإنجليزية أو تبديل لوحة المفاتيح. كل عامل بحث (موقع، نوع ملف، تاريخ…) له حقل خاص به في الأعلى.</p>
+      <p>اكتب ما تعرفه في الحقول، شاهد الاستعلام يُبنى تلقائياً في الأسفل، ثم انسخه أو ابحث به في Google.</p>
+      <p>جرّب القوالب الجاهزة أدناه، أو ابدأ مباشرةً بكتابة كلمات البحث في الحقل الأول.</p>
+    </section>
+
+    <section class="templates-row" aria-label="قوالب جاهزة">
+      <button type="button" class="template-btn" id="template-site">
+        <span class="template-btn-title"><span class="template-btn-icon">🌐</span>بحث في موقع محدد</span>
+        <span class="template-btn-subtitle">ابحث داخل موقع واحد فقط — مفيد للمواقع الإخبارية أو الحكومية</span>
+      </button>
+      <button type="button" class="template-btn" id="template-docs">
+        <span class="template-btn-title"><span class="template-btn-icon">📄</span>بحث في الوثائق</span>
+        <span class="template-btn-subtitle">ابحث عن ملفات PDF أو وثائق أخرى — مفيد للتحقيقات</span>
+      </button>
+      <button type="button" class="template-btn" id="template-daterange">
+        <span class="template-btn-title"><span class="template-btn-icon">📅</span>بحث في نطاق زمني</span>
+        <span class="template-btn-subtitle">ابحث ضمن فترة زمنية محددة — مفيد لتغطية حدث معين</span>
+      </button>
+    </section>
+
     <div id="fields-container" class="fields-container">
       <div class="field field-keywords">
   <div class="field-keywords-header">
@@ -626,6 +709,11 @@
       <!-- === FIELDS_INSERT === -->
     </div>
 
+    <button type="button" id="more-options-btn" class="more-options-toggle" aria-expanded="false" aria-controls="fields-container">
+      <span>خيارات إضافية</span>
+      <span class="chevron" aria-hidden="true">▸</span>
+    </button>
+
     <div id="warnings-region" class="warnings-region" aria-live="polite"></div>
     <div id="tips-region" class="tips-region" aria-live="polite"></div>
 
@@ -857,10 +945,67 @@
     }
   });
 
+  // ===== Field setter (used by templates) =====
+  function setField(slug, value) {
+    const api = fieldRegistry.get(slug);
+    if (api && typeof api.setValue === 'function') {
+      try { api.setValue(value); } catch (e) { console.warn('setField failed', slug, e); }
+    }
+  }
+
+  // ===== Welcome panel close =====
+  const welcomeCloseBtn = document.getElementById('welcome-close-btn');
+  if (welcomeCloseBtn) {
+    welcomeCloseBtn.addEventListener('click', () => {
+      document.body.classList.add('welcome-collapsed');
+    });
+  }
+
+  // ===== More-options disclosure =====
+  const moreOptionsBtn = document.getElementById('more-options-btn');
+  function setAdvancedRevealed(revealed) {
+    document.body.classList.toggle('advanced-revealed', revealed);
+    if (moreOptionsBtn) moreOptionsBtn.setAttribute('aria-expanded', revealed ? 'true' : 'false');
+  }
+  if (moreOptionsBtn) {
+    moreOptionsBtn.addEventListener('click', () => {
+      setAdvancedRevealed(!document.body.classList.contains('advanced-revealed'));
+    });
+  }
+
+  // ===== Templates =====
+  function scrollToKeywords() {
+    const el = document.getElementById('field-keywords-input');
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => el.focus(), 250);
+  }
+  function applyTemplate(fillers, requiresAdvanced) {
+    Object.keys(fillers).forEach(slug => setField(slug, fillers[slug]));
+    if (requiresAdvanced) setAdvancedRevealed(true);
+    scrollToKeywords();
+  }
+  const templateSiteBtn = document.getElementById('template-site');
+  const templateDocsBtn = document.getElementById('template-docs');
+  const templateDateRangeBtn = document.getElementById('template-daterange');
+  if (templateSiteBtn) templateSiteBtn.addEventListener('click', () => {
+    applyTemplate({ site: 'example.com' }, false);
+  });
+  if (templateDocsBtn) templateDocsBtn.addEventListener('click', () => {
+    applyTemplate({ filetype: 'pdf' }, true);
+  });
+  if (templateDateRangeBtn) templateDateRangeBtn.addEventListener('click', () => {
+    const today = new Date();
+    const lastYear = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+    const fmt = (d) => d.toISOString().slice(0, 10);
+    applyTemplate({ 'date-range': { after: fmt(lastYear), before: fmt(today) } }, true);
+  });
+
   // ===== ctx exposed to register* fragments =====
   const ctx = {
     registerSegment(order, fn) { segments.push({ order, fn }); },
     registerField(slug, api) { fieldRegistry.set(slug, api); },
+    setField,
     requestUpdate() { renderPreview(); },
     addWarning(slug, html) { renderWarning(slug, html); },
     removeWarning(slug) { clearWarning(slug); },
