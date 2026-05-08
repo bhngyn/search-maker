@@ -14,7 +14,7 @@
 }
 .chip-section h2 {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg-muted);
   font-weight: 500;
 }
@@ -35,7 +35,7 @@
   margin: 0;
   padding: 4px 8px;
   color: var(--fg-muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* ===== Chip pill ===== */
@@ -47,7 +47,7 @@
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 4px 8px 4px 4px;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.3;
   max-width: 100%;
   transition: border-color 150ms, background 150ms;
@@ -87,7 +87,7 @@
 
 .chip-op-badge {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   background: var(--bg);
   color: var(--accent);
   padding: 2px 6px;
@@ -100,7 +100,7 @@
 
 .chip-neg-prefix {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--warning);
   padding: 0 2px 0 4px;
   font-weight: 700;
@@ -111,7 +111,7 @@
   border: 1px solid var(--border);
   border-radius: 4px;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg-muted);
   padding: 2px 4px;
   cursor: pointer;
@@ -135,7 +135,7 @@
   padding: 4px 6px;
   border-radius: 4px;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1;
   min-width: 24px;
   min-height: 24px;
@@ -181,7 +181,7 @@
   border-radius: 6px;
   padding: 2px 6px;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
 }
 .chip-or-text { padding: 0 4px; }
 
@@ -251,7 +251,7 @@
   min-height: 44px;
   padding: 10px 14px;
   font: inherit;
-  font-size: 15px;
+  font-size: 16px;
   background: var(--bg);
   color: var(--fg);
   border: 1px solid var(--border);
@@ -275,14 +275,14 @@
 
 .composer-btn-hint {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
   margin-inline-start: 4px;
   opacity: 0.85;
 }
 
 .composer-hint {
   margin: 0;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.4;
   color: var(--fg-muted);
   opacity: 0.85;
@@ -305,7 +305,7 @@
   opacity: 0.85;
 }
 .composer-ghost-label {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fg-muted);
 }
 .composer-ghost-chip {
@@ -315,7 +315,7 @@
   border: 1px dashed var(--accent);
   border-radius: 999px;
   padding: 4px 12px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg);
   font-style: italic;
   max-width: 100%;
@@ -371,7 +371,7 @@
   cursor: pointer;
   padding: 2px 4px;
   margin: 0 2px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1;
   border-radius: 50%;
   min-width: 22px;
@@ -395,7 +395,7 @@
   box-shadow: 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 8px -2px rgba(0,0,0,0.3);
   padding: 4px;
   min-width: 240px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
 }
 .chip-warning-popover-issue {
@@ -433,7 +433,7 @@
 .chip-warning-popover-fix {
   align-self: flex-start;
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
   padding: 4px 10px;
   background: var(--accent);
   color: var(--accent-fg);
@@ -462,7 +462,7 @@
   border: 1px solid var(--accent);
   border-radius: 8px;
   margin-top: 4px;
-  font-size: 13px;
+  font-size: 14px;
 }
 .chip-toolbar[hidden] { display: none; }
 .chip-toolbar-count {
@@ -478,7 +478,7 @@
 }
 .chip-toolbar-select {
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   padding: 4px 8px;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -490,7 +490,7 @@
 .chip-toolbar-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .chip-toolbar-btn {
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   padding: 6px 12px;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -558,13 +558,13 @@
   flex-wrap: wrap;
 }
 .chip-wide-input-label {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fg-muted);
   white-space: nowrap;
 }
 .chip-wide-input {
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   padding: 4px 8px;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -581,7 +581,7 @@
 
 .chip-wide-select {
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   padding: 4px 8px;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -595,7 +595,7 @@
 /* ===== Engagement chip — direction toggle ===== */
 .chip-engagement-dir {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
   padding: 4px 10px;
   white-space: nowrap;
 }
@@ -636,7 +636,7 @@
 .drawer-section { padding: 6px 0; }
 .drawer-section + .drawer-section { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 8px; }
 .drawer-section-heading {
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--fg-muted);
@@ -671,7 +671,7 @@
 .drawer-more { padding: 6px 8px; }
 .drawer-more summary {
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fg-muted);
   padding: 4px 0;
   list-style: none;
@@ -705,20 +705,20 @@
 }
 .drawer-item-label {
   flex: none;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--fg);
   line-height: 1.3;
 }
 .drawer-item-desc {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fg-muted);
   line-height: 1.4;
 }
 .drawer-item-badge {
   flex: 0 0 auto;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--fg-muted);
   background: var(--bg-subtle);
   border: 1px solid var(--border);
@@ -754,7 +754,7 @@
   color: var(--fg-muted);
   cursor: pointer;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   padding: 6px 10px;
   margin: 0 0 16px 0;
   min-height: 32px;
@@ -803,7 +803,7 @@
 }
 .composer-ghost-op-badge {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   background: var(--bg-subtle);
   color: var(--accent);
   padding: 1px 5px;
@@ -833,7 +833,7 @@
   border-radius: 999px;
   padding: 4px 10px;
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
   min-height: 32px;
   line-height: 1.15;
@@ -849,7 +849,7 @@
 .composer-op-pill-label { font-weight: 500; }
 .composer-op-pill-badge {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   opacity: 0.75;
 }
 .composer-op-pill[aria-pressed="true"] .composer-op-pill-badge { opacity: 0.85; }
@@ -876,7 +876,7 @@
   border-radius: 999px;
   padding: 4px 12px;
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
   min-height: 32px;
   transition: background 120ms, border-color 120ms, color 120ms;
@@ -901,13 +901,13 @@
 .composer-quote-toggle-glyph {
   font-family: var(--mono);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1;
 }
 .composer-quote-toggle-label { font-weight: 500; }
 .composer-quote-hint {
   margin: 0;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--fg-muted);
   opacity: 0.85;
 }
@@ -940,7 +940,7 @@
   border-radius: 6px;
   padding: 4px 12px;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
   min-height: 32px;
 }
@@ -953,7 +953,7 @@
 .composer-ghost-paste-hint {
   display: none;
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fg-muted);
   padding: 6px 10px;
   background: var(--bg-subtle);
@@ -975,7 +975,7 @@
   color: var(--fg-muted);
   cursor: pointer;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1;
   padding: 4px 8px;
@@ -1038,7 +1038,7 @@
   flex-wrap: wrap;
   gap: 6px;
   flex-basis: 100%;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--tip);
   margin-bottom: 2px;
@@ -1050,7 +1050,7 @@
 .chip-or-group-label-text { font-weight: 600; }
 .chip-or-group-label-helper {
   margin-inline-start: 2px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--fg-muted);
 }
@@ -1064,7 +1064,7 @@
   border-radius: 999px;
   color: var(--tip);
   padding: 2px 8px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   opacity: 1;
 }
@@ -1080,7 +1080,7 @@
   border: 1px dashed var(--tip);
   color: var(--tip);
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   padding: 4px 12px;
@@ -1106,7 +1106,7 @@
 .chip-and-seam {
   display: inline-flex;
   align-items: center;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--fg-muted);
   padding: 0 8px;
@@ -1131,7 +1131,7 @@
 }
 .chip-area-empty-heading {
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fg-muted);
   font-weight: 500;
 }
@@ -1168,20 +1168,20 @@
 }
 .chip-area-empty-card-title {
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
   display: flex;
   align-items: center;
   gap: 6px;
 }
-.chip-area-empty-card-icon { font-size: 14px; line-height: 1; }
+.chip-area-empty-card-icon { font-size: 15px; line-height: 1; }
 .chip-area-empty-card-desc {
   color: var(--fg-muted);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.4;
 }
 .chip-area-empty-hint {
   margin: 0;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--fg-muted);
 }
 
@@ -1231,7 +1231,7 @@
   text-align: start;
   padding-inline-end: 24px;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
 }
 .date-trigger:hover { border-color: var(--accent); }
 .date-trigger-label--placeholder {
@@ -1263,7 +1263,7 @@
   border: 1px solid var(--accent);
   border-radius: 8px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg);
 }
 .date-picker-header {
@@ -1276,7 +1276,7 @@
   flex: 1;
   text-align: center;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
 }
 .date-picker-nav {
   width: 28px; height: 28px;
@@ -1300,7 +1300,7 @@
 }
 .date-picker-weekday {
   text-align: center;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--fg-muted);
   padding: 4px 0;
 }
@@ -1318,7 +1318,7 @@
   color: var(--fg);
   cursor: pointer;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
 }
 .date-picker-day:hover { background: var(--bg-subtle); border-color: var(--accent); }
 .date-picker-day:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
