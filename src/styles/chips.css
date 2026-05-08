@@ -638,3 +638,82 @@ body.mode-advanced .chip-area .chip:hover:not(.chip-selected) {
   .composer-commit-row { flex-direction: column; }
   .composer-btn { width: 100%; }
 }
+
+/* === Drawer item shape (A4) === */
+/* Two-line + trailing-edge mono badge. The .drawer-item base rules above
+   provide flex, padding, hover and focus; we override layout to support
+   the two-line text block plus a trailing badge. */
+.drawer-item {
+  align-items: flex-start;
+  padding: 10px 12px;
+  min-height: 52px;
+  gap: 12px;
+}
+.drawer-item-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.drawer-item-label {
+  flex: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+  line-height: 1.3;
+}
+.drawer-item-desc {
+  font-size: 12px;
+  color: var(--fg-muted);
+  line-height: 1.4;
+}
+.drawer-item-badge {
+  flex: 0 0 auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  color: var(--fg-muted);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  align-self: center;
+  white-space: nowrap;
+}
+.drawer-item:hover .drawer-item-badge,
+.drawer-item:focus-visible .drawer-item-badge {
+  color: var(--fg);
+  border-color: var(--fg-muted);
+}
+.drawer-panel { min-width: 280px; max-width: 360px; }
+
+/* === Popover-above flip (B3) === */
+/* Marker class added to .chip-warning-popover when the popover is flipped
+   above its anchor (instead of below) because the default placement would
+   overflow the viewport. Positioning itself is set inline; this class is a
+   hook for future caret/arrow direction styling. */
+.chip-warning-popover-above {
+  /* No visual change yet — left intentionally minimal. */
+}
+
+/* === Welcome re-open link (B6) === */
+/* A small, unobtrusive "I changed my mind" link that appears in place of
+   the welcome panel after the user collapses it. Hidden in Advanced mode
+   alongside the panel itself. */
+.welcome-reopen {
+  display: inline-block;
+  background: transparent;
+  border: 0;
+  color: var(--fg-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  margin: 0 0 16px 0;
+  min-height: 32px;
+  border-radius: 4px;
+}
+.welcome-reopen:hover { color: var(--fg); text-decoration: underline; }
+.welcome-reopen:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+body.mode-advanced .welcome-reopen { display: none !important; }
+

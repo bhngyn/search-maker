@@ -19,7 +19,14 @@ function closeActive() {
     activeAnchor = null;
     document.removeEventListener('click', onOutside, true);
     document.removeEventListener('keydown', onKey);
+    window.removeEventListener('resize', onResize);
   }
+}
+
+function onResize() {
+  // Re-flowing the popover is more work than it's worth; the user can
+  // re-open it to see the current geometry.
+  closeActive();
 }
 
 function onOutside(e) {
@@ -82,12 +89,29 @@ function openPopover(anchor, issues, handlers) {
 
   const rect = anchor.getBoundingClientRect();
   pop.style.position = 'fixed';
-  pop.style.top = (rect.bottom + 6) + 'px';
-  // Anchor to the leading edge so the popover doesn't push offscreen in RTL.
-  pop.style.insetInlineStart = rect.left + 'px';
   pop.style.zIndex = '1000';
   pop.style.maxWidth = '300px';
+  // Initial placement (below anchor, leading-edge aligned) so the browser
+  // can lay it out and produce a real bounding box for clamp-fitting.
+  pop.style.top = (rect.bottom + 6) + 'px';
+  pop.style.left = rect.left + 'px';
   document.body.appendChild(pop);
+
+  // Vertical: flip above the anchor if the popover would overflow the
+  // bottom edge (typical when a chip sits near the sticky preview).
+  const popRect = pop.getBoundingClientRect();
+  const margin = 8;
+  if (popRect.bottom > window.innerHeight - margin) {
+    const flippedTop = rect.top - popRect.height - 6;
+    pop.style.top = flippedTop + 'px';
+    pop.classList.add('chip-warning-popover-above');
+  }
+
+  // Horizontal: clamp to the viewport so neither edge is clipped.
+  const desiredLeft = rect.left;
+  const maxLeft = window.innerWidth - popRect.width - margin;
+  const clampedLeft = Math.max(margin, Math.min(desiredLeft, maxLeft));
+  pop.style.left = clampedLeft + 'px';
 
   activePopover = pop;
   activeAnchor = anchor;
@@ -95,6 +119,7 @@ function openPopover(anchor, issues, handlers) {
   setTimeout(() => {
     document.addEventListener('click', onOutside, true);
     document.addEventListener('keydown', onKey);
+    window.addEventListener('resize', onResize);
   }, 0);
 }
 
