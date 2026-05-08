@@ -687,3 +687,12 @@ body.mode-advanced .chip-area .chip:hover:not(.chip-selected) {
 }
 .drawer-panel { min-width: 280px; max-width: 360px; }
 
+/* === Popover-above flip (B3) === */
+/* Marker class added to .chip-warning-popover when the popover is flipped
+   above its anchor (instead of below) because the default placement would
+   overflow the viewport. Positioning itself is set inline; this class is a
+   hook for future caret/arrow direction styling. */
+.chip-warning-popover-above {
+  /* No visual change yet — left intentionally minimal. */
+}
+
