@@ -28,12 +28,31 @@
 // can't parse and keep going. Returning [] for empty input lets the composer
 // distinguish "user pasted nothing meaningful" from "user pasted plain text".
 
-const KEYWORD_OPERATORS = new Set(['site', 'intitle', 'intext', 'inanchor', 'inurl']);
+import { getActiveEngine } from './engine.js';
+
+// Default operator set used as a safety net before the engine controller
+// has been constructed. Real values come from `engine.parser`.
+const DEFAULT_KEYWORD_OPERATORS = new Set(['site', 'intitle', 'intext', 'inanchor', 'inurl']);
+
+function getParserSpec() {
+  const eng = getActiveEngine();
+  return eng.parser || { keywordOperators: DEFAULT_KEYWORD_OPERATORS, prefixOperators: {} };
+}
+
+function getDateOps() {
+  const eng = getActiveEngine();
+  return eng.dateRangeOps || { after: 'after', before: 'before' };
+}
 
 /**
- * Parse a Google-style query string into an ordered list of chip-shaped
- * descriptors. Returns null if the input looks like plain text (no
- * recognizable operators); returns [] if input is empty/whitespace only.
+ * Parse an engine-flavored query string into an ordered list of chip-shaped
+ * descriptors. The recognized operator set, prefix tokens (`@`, `#`, `$`),
+ * and date-range op names all come from the active engine — Google
+ * recognizes site/intitle/etc. and before/after; X recognizes from/to/lang
+ * + prefix tokens and since/until.
+ *
+ * Returns null if the input looks like plain text (no recognizable
+ * operators); returns [] if input is empty/whitespace only.
  *
  * @param {string} input
  * @returns {null | Array<{ type: string, props: object }>}
@@ -48,6 +67,7 @@ export function parseQuery(input) {
   // through to the regular paste behavior. We look for: a colon (operator),
   // a quote, the OR keyword (with surrounding space), an open paren, a
   // numeric range marker, or a leading / mid-string negate prefix.
+  // On X we also accept a leading `@`, `#`, or `$` prefix as structure.
   if (!hasStructure(text)) return null;
 
   const tokens = tokenize(text);
@@ -73,6 +93,12 @@ function hasStructure(text) {
   // Leading minus, or a mid-string " -" (negate prefix on a later token).
   if (text.trimStart().startsWith('-')) return true;
   if (/\s-\S/.test(text)) return true;
+  // Engine-specific prefix operators (X: @, #, $).
+  const prefixChars = Object.keys(getParserSpec().prefixOperators || {});
+  if (prefixChars.length > 0) {
+    const prefixRe = new RegExp('(^|\\s)[' + prefixChars.map(c => '\\' + c).join('') + ']\\S', '');
+    if (prefixRe.test(text)) return true;
+  }
   return false;
 }
 
@@ -212,6 +238,13 @@ function walk(tokens) {
   const out = [];
   let i = 0;
 
+  const parser = getParserSpec();
+  const keywordOps = parser.keywordOperators || DEFAULT_KEYWORD_OPERATORS;
+  const prefixOps = parser.prefixOperators || {};
+  const dateOps = getDateOps();
+  const dateAfterOp = dateOps.after;     // 'after' | 'since'
+  const dateBeforeOp = dateOps.before;   // 'before' | 'until'
+
   while (i < tokens.length) {
     const t = tokens[i];
 
@@ -252,6 +285,48 @@ function walk(tokens) {
     const word = t.value;
     const negate = !!t.negate;
 
+    // Engine-specific prefix operators: `@user`, `#tag`, `$AAPL`.
+    if (word.length > 1) {
+      const first = word[0];
+      const opForPrefix = prefixOps[first];
+      if (opForPrefix) {
+        out.push({
+          type: 'keyword',
+          props: { text: word.slice(1), operator: opForPrefix, quoted: false, negate },
+        });
+        i++;
+        continue;
+      }
+    }
+
+    // Twitter min_*: as a one-off shape — `min_faves:1000`, `-min_retweets:500`.
+    const engagementMatch = /^(min_(?:faves|replies|retweets)):(\d+)$/.exec(word);
+    if (engagementMatch) {
+      out.push({
+        type: 'engagement',
+        props: {
+          metric: engagementMatch[1],
+          direction: negate ? 'max' : 'min',
+          value: parseInt(engagementMatch[2], 10),
+        },
+      });
+      i++;
+      continue;
+    }
+
+    // Twitter filter:* / include:nativeretweets.
+    const filterMatch = /^(filter|include):([a-z_]+)$/i.exec(word);
+    if (filterMatch) {
+      const head = filterMatch[1].toLowerCase();
+      const value = filterMatch[2].toLowerCase();
+      // include:nativeretweets is the "additionally include" form — model it
+      // as a filter chip with negate=true so toggling restores filter:.
+      const negateFlag = head === 'include' ? true : negate;
+      out.push({ type: 'filter', props: { value, negate: negateFlag } });
+      i++;
+      continue;
+    }
+
     // Operator:value form?
     const colonIdx = word.indexOf(':');
     if (colonIdx > 0 && colonIdx < word.length - 1) {
@@ -270,17 +345,17 @@ function walk(tokens) {
         i++;
         continue;
       }
-      if (op === 'before') {
-        out.push({ type: 'date-range', props: { before: value, after: '' } });
-        i++;
-        continue;
-      }
-      if (op === 'after') {
+      if (op === dateAfterOp) {
         out.push({ type: 'date-range', props: { after: value, before: '' } });
         i++;
         continue;
       }
-      if (KEYWORD_OPERATORS.has(op)) {
+      if (op === dateBeforeOp) {
+        out.push({ type: 'date-range', props: { before: value, after: '' } });
+        i++;
+        continue;
+      }
+      if (keywordOps.has(op)) {
         out.push({
           type: 'keyword',
           props: { text: value, operator: op, quoted, negate },
@@ -307,7 +382,7 @@ function walk(tokens) {
     i++;
   }
 
-  // Coalesce adjacent date-range chips (so `before:X after:Y` becomes one
+  // Coalesce adjacent date-range chips (so two date tokens become one
   // chip with both fields set).
   return mergeDateRanges(out);
 }

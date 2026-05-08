@@ -1,0 +1,210 @@
+/* Facebook form — visible only when the Facebook engine is active.
+   The bootstrap toggles `body.engine-facebook` and shows/hides the chip
+   section vs `#facebook-form` accordingly. */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+#facebook-form { display: none; }
+body.engine-facebook #facebook-form { display: block; }
+body.engine-facebook .chip-section,
+body.engine-facebook #warnings-region,
+body.engine-facebook #tips-region,
+body.engine-facebook #welcome-panel,
+body.engine-facebook #welcome-reopen-btn { display: none !important; }
+
+.fb-form {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: var(--gap);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fb-form-section {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fb-form-legend {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.fb-form-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--fg-muted);
+  line-height: 1.4;
+}
+
+.fb-form-empty {
+  margin: 0;
+  font-size: 13px;
+  color: var(--fg-muted);
+  font-style: italic;
+}
+
+/* ===== Categories grid ===== */
+.fb-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 6px;
+}
+.fb-cat-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--fg);
+  cursor: pointer;
+  font: inherit;
+  text-align: start;
+  min-height: 56px;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.fb-cat-btn:hover { border-color: var(--accent); }
+.fb-cat-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.fb-cat-btn.is-active {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: var(--accent);
+}
+.fb-cat-label { font-size: 14px; font-weight: 600; }
+.fb-cat-hint  { font-size: 11px; color: var(--fg-muted); }
+
+/* ===== Keyword input ===== */
+.fb-keyword-input {
+  width: 100%;
+  font-size: 16px;
+  font: inherit;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  box-sizing: border-box;
+}
+.fb-keyword-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ===== Radio rows ===== */
+.fb-radio-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fb-radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  cursor: pointer;
+  min-height: 36px;
+}
+.fb-radio-row input[type="radio"],
+.fb-toggle-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+.fb-radio-label {
+  font-size: 14px;
+  color: var(--fg);
+}
+.fb-id-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 13px;
+  font-family: var(--mono);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--fg);
+}
+.fb-id-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.fb-id-hint {
+  font-size: 11px;
+  color: var(--fg-muted);
+}
+
+/* ===== Toggle / id-only / date ===== */
+.fb-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  min-height: 36px;
+  padding: 4px 0;
+}
+.fb-idonly-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.fb-date-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.fb-date-label {
+  font-size: 13px;
+  color: var(--fg-muted);
+  min-width: 28px;
+}
+.fb-date-input {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--fg);
+}
+.fb-date-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ===== Preview tweaks: when Facebook is active the box holds a URL,
+   not a query. Word-break for long URLs and slightly smaller font. ===== */
+body.engine-facebook .preview-box:not(.empty) {
+  word-break: break-all;
+  font-size: 13px;
+  line-height: 1.5;
+}

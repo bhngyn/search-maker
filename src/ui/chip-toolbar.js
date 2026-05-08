@@ -9,7 +9,7 @@
 //
 // In Beginner mode the toolbar stays hidden.
 
-import { OPERATORS, OPERATOR_KEYS } from '../chips/keyword.js';
+import { getOperatorsForActive, getOperatorKeysForActive } from '../chips/keyword.js';
 
 /**
  * @param {object} args
@@ -76,8 +76,11 @@ export function wireChipToolbar({ host, chipState, selection, mode }) {
         opt.selected = true;
         select.appendChild(opt);
       }
-      OPERATOR_KEYS.forEach(key => {
-        const o = OPERATORS[key];
+      const operatorKeys = getOperatorKeysForActive();
+      const operators = getOperatorsForActive();
+      operatorKeys.forEach(key => {
+        const o = operators[key];
+        if (!o) return;
         const opt = document.createElement('option');
         opt.value = key;
         opt.textContent = o.label;

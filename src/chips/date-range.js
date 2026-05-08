@@ -1,8 +1,12 @@
 import { renderWarningGlyph } from '../ui/chip-popover.js';
+import { getActiveEngine } from '../core/engine.js';
 
-// Date-range chip — wraps Google's `before:` and `after:` operators in a
-// single chip with two date inputs. Either or both may be empty; only the
-// non-empty operators are emitted.
+// Date-range chip — wraps the active engine's date-bound operators in a
+// single chip with two date inputs. Google emits `after:` / `before:`; X /
+// Twitter emits `since:` / `until:`. Either or both may be empty; only the
+// non-empty operators are emitted. The chip's stored prop names stay
+// `after` / `before` regardless of engine — only the assembled string
+// changes — so chips survive engine switches.
 
 export const type = 'date-range';
 export const label = 'نطاق زمني';
@@ -14,9 +18,10 @@ export function defaultProps() {
 export function assemble(chip) {
   const after = (chip.props.after || '').trim();
   const before = (chip.props.before || '').trim();
+  const ops = getActiveEngine().dateRangeOps || { after: 'after', before: 'before' };
   const parts = [];
-  if (after) parts.push('after:' + after);
-  if (before) parts.push('before:' + before);
+  if (after) parts.push(ops.after + ':' + after);
+  if (before) parts.push(ops.before + ':' + before);
   return parts.join(' ');
 }
 

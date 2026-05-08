@@ -1,9 +1,12 @@
-// Warns when a Latin-only operator chip (site, inurl) contains Arabic text.
-// Google won't match Arabic characters in URLs or domain names.
+// Warns when a Latin-only operator chip contains Arabic text.
+// On Google: site, inurl. On X: from, to, list, url, lang, etc. The
+// list of forbidden ops comes from the active engine descriptor — the
+// wording is engine-agnostic.
 
-const LATIN_ONLY_OPS = ['site', 'inurl'];
+import { getActiveEngine } from '../core/engine.js';
+import { getOperatorsForActive } from '../chips/keyword.js';
+
 const ARABIC_RE = /[؀-ۿ]/;
-const OP_LABELS = { site: 'الموقع', inurl: 'الرابط' };
 
 /**
  * @param {import('../core/ctx.js').Ctx} ctx
@@ -14,15 +17,21 @@ export function register(ctx, deps) {
   if (!chipState) return;
 
   function onRender() {
+    const eng = getActiveEngine();
+    const forbidden = eng.arabicForbiddenOps || new Set();
+    const ops = getOperatorsForActive();
     const offending = chipState.getAll().filter(c =>
       c.type === 'keyword' &&
-      LATIN_ONLY_OPS.includes(c.props.operator) &&
+      forbidden.has(c.props.operator) &&
       ARABIC_RE.test(c.props.text || '')
     );
     if (offending.length) {
-      const labels = [...new Set(offending.map(c => OP_LABELS[c.props.operator]))].join('، ');
+      const labels = [...new Set(offending.map(c => {
+        const op = ops[c.props.operator];
+        return op ? op.label : c.props.operator;
+      }))].join('، ');
       ctx.addWarning('operator-arabic-chars',
-        '⚠️ تحتوي حقول (' + labels + ') على أحرف عربية. هذه الحقول تتوقع نطاقات أو أجزاء من URL بالأحرف اللاتينية، ولن يتطابق Google مع النص العربي فيها.');
+        '⚠️ تحتوي حقول (' + labels + ') على أحرف عربية. هذه الحقول تتوقع نصاً لاتينياً، ولن يتطابق محرك البحث مع النص العربي فيها.');
     } else {
       ctx.removeWarning('operator-arabic-chars');
     }

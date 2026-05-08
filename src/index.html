@@ -12,9 +12,14 @@
   <header class="app-header">
     <div>
       <h1 class="app-title">أداة بناء استعلامات البحث</h1>
-      <p class="app-subtitle">ابنِ استعلامات بحث متقدمة في Google باللغة العربية، دون الحاجة إلى الكتابة بالإنجليزية أو تبديل لوحة المفاتيح.</p>
+      <p class="app-subtitle" id="app-subtitle">ابنِ استعلامات بحث متقدمة في Google باللغة العربية، دون الحاجة إلى الكتابة بالإنجليزية أو تبديل لوحة المفاتيح.</p>
     </div>
     <div class="header-controls">
+      <div class="engine-toggle" role="group" aria-label="محرك البحث">
+        <button id="engine-btn-google" type="button" aria-pressed="true">Google</button>
+        <button id="engine-btn-x" type="button" aria-pressed="false">X / تويتر</button>
+        <button id="engine-btn-facebook" type="button" aria-pressed="false">Facebook</button>
+      </div>
       <div class="mode-toggle" role="group" aria-label="وضع الواجهة">
         <button id="mode-btn-beginner" type="button" aria-pressed="true">وضع المبتدئ</button>
         <button id="mode-btn-advanced" type="button" aria-pressed="false">وضع المتقدم</button>
@@ -46,6 +51,10 @@
       <div id="chip-area"></div>
       <aside id="chip-toolbar" hidden></aside>
       <div id="composer"></div>
+    </section>
+
+    <section id="facebook-form" aria-labelledby="facebook-form-heading">
+      <h2 id="facebook-form-heading" class="sr-only">نموذج بحث Facebook</h2>
     </section>
 
     <div id="warnings-region" class="warnings-region" aria-live="polite"></div>

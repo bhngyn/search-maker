@@ -9,7 +9,7 @@
 // reading right-to-left).
 
 import { chipTypes } from '../chips/_registry.js';
-import { TEMPLATES, applyTemplate } from './templates.js';
+import { getTemplates, applyTemplate } from './templates.js';
 
 /**
  * Selection observable shared with the bulk-actions toolbar. A simple
@@ -39,7 +39,7 @@ export function createChipSelection() {
  * @param {() => void} [args.focusComposer]  used by the empty-state templates to focus the composer after applying
  * @param {(chipId: string) => void} [args.onChipHighlight]  invoked when a chip is added or focused; preview uses it to flash the matching fragment
  */
-export function wireChipArea({ host, chipState, mode, selection, focusComposer, onChipHighlight }) {
+export function wireChipArea({ host, chipState, mode, selection, focusComposer, onChipHighlight, engine }) {
   host.classList.add('chip-area');
   host.setAttribute('aria-live', 'polite');
   host.setAttribute('aria-relevant', 'additions removals');
@@ -174,7 +174,7 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
 
     const grid = document.createElement('div');
     grid.className = 'chip-area-empty-grid';
-    TEMPLATES.forEach(tpl => {
+    getTemplates().forEach(tpl => {
       const card = document.createElement('button');
       card.type = 'button';
       card.className = 'chip-area-empty-card';
@@ -447,6 +447,9 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
   });
   if (selection) selection.subscribe(() => render());
   if (mode && mode.on) mode.on(() => render());
+  // Engine switch may change empty-state templates and the operator
+  // surface visible on existing chips; rerender to pick those up.
+  if (engine && engine.on) engine.on(() => render());
 
   // Focus binding: when a chip element gains focus (tab, click, or focus()
   // call), highlight its fragment in the preview. Uses focusin so it bubbles
