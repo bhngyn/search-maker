@@ -575,11 +575,15 @@ export const IDIOMS = [
 export const GROUP_ORDER = ['sites', 'docs', 'vocabulary', 'time', 'boolean', 'position', 'signature'];
 
 export const GROUP_LABELS = {
-  sites: { ar: 'نطاقات', en: 'Sites' },
-  docs: { ar: 'وثائق', en: 'Documents' },
-  vocabulary: { ar: 'مفردات', en: 'Vocabulary' },
-  time: { ar: 'زمن', en: 'Time' },
-  boolean: { ar: 'بنية منطقية', en: 'Boolean' },
-  position: { ar: 'موقع الكلمة', en: 'Position' },
-  signature: { ar: 'توقيع المحقق', en: 'Signature' },
+  // Plain Arabic that reads as everyday OSINT vocabulary, not academic
+  // category names. "نطاقات" / "بنية منطقية" / "توقيع المحقق" were too
+  // abstract for native-speaker scanning; the replacements name the
+  // *kind of move* the recipes in each row let the user make.
+  sites: { ar: 'مواقع وأقسام', en: 'Sites & sections' },
+  docs: { ar: 'وثائق وملفات', en: 'Documents & files' },
+  vocabulary: { ar: 'كلمات وصياغة', en: 'Words & phrasing' },
+  time: { ar: 'تاريخ ووقت', en: 'Date & time' },
+  boolean: { ar: 'روابط منطقية', en: 'Logical connectors' },
+  position: { ar: 'موقع الكلمة في الصفحة', en: 'Where on the page' },
+  signature: { ar: 'حركات المحقق', en: 'Investigator moves' },
 };

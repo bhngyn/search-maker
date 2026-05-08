@@ -37,9 +37,10 @@ body.engine-facebook main { padding-bottom: 140px; }
   margin-bottom: var(--gap);
 }
 
-/* === Explainer (dismissable how-this-works panel) ===
+/* === Explainer (click-anywhere-to-dismiss how-this-works panel) ===
    Mirrors .welcome-panel: leading-edge accent inset + tinted fill so it
-   reads as an inline note, not a section header. */
+   reads as an inline note, not a section header. The whole panel is the
+   dismiss control — clicking anywhere collapses it for the session. */
 .fb-form-explainer {
   position: relative;
   margin: 0;
@@ -49,7 +50,11 @@ body.engine-facebook main { padding-bottom: 140px; }
   border-radius: 6px;
   background: var(--accent-soft);
   color: var(--fg);
+  cursor: pointer;
+  transition: background 120ms ease, filter 120ms ease;
 }
+.fb-form-explainer:hover { background: var(--accent-soft-hover, var(--accent-soft)); filter: brightness(1.06); }
+.fb-form-explainer:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .fb-form-explainer-head {
   display: flex;
   align-items: center;
@@ -65,19 +70,17 @@ body.engine-facebook main { padding-bottom: 140px; }
 }
 .fb-form-explainer-dismiss {
   flex: 0 0 auto;
-  background: transparent;
-  border: 0;
   color: var(--fg-muted);
-  cursor: pointer;
   font-size: 13px;
   padding: 2px 8px;
-  border-radius: 4px;
   text-decoration: underline;
   text-decoration-color: var(--border);
   text-underline-offset: 2px;
 }
-.fb-form-explainer-dismiss:hover { color: var(--fg); text-decoration-color: currentColor; }
-.fb-form-explainer-dismiss:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fb-form-explainer:hover .fb-form-explainer-dismiss {
+  color: var(--fg);
+  text-decoration-color: currentColor;
+}
 .fb-form-explainer-intro {
   margin: 0 0 8px 0;
   font-size: 13px;

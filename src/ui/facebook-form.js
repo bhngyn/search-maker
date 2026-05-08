@@ -103,9 +103,24 @@ export function wireFacebookForm({ host, explainerHost, engine, ctx, lang }) {
   }
 
   function renderExplainer() {
+    const dismiss = () => {
+      state.explainerDismissed = true;
+      wrap.remove();
+      ctx.requestUpdate();
+    };
     const wrap = el('section', {
       class: 'fb-form-explainer',
+      role: 'button',
+      tabindex: '0',
       'aria-labelledby': 'fb-explainer-title',
+      title: t('ui.fbForm.explainer.dismiss'),
+      onclick: dismiss,
+      onkeydown: (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          dismiss();
+        }
+      },
     });
     const head = el('div', { class: 'fb-form-explainer-head' });
     head.appendChild(el('h3', {
@@ -113,16 +128,10 @@ export function wireFacebookForm({ host, explainerHost, engine, ctx, lang }) {
       class: 'fb-form-explainer-title',
       text: t('ui.fbForm.explainer.title'),
     }));
-    head.appendChild(el('button', {
-      type: 'button',
+    head.appendChild(el('span', {
       class: 'fb-form-explainer-dismiss',
-      'aria-label': t('ui.fbForm.explainer.dismiss'),
+      'aria-hidden': 'true',
       text: t('ui.fbForm.explainer.dismiss'),
-      onclick: () => {
-        state.explainerDismissed = true;
-        wrap.remove();
-        ctx.requestUpdate();
-      },
     }));
     wrap.appendChild(head);
     wrap.appendChild(el('p', {

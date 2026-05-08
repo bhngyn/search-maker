@@ -395,6 +395,14 @@
   .idiom-panel-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  /* When a group has an odd number of cards, the trailing card would
+     otherwise sit alone in a half-width column. Span it across both
+     columns so each row reads cleanly. The grid interleaves
+     <button>.idiom-panel-card with <div>.idiom-panel-inspector siblings,
+     so we match the last *button* (cards) by element type. */
+  .idiom-panel-grid > button.idiom-panel-card:last-of-type:nth-of-type(odd) {
+    grid-column: 1 / -1;
+  }
 }
 
 /* ─── CARD ───────────────────────────────────────────────────────────── */
