@@ -66,24 +66,92 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
     // host. The grouping is render-only — chip-state stays flat.
     const groupRanges = computeOrGroupRanges(chips);
     let cursor = 0;
+    let unitsRendered = 0;
     while (cursor < chips.length) {
       const groupEnd = groupRanges.get(cursor);
       if (typeof groupEnd === 'number') {
         // [cursor .. groupEnd] is one OR group (inclusive on both ends).
-        const groupEl = document.createElement('span');
-        groupEl.className = 'chip-or-group';
-        groupEl.setAttribute('role', 'group');
-        groupEl.setAttribute('aria-label', 'مجموعة "أو"');
-        for (let i = cursor; i <= groupEnd; i++) {
-          appendChipEl(groupEl, chips[i]);
-        }
-        host.appendChild(groupEl);
+        if (unitsRendered > 0) appendAndSeam(host);
+        host.appendChild(renderOrGroup(chips, cursor, groupEnd));
         cursor = groupEnd + 1;
+        unitsRendered++;
       } else {
+        // Defensive: skip stale or-connectors that landed outside a complete
+        // [term, OR, term] run. cleanupConnectors() should prevent this in
+        // practice, but rendering a lone connector pill as a standalone chip
+        // would look broken.
+        if (chips[cursor] && chips[cursor].type === 'or-connector') {
+          cursor++;
+          continue;
+        }
+        if (unitsRendered > 0) appendAndSeam(host);
         appendChipEl(host, chips[cursor]);
         cursor++;
+        unitsRendered++;
       }
     }
+  }
+
+  /**
+   * Render a `[term, OR, term, ...]` run as a single OR-group container with
+   * an explicit header + a trailing "+ بديل آخر" button. Group members do
+   * not get the per-chip "+أو" handle (the trailing button is the single
+   * discoverable add affordance once a group exists).
+   */
+  function renderOrGroup(chips, start, end) {
+    const groupEl = document.createElement('span');
+    groupEl.className = 'chip-or-group';
+    groupEl.setAttribute('role', 'group');
+    groupEl.setAttribute('aria-label', 'مجموعة "أو"');
+
+    // Header row.
+    const labelEl = document.createElement('span');
+    labelEl.className = 'chip-or-group-label';
+    labelEl.setAttribute('aria-hidden', 'true');
+    const icon = document.createElement('span');
+    icon.className = 'chip-or-group-icon';
+    icon.textContent = '⫦';
+    const labelText = document.createElement('span');
+    labelText.className = 'chip-or-group-label-text';
+    labelText.textContent = 'أيٌ مما يلي';
+    const helper = document.createElement('span');
+    helper.className = 'chip-or-group-label-helper';
+    helper.textContent = 'تطابق أيّ كلمة من هذه الكلمات.';
+    labelEl.appendChild(icon);
+    labelEl.appendChild(labelText);
+    labelEl.appendChild(helper);
+    groupEl.appendChild(labelEl);
+
+    // Members — suppress the per-chip "+أو" handle inside the group.
+    for (let i = start; i <= end; i++) {
+      appendChipEl(groupEl, chips[i], { inOrGroup: true });
+    }
+
+    // Trailing add button. Calls addOrBranch on the LAST member; addOrBranch
+    // already walks forward to the end of the run before splicing, so this
+    // works whether the group has 2 or N members.
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'chip-or-group-add';
+    addBtn.textContent = '+ بديل آخر';
+    addBtn.title = 'إضافة بديل آخر بـ "أو"';
+    addBtn.setAttribute('aria-label', 'إضافة بديل آخر بـ "أو"');
+    const lastMemberId = chips[end].id;
+    addBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      addOrBranch(lastMemberId);
+    });
+    groupEl.appendChild(addBtn);
+
+    return groupEl;
+  }
+
+  function appendAndSeam(parent) {
+    const seam = document.createElement('span');
+    seam.className = 'chip-and-seam';
+    seam.setAttribute('aria-hidden', 'true');
+    seam.textContent = 'و';
+    parent.appendChild(seam);
   }
 
   /**
@@ -177,9 +245,10 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
     return ranges;
   }
 
-  function appendChipEl(parent, chip) {
+  function appendChipEl(parent, chip, opts) {
     const mod = chipTypes[chip.type];
     if (!mod || typeof mod.render !== 'function') return;
+    const inOrGroup = !!(opts && opts.inOrGroup);
     const el = mod.render(chip, {
       onDelete: () => chipState.remove(chip.id),
       onToggleNegate: () => chipState.update(chip.id, { negate: !chip.props.negate }),
@@ -187,7 +256,9 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer, 
       onChangeOperator: (op) => chipState.update(chip.id, { operator: op }),
       onChangeText: (text) => chipState.update(chip.id, { text }),
       onChangeProps: (patch) => chipState.update(chip.id, patch),
-      onAddOrBranch: () => addOrBranch(chip.id),
+      // Suppress the per-chip "+أو" handle inside an OR group — the
+      // group's single trailing "+ بديل آخر" button takes over there.
+      onAddOrBranch: inOrGroup ? null : () => addOrBranch(chip.id),
     });
     if (selection && selection.has(chip.id)) el.classList.add('chip-selected');
     if (selection && isAdvanced()) wireSelectionClick(el, chip.id);
