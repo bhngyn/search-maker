@@ -235,6 +235,45 @@ body.mode-beginner .chip-op-select { font-size: 12px; }
 }
 body.mode-advanced .composer-hint { display: none; }
 
+/* ===== Ghost chip preview =====
+   Mirrors what would commit on Enter. Sits between the input and the
+   commit buttons. Hidden when the input is empty. */
+.composer-ghost-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: height 150ms, opacity 150ms;
+}
+.composer-ghost-row.visible {
+  height: 32px;
+  opacity: 0.85;
+}
+.composer-ghost-label {
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+.composer-ghost-chip {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg);
+  border: 1px dashed var(--accent);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 13px;
+  color: var(--fg);
+  font-style: italic;
+  max-width: 100%;
+  word-break: break-word;
+}
+.composer-ghost-chip-negate {
+  border-color: var(--warning);
+  color: var(--warning);
+}
+body.mode-advanced .composer-ghost-row { display: none; }
+
 /* ===== Sticky visualizer (the bottom query bar) ===== */
 .preview-section.preview-section-sticky {
   position: sticky;
