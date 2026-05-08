@@ -1,41 +1,47 @@
 /*
- * idioms.css — OSINT recipe panel
+ * idioms.css — OSINT recipe panel (redesigned: inline inspector model)
  *
- * The panel sits between the welcome blurb and the chip composer.
- * It is visually distinct from the chip area: solid border, raised
- * surface, generous header padding, and a clearly separated card grid.
- *
- * Three states driven by data-attributes on .idiom-panel:
- *   data-state="closed"            → pill only
- *   data-state="open"              → header + scrollable body (compact cards)
+ * Three-axis state driven by data-attributes on .idiom-panel:
+ *   data-state="closed"              → pill only
+ *   data-state="open"               → header + scrollable body (compact cards)
  *   data-state="open" +
- *     data-descriptions="visible"  → cards expand to show pattern + description
+ *     data-descriptions="visible"   → power-scan: cards expand to title + pattern + 1-line desc;
+ *                                     per-card inspector still works on top
+ *   data-open-id="<idiom-id>"       → that card is expanded; its inspector row is visible
+ *   data-open-id=""                 → no inspector open
  *
- * Token substitutions (tokens.css does not define --surface-* / --border-*
- * / --text-* / --radius-* names — we map to the tokens that do exist):
- *   --surface-1     → var(--bg)          (page background)
- *   --surface-2     → var(--bg-subtle)   (slightly raised panel background)
- *   --surface-3     → var(--bg-subtle)   (card fill — tokens.css has no
- *                                         --bg-elevated on main; bg-subtle
- *                                         is used with a border lift instead)
- *   --border-1/2    → var(--border)      (single border token)
- *   --text-muted    → var(--fg-muted)    (muted label color)
- *   --accent-soft   → var(--accent-muted)(tokens.css has no --accent-soft on
- *                                         main; --accent-muted is rgba accent)
- *   --radius-lg     → 12px              (no radius tokens; noticeably larger
- *                                        than chip 6px)
- *   --radius-md     → 8px               (card corner radius)
- *   --radius-sm     → 6px               (pill/badge corner radius)
+ * Inspector visibility contract (coordinated with W3 / idiom-panel.js):
+ *   `.idiom-panel-inspector` elements are hidden by default via [hidden] attribute.
+ *   W3 removes [hidden] from the matching inspector and sets it on all others.
+ *   CSS styles `.idiom-panel-inspector:not([hidden])` for the visible state.
+ *   This avoids specificity fights and lets CSS animate the reveal cleanly.
+ *
+ * Token map (tokens.css names used throughout):
+ *   --bg           page background (#0f172a)
+ *   --bg-subtle    slightly raised panel background (#1e293b)
+ *   --bg-elevated  chip workspace surface (#243246)
+ *   --fg           primary text (#f1f5f9)
+ *   --fg-muted     secondary text (#94a3b8)
+ *   --border       border color (#334155)
+ *   --accent       primary action blue (#2563eb)
+ *   --accent-fg    text on accent fills (#ffffff)
+ *   --accent-soft  rgba accent at 18% (#2563eb / 0.18) — for inspector tint
+ *   --accent-muted rgba sky at 40% (--tip/0.4) — used for OR-group + quoted chips
+ *   --mono         monospace font stack
+ *   --tip          sky-400 (#38bdf8) — OR/tip palette
+ *   --tip-bg       dark sky (#082f49)   — tip background
+ *   --warning      amber (#fbbf24)
+ *   --warning-bg   dark amber (#422006)
  */
 
 /* ─── HOST ───────────────────────────────────────────────────────────── */
 
 .idiom-panel {
   margin: 12px 0 16px;
-  border-radius: 12px; /* --radius-lg equivalent */
+  border-radius: 12px;
   border: 1px solid var(--border);
-  background: var(--bg-subtle); /* --surface-2 equivalent */
-  overflow: hidden; /* keep child border-radii from peeking out */
+  background: var(--bg-subtle);
+  overflow: hidden;
   font-family: "Segoe UI", Tahoma, "Geeza Pro", "Arabic Typesetting",
     system-ui, sans-serif;
 }
@@ -63,7 +69,7 @@
   display: block;
 }
 
-/* Descriptions: show pattern + desc on cards */
+/* Power-scan (descriptions visible): show pattern + 1-line desc on each card */
 .idiom-panel[data-descriptions="hidden"] .idiom-panel-card-pattern,
 .idiom-panel[data-descriptions="hidden"] .idiom-panel-card-desc {
   display: none;
@@ -74,7 +80,7 @@
   display: block;
 }
 
-/* ─── PILL (State 1) ─────────────────────────────────────────────────── */
+/* ─── PILL (closed state) ─────────────────────────────────────────────── */
 
 .idiom-panel-pill {
   display: flex;
@@ -87,14 +93,14 @@
   border: none;
   cursor: pointer;
   color: var(--fg);
-  text-align: start; /* respects RTL */
+  text-align: start;
   border-radius: 12px;
   transition: background 120ms ease;
 }
 
 .idiom-panel-pill:hover,
 .idiom-panel-pill:focus-visible {
-  background: var(--bg-subtle);
+  background: var(--bg-elevated);
   outline: none;
 }
 
@@ -120,7 +126,7 @@
   font-weight: 500;
   color: var(--accent);
   background: var(--accent-muted);
-  border-radius: 6px; /* --radius-sm equivalent */
+  border-radius: 6px;
   padding: 2px 8px;
   white-space: nowrap;
   flex-shrink: 0;
@@ -135,18 +141,18 @@
   line-height: 1;
 }
 
-/* JS can also add .idiom-panel-pill-chevron--flipped for the rotated state */
 .idiom-panel-pill-chevron.flipped {
   transform: rotate(180deg);
 }
 
-/* ─── OPEN HEADER (States 2 / 3) ─────────────────────────────────────── */
+/* ─── OPEN HEADER ─────────────────────────────────────────────────────── */
 
 .idiom-panel-header {
-  display: none; /* shown by data-state="open" rule above */
+  display: none; /* shown by data-state="open" rule */
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
+  gap: 8px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-subtle);
 }
@@ -155,8 +161,88 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--fg);
-  flex: 1;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
+
+/* ─── SEARCH INPUT ────────────────────────────────────────────────────── */
+
+.idiom-panel-search {
+  flex: 1 1 160px;
+  min-width: 120px;
+  height: 32px;
+  padding: 0 10px;
+  font: inherit;
+  font-size: 13px;
+  font-family: var(--mono), inherit;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+  /* Reset browser search-input appearance */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.idiom-panel-search::placeholder {
+  color: var(--fg-muted);
+  font-family: inherit;
+  font-style: italic;
+}
+
+.idiom-panel-search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+}
+
+/* ─── GROUP FILTER CHIPS ─────────────────────────────────────────────── */
+
+.idiom-panel-group-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  flex: 0 1 auto;
+}
+
+.idiom-panel-group-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 10px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg-muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.idiom-panel-group-chip:hover {
+  background: var(--bg-elevated);
+  border-color: var(--accent);
+  color: var(--fg);
+}
+
+.idiom-panel-group-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.idiom-panel-group-chip[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
+}
+
+/* ─── DESCRIPTIONS TOGGLE ─────────────────────────────────────────────── */
 
 .idiom-panel-descriptions-toggle {
   display: inline-flex;
@@ -173,11 +259,12 @@
   white-space: nowrap;
   transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
   min-height: 32px;
+  flex-shrink: 0;
 }
 
 .idiom-panel-descriptions-toggle:hover,
 .idiom-panel-descriptions-toggle:focus-visible {
-  background: var(--bg-subtle);
+  background: var(--bg-elevated);
   color: var(--fg);
   border-color: var(--accent);
   outline: none;
@@ -192,6 +279,8 @@
   border-color: var(--accent);
   background: var(--accent-muted);
 }
+
+/* ─── CLOSE BUTTON ────────────────────────────────────────────────────── */
 
 .idiom-panel-close {
   display: inline-flex;
@@ -221,20 +310,16 @@
   box-shadow: 0 0 0 2px var(--accent);
 }
 
-/* ─── BODY (States 2 / 3) ────────────────────────────────────────────── */
+/* ─── BODY ────────────────────────────────────────────────────────────── */
 
 .idiom-panel-body {
-  display: none; /* shown by data-state="open" rule above */
+  display: none; /* shown by data-state="open" rule */
   padding: 12px 14px 14px;
-  /* max-height + overflow enable internal scroll in the largest state */
   max-height: min(620px, 60vh);
   overflow-y: auto;
   overflow-x: hidden;
-  /* Smooth open/close via max-height transition.
-     JS sets max-height=0 when closing and removes the override when open. */
   transition: max-height 180ms cubic-bezier(0.2, 0, 0, 1);
 
-  /* Custom scrollbar (Webkit/Blink) to stay on-theme */
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
@@ -261,14 +346,18 @@
   letter-spacing: 0.03em;
   margin: 10px 0 4px;
   padding: 0;
-  /* Reset h4 defaults */
   text-transform: none;
   line-height: 1.4;
 }
 
-/* Give the very first section header less top margin */
 .idiom-panel-section:first-child {
   margin-top: 2px;
+}
+
+/* Hidden section headers and cards: search/filter hides non-matching items */
+.idiom-panel-section[hidden],
+.idiom-panel-card[hidden] {
+  display: none !important;
 }
 
 /* ─── GRID ───────────────────────────────────────────────────────────── */
@@ -280,7 +369,6 @@
   margin-bottom: 4px;
 }
 
-/* Responsive breakpoints */
 @media (max-width: 900px) {
   .idiom-panel-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -307,20 +395,20 @@
   align-items: flex-start;
   gap: 3px;
   padding: 6px 8px;
-  min-height: 38px; /* compact height */
-  background: var(--bg); /* darker inset than panel --surface-2/bg-subtle */
+  min-height: 38px;
+  background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 8px; /* --radius-md equivalent */
+  border-radius: 8px;
   cursor: pointer;
   text-align: start;
   color: var(--fg);
   font-family: inherit;
+  position: relative; /* for the applied ✓ and open chevron */
   transition:
     background 120ms ease,
     border-color 120ms ease,
     box-shadow 120ms ease;
   width: 100%;
-  /* Prevent text overflow from breaking layout */
   overflow: hidden;
 }
 
@@ -328,7 +416,6 @@
 .idiom-panel-card:focus-visible {
   background: var(--bg-subtle);
   border-color: var(--accent);
-  /* Soft lift — differentiates from chip area hover which has no shadow */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   outline: none;
 }
@@ -342,7 +429,31 @@
   box-shadow: none;
 }
 
-/* In descriptions-visible state each card grows to ~76px */
+/* Open card: accent inset ring + subtle tinted fill + trailing chevron */
+.idiom-panel-card[aria-expanded="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+/* Open card chevron indicator on trailing edge */
+.idiom-panel-card[aria-expanded="true"]::after {
+  content: "▾";
+  position: absolute;
+  inset-block-end: 4px;
+  inset-inline-end: 6px;
+  font-size: 10px;
+  color: var(--accent);
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Applied card: accent-muted border tint */
+.idiom-panel-card[data-applied="true"] {
+  border-color: var(--tip);
+}
+
+/* Power-scan: cards grow to ~76px */
 .idiom-panel[data-descriptions="visible"] .idiom-panel-card {
   min-height: 76px;
 }
@@ -358,17 +469,39 @@
   font-weight: 600;
   color: var(--fg);
   line-height: 1.3;
-  /* Keep title on one line in compact mode */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   width: 100%;
 }
 
-/* Pattern: mono LTR pill; hidden in compact, shown in expanded */
+/* Applied ✓ badge — hidden by default, shown when applied */
+.idiom-panel-card-applied {
+  display: none; /* shown by [data-applied="true"] rule */
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--tip);
+  background: var(--tip-bg);
+  border: 1px solid var(--tip);
+  border-radius: 999px;
+  padding: 1px 6px;
+  line-height: 1.4;
+  align-self: flex-start;
+  white-space: nowrap;
+  /* Removed from normal flow — shown at top-left of card */
+  margin-top: 2px;
+}
+
+.idiom-panel-card[data-applied="true"] .idiom-panel-card-applied {
+  display: inline-flex;
+}
+
+/* Pattern strip: mono LTR pill; visible in power-scan, hidden in compact */
 .idiom-panel-card-pattern {
-  display: none; /* shown by data-descriptions="visible" rule */
-  direction: ltr; /* safety — JS also sets dir="ltr" on the element */
+  display: none;
+  direction: ltr;
   font-family: var(--mono);
   font-size: 11px;
   color: var(--accent);
@@ -383,80 +516,373 @@
   line-height: 1.5;
 }
 
-/* Description: Arabic prose; hidden in compact, shown in expanded */
+/* Description: Arabic prose; visible in power-scan */
 .idiom-panel-card-desc {
-  display: none; /* shown by data-descriptions="visible" rule */
+  display: none;
   font-size: 12px;
   color: var(--fg-muted);
   line-height: 1.45;
-  /* Allow wrapping in expanded mode */
   white-space: normal;
   overflow: hidden;
-  /* Clamp to 2 lines to keep the card bounded */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
-/*
- * Override: when descriptions are visible, activate the display:block and
- * clamp. The two-step is needed because "display: none" above is set first
- * and a sibling rule in the data-descriptions block sets display:block.
- * The -webkit-box override stays consistent since -webkit-box is a display
- * value, not a separate property.
- */
 .idiom-panel[data-descriptions="visible"] .idiom-panel-card-desc {
   display: -webkit-box;
 }
 
-/* ─── PREVIEW BAND ───────────────────────────────────────────────────── */
+/* ─── INLINE INSPECTOR ────────────────────────────────────────────────── */
+
 /*
- * The preview is a sibling of .idiom-panel-body inside .idiom-panel.
- * When the panel is open we render a sticky band at the bottom carrying
- * the hovered/focused recipe's title + pattern + description. Lives outside
- * the card grid so it can never overlap a card title.
+ * Inspector visibility: W3 (idiom-panel.js) sets/removes the [hidden]
+ * attribute on each .idiom-panel-inspector. CSS only styles the visible one.
+ * Default: all inspectors hidden via [hidden] (browser built-in).
+ *
+ * The inspector is a grid item that spans the full panel width,
+ * effectively breaking out of the 5-column card grid. It sits between
+ * the card row that triggered it and the next card row.
  */
-
-.idiom-panel-preview {
-  display: none;
+.idiom-panel-inspector {
+  grid-column: 1 / -1; /* span full grid width */
+  display: none; /* default hidden — [hidden] attr is redundant safety net */
   flex-direction: column;
-  gap: 4px;
-  padding: 10px 14px 12px;
-  border-top: 1px solid var(--border);
+  gap: 10px;
+  padding: 14px 16px;
+  /* One step darker than the panel bg so it reads as "reference area" */
   background: var(--bg);
-  font-size: 13px;
-  min-height: 56px;
-  /* Smooth transition between hint state and filled state */
-  transition: background 120ms ease;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 8px;
+  /* Max content width to preserve readable line length on wide viewports */
+  max-width: 720px;
+  /* Center within the full-width span */
+  margin-inline: auto;
+  width: 100%;
+  /* Animate reveal */
+  opacity: 0;
+  transition: opacity 150ms ease-out;
 }
 
-.idiom-panel[data-state="open"] .idiom-panel-preview {
+/* When [hidden] is removed, show it and animate in */
+.idiom-panel-inspector:not([hidden]) {
   display: flex;
+  opacity: 1;
 }
 
-.idiom-panel-preview-hint {
-  font-size: 12px;
-  color: var(--fg-muted);
-  font-style: italic;
-  opacity: 0.8;
-}
+/* ─── INSPECTOR INTERNALS ─────────────────────────────────────────────── */
 
-.idiom-panel-preview--filled .idiom-panel-preview-hint {
-  display: none;
-}
-
-.idiom-panel-preview-title {
-  font-size: 13px;
-  font-weight: 600;
+.idiom-inspector-title {
+  font-size: 15px;
+  font-weight: 700;
   color: var(--fg);
+  margin: 0;
   line-height: 1.3;
 }
 
-.idiom-panel-preview-title:empty {
-  display: none;
+.idiom-inspector-desc {
+  font-size: 13px;
+  color: var(--fg-muted);
+  line-height: 1.6;
+  margin: 0;
 }
 
-.idiom-panel-preview-pattern {
+/* Section headings inside the inspector */
+.idiom-inspector-section {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 4px 0 6px;
+  padding: 0;
+}
+
+/* ─── ANATOMY ─────────────────────────────────────────────────────────── */
+
+.idiom-inspector-anatomy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Each row: read-only chip on the leading edge, + button on the trailing edge */
+.idiom-inspector-anatomy-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Per-anatomy chip: read-only, add-one button on trailing edge */
+.idiom-inspector-add-one {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--bg-subtle);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.idiom-inspector-add-one:hover {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+.idiom-inspector-add-one:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ─── HOW-TO LIST ─────────────────────────────────────────────────────── */
+
+.idiom-inspector-howto {
+  margin: 0;
+  padding-inline-start: 1.4em; /* numbered list indent */
+  list-style: decimal;
+  font-size: 13px;
+  color: var(--fg);
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.idiom-inspector-howto li {
+  padding-inline-start: 2px;
+}
+
+/* Bold accent numerals */
+.idiom-inspector-howto li::marker {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ─── PATTERN STRIP ───────────────────────────────────────────────────── */
+
+/* The assembled query text — mono, LTR, tinted background */
+.idiom-inspector-pattern {
+  display: block;
+  direction: ltr;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--accent);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.5;
+  /* Safety: W3 also sets dir="ltr" on the element itself */
+}
+
+/* ─── INSPECTOR ACTIONS ───────────────────────────────────────────────── */
+
+.idiom-inspector-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+/* Primary: apply full recipe — accent filled button (matches .composer-btn-and) */
+.idiom-inspector-apply {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--accent);
+  color: var(--accent-fg);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: filter 120ms ease, background 120ms ease;
+}
+
+.idiom-inspector-apply:hover {
+  filter: brightness(1.08);
+}
+
+.idiom-inspector-apply:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.idiom-inspector-apply:active {
+  filter: brightness(0.95);
+}
+
+/* Secondary: replace current query — ghost/outline button */
+.idiom-inspector-replace {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  color: var(--fg-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.idiom-inspector-replace:hover {
+  background: var(--bg-subtle);
+  color: var(--fg);
+  border-color: var(--fg-muted);
+}
+
+.idiom-inspector-replace:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ─── MINI-PILL: .idiom-control-mention ───────────────────────────────── */
+
+/*
+ * Used inside the "build it manually" <ol> steps to reference composer
+ * controls by label. Visual rhyme with .composer-op-pill so the user's
+ * eye can pattern-match between the step list and the real controls.
+ * NOT interactive — pointer-events: none ensures the user goes to the
+ * real composer to act.
+ */
+.idiom-control-mention {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: baseline;
+  /* Miniature pill shape matching .composer-op-pill */
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 12px;
+  font-family: var(--mono);
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1.5;
+  /* Visual only — no interaction */
+  pointer-events: none;
+  user-select: none;
+  /* Small top margin so it sits flush with surrounding text baseline */
+  margin-inline: 2px;
+}
+
+/* ─── READ-ONLY CHIP: .chip--readonly ─────────────────────────────────── */
+
+/*
+ * Wraps the output of per-chip render() calls inside the inspector anatomy.
+ * Disables all interactions on the chip itself; the anatomy-row's + button
+ * next to it remains fully interactive (pointer-events: auto on the row).
+ *
+ * Strategy for hiding per-chip tools: aggressive class-based hiding plus
+ * pointer-events: none on the wrapper. W3 (idiom-panel.js) does NOT need
+ * to set [hidden] on any inner elements — CSS takes care of it here.
+ * This approach works regardless of what inner HTML the chip renderers emit.
+ */
+.chip--readonly {
+  pointer-events: none;
+  cursor: default;
+  /* Slightly desaturated; no hover effect */
+  opacity: 0.95;
+  /* Remove hover lift that .chip:hover provides */
+  border-color: var(--border) !important;
+}
+
+/* The chip row itself must allow the + button next to the read-only chip
+   to receive clicks. Only the chip itself has pointer-events: none. */
+.idiom-inspector-anatomy-row {
+  pointer-events: auto; /* explicitly allow the row to receive events */
+}
+
+/* Hide interactive per-chip tools inside a read-only chip:
+   - × delete button
+   - OR handle (+أو)
+   - NOT handle
+   - operator dropdown (chip-op-select)
+   - chip-tools group (contains quote toggle, other inline tools)
+   - warning glyph buttons
+   We keep: operator badge (chip-op-badge), negate prefix (chip-neg-prefix),
+   quoted styling, chip text content. */
+.chip--readonly .chip-delete-btn,
+.chip--readonly .chip-delete-btn-small,
+.chip--readonly .chip-or-handle,
+.chip--readonly .chip-not-handle,
+.chip--readonly .chip-op-select,
+.chip--readonly .chip-tools,
+.chip--readonly .chip-warning-glyph,
+.chip--readonly .chip-bool-toggle,
+.chip--readonly .chip-or-group-add {
+  display: none !important;
+}
+
+/* The chip text is display-only — no editing cursor */
+.chip--readonly .chip-text {
+  cursor: default;
+  user-select: none;
+  outline: none;
+  pointer-events: none;
+}
+
+/* No focus ring on read-only chip text */
+.chip--readonly .chip-text:focus {
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+/* ─── POPOVER (hover preview — kept for compat; inspector is the main path) */
+/* The old hover preview popovers are superseded by the inline inspector.
+   These rules are kept minimal so any residual usage doesn't break. */
+
+.idiom-popover {
+  position: fixed;
+  z-index: 1000;
+  max-width: 280px;
+  min-width: 200px;
+  padding: 10px 12px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  animation: idiom-popover-in 100ms ease forwards;
+}
+
+@keyframes idiom-popover-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.idiom-popover.idiom-popover-above {
+  animation: idiom-popover-in-above 100ms ease forwards;
+}
+
+@keyframes idiom-popover-in-above {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.idiom-popover-pattern {
   direction: ltr;
   font-family: var(--mono);
   font-size: 12px;
@@ -464,59 +890,54 @@
   background: var(--accent-muted);
   border-radius: 4px;
   padding: 2px 6px;
-  align-self: flex-start;
-  max-width: 100%;
-  overflow-x: auto;
+  margin-bottom: 6px;
   white-space: nowrap;
-  /* Hide horizontal scrollbar in the band; the user can still see most of
-     the pattern, and the full string is in the live region for screen readers */
-  scrollbar-width: thin;
-}
-
-.idiom-panel-preview-pattern:empty {
-  display: none;
-}
-
-.idiom-panel-preview-desc {
-  font-size: 12px;
-  color: var(--fg-muted);
-  line-height: 1.45;
-  /* Allow up to ~3 lines before clamping; rest is reachable by the toggle */
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }
 
-.idiom-panel-preview-desc:empty {
-  display: none;
-}
-
-/* When descriptions are visible inline, the preview band is redundant.
-   Keep it visible (nice to have a focus cue) but tone it down a touch. */
-.idiom-panel[data-descriptions="visible"] .idiom-panel-preview {
-  opacity: 0.85;
+.idiom-popover-desc {
+  font-size: 13px;
+  color: var(--fg);
+  line-height: 1.5;
 }
 
 /* ─── REDUCED MOTION ─────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
+  /* Pill + header controls */
+  .idiom-panel-pill,
+  .idiom-panel-pill-chevron,
+  .idiom-panel-card,
+  .idiom-panel-descriptions-toggle,
+  .idiom-panel-close,
+  .idiom-panel-group-chip,
+  .idiom-panel-search {
+    transition: none;
+  }
+
+  /* Body scroll/max-height animation */
   .idiom-panel-body {
     transition: none;
   }
 
-  .idiom-panel-pill-chevron {
+  /* Inspector reveal */
+  .idiom-panel-inspector {
+    transition: none;
+    opacity: 1; /* already fully visible, skip fade */
+  }
+
+  /* Inspector action buttons */
+  .idiom-inspector-apply,
+  .idiom-inspector-replace,
+  .idiom-inspector-add-one {
     transition: none;
   }
 
-  .idiom-panel-pill,
-  .idiom-panel-card,
-  .idiom-panel-descriptions-toggle,
-  .idiom-panel-close {
-    transition: none;
-  }
-
-  .idiom-panel-preview {
-    transition: none;
+  /* Popover animations */
+  .idiom-popover,
+  .idiom-popover.idiom-popover-above {
+    animation: none;
   }
 }
