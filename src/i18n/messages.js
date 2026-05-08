@@ -291,8 +291,8 @@ export const MESSAGES = {
   },
   'ui.composer.commitGroupLabel':{ ar: 'إضافة الكلمة',                       en: 'Add the term' },
   'ui.composer.btnAnd':         { ar: 'أضف',                                 en: 'Add' },
-  'ui.composer.btnAddSpecial':  { ar: '+ إضافة',                             en: '+ Add' },
-  'ui.composer.btnAddSpecialAria':{ ar: 'إضافة عامل خاص',                    en: 'Add a special operator' },
+  'ui.composer.btnAddSpecial':  { ar: '+ بناء المعادلة',                     en: '+ Search Operators' },
+  'ui.composer.btnAddSpecialAria':{ ar: 'إضافة عنصر إلى معادلة البحث',         en: 'Add a search operator' },
   'ui.composer.helpText':       {
     ar: 'اكتب كلمة واضغط Enter. ستظهر كـ«كلمة بحث» — اضغطها بعد ذلك لتعديلها.',
     en: 'Type a term and press Enter. It will become a chip you can edit by clicking it.',
@@ -491,8 +491,8 @@ export const MESSAGES = {
     en: '💡 Narrow date ranges combined with site restrictions are very effective for event coverage. Try combining this range with an <code>intitle:</code> chip to find articles about a specific event.',
   },
   'tip.keywordsNoRestrictions':    {
-    ar: '💡 تلميح: الكلمات الرئيسية وحدها قد تُعيد نتائج كثيرة جداً. فكّر في إضافة قيد للموقع أو نطاق زمني (زرّ «إضافة») لتضييق النتائج.',
-    en: '💡 Tip: plain keywords alone often return too many results. Consider adding a site restriction or date range (the "+ Add" button) to narrow them.',
+    ar: '💡 تلميح: الكلمات الرئيسية وحدها قد تُعيد نتائج كثيرة جداً. فكّر في إضافة قيد للموقع أو نطاق زمني (زرّ «بناء المعادلة») لتضييق النتائج.',
+    en: '💡 Tip: plain keywords alone often return too many results. Consider adding a site restriction or date range (the "+ Search Operators" button) to narrow them.',
   },
 };
 
