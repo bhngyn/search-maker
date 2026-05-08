@@ -1,0 +1,112 @@
+/* Per-field styles. Phase 3 will split this into co-located CSS files
+   under fields/<slug>.css, one import per field. For Phase 2 they live
+   together so the visual result is identical to the pre-refactor build. */
+
+.field-keywords .field-keywords-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-keywords .field-keywords-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-keywords .quote-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+.field-keywords .quote-toggle input { accent-color: var(--accent); width: 15px; height: 15px; }
+.field-keywords input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.field-exact-phrase .field-exact-phrase-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-exact-phrase .field-exact-phrase-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-exact-phrase input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.field-excluded .field-excluded-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-excluded .field-excluded-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-excluded input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.field-site .field-site-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-site .field-site-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-site input[type="text"] { text-align: left; }
+.field-site input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.field-intitle .field-intitle-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-intitle .field-intitle-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-intitle .quote-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+.field-intitle .quote-toggle input { accent-color: var(--accent); width: 15px; height: 15px; }
+.field-intitle input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.field-inurl .field-inurl-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-inurl .field-inurl-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-inurl input[type="text"] { text-align: left; }
+.field-inurl input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.field-intext .field-intext-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-intext .field-intext-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-intext .field-intext-quote-row { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+.field-intext .field-intext-quote-row input { accent-color: var(--accent); width: 15px; height: 15px; }
+.field-intext input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.field-inanchor .field-inanchor-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-inanchor .field-inanchor-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-inanchor .field-inanchor-quote-row { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+.field-inanchor .field-inanchor-quote-row input { accent-color: var(--accent); width: 15px; height: 15px; }
+.field-inanchor input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.field-filetype { display: flex; flex-direction: column; gap: var(--gap-tight); }
+.field-filetype .field-filetype-header { display: flex; align-items: center; gap: var(--gap-tight); }
+.field-filetype .field-filetype-header label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.field-filetype .field-filetype-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 4px 9px; color: var(--fg-muted); min-width: 36px; min-height: 36px; transition: background 150ms; }
+.field-filetype .field-filetype-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
+.field-filetype .field-filetype-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.field-filetype select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--fg); cursor: pointer; min-height: 44px; }
+.field-filetype select:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-filetype .field-help { margin: 0; font-size: 0.85rem; color: var(--fg-muted); line-height: 1.5; }
+
+.field-date-range { display: flex; flex-direction: column; gap: var(--gap-tight); }
+.field-date-range .field-date-range-header { display: flex; align-items: center; gap: var(--gap-tight); }
+.field-date-range .field-date-range-outer-label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.field-date-range .field-date-range-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 4px 9px; color: var(--fg-muted); min-width: 36px; min-height: 36px; transition: background 150ms; }
+.field-date-range .field-date-range-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
+.field-date-range .field-date-range-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.field-date-range .field-date-range-inputs { display: flex; flex-wrap: wrap; gap: var(--gap); }
+.field-date-range .field-date-range-input-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+.field-date-range .field-date-range-inner-label { font-size: 0.875rem; color: var(--fg-muted); font-weight: 500; }
+.field-date-range input[type="date"] { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--fg); min-height: 44px; }
+.field-date-range input[type="date"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-date-range .field-help { margin: 0; font-size: 0.85rem; color: var(--fg-muted); line-height: 1.5; }
+
+.field-proximity .field-proximity-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-proximity .field-proximity-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-proximity .field-proximity-row { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
+.field-proximity .field-proximity-term-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 100px; }
+.field-proximity .field-proximity-sublabel { font-size: 12px; color: var(--fg-muted); }
+.field-proximity .field-proximity-term-group input[type="text"] { width: 100%; padding: 10px 12px; font: inherit; font-size: 15px; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; }
+.field-proximity .field-proximity-term-group input[type="text"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.field-proximity .field-proximity-sep { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
+.field-proximity .field-proximity-sep-text { font-size: 13px; color: var(--fg-muted); white-space: nowrap; }
+.field-proximity .field-proximity-sep input[type="number"] { width: 80px; padding: 10px 8px; font: inherit; font-size: 15px; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; text-align: center; }
+.field-proximity .field-proximity-sep input[type="number"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+@media (max-width: 500px) { .field-proximity .field-proximity-row { flex-direction: column; } .field-proximity .field-proximity-sep { flex-direction: row; align-items: center; gap: 6px; } }
+
+.field-wildcard .field-wildcard-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-wildcard .field-wildcard-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-wildcard input[type="text"]:focus-visible { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.field-number-range { display: flex; flex-direction: column; gap: var(--gap-tight); }
+.field-number-range .field-number-range-header { display: flex; align-items: center; gap: var(--gap-tight); }
+.field-number-range .field-number-range-header > label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.field-number-range .field-number-range-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 4px 9px; color: var(--fg-muted); min-width: 36px; min-height: 36px; transition: background 150ms; }
+.field-number-range .field-number-range-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
+.field-number-range .field-number-range-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.field-number-range .field-number-range-inputs { display: flex; flex-direction: row; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
+.field-number-range .field-number-range-input-group { display: flex; flex-direction: column; gap: 3px; }
+.field-number-range .field-number-range-sub-label { font-size: 0.78rem; color: var(--fg-muted); font-weight: 500; }
+.field-number-range .field-number-range-sep { font-size: 1.2rem; font-weight: 700; color: var(--fg-muted); padding-bottom: 8px; font-family: var(--mono); }
+.field-number-range .field-number-range-input-group input[type="number"] { width: 90px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: var(--mono); font-size: 1rem; background: var(--bg); color: var(--fg); min-height: 44px; }
+.field-number-range .field-number-range-input-group input[type="number"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-number-range .field-number-range-prefix-group input[type="text"] { width: 56px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: var(--mono); font-size: 1rem; background: var(--bg); color: var(--fg); min-height: 44px; }
+.field-number-range .field-number-range-prefix-group input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-number-range .field-help { margin: 0; font-size: 0.85rem; color: var(--fg-muted); line-height: 1.5; }
+.field-number-range .field-help code { font-family: var(--mono); background: var(--bg-subtle); padding: 1px 4px; border-radius: 3px; }
+
+.field-or-groups { display: flex; flex-direction: column; gap: var(--gap-tight); }
+.field-or-groups .field-or-groups-header { display: flex; align-items: center; gap: var(--gap-tight); }
+.field-or-groups .field-or-groups-header label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.field-or-groups .field-or-groups-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 4px 9px; color: var(--fg-muted); min-width: 36px; min-height: 36px; transition: background 150ms; }
+.field-or-groups .field-or-groups-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
+.field-or-groups .field-or-groups-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.field-or-groups #field-or-groups-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--fg); min-height: 44px; box-sizing: border-box; }
+.field-or-groups #field-or-groups-input:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-or-groups .field-help { margin: 0; font-size: 0.85rem; color: var(--fg-muted); line-height: 1.5; }
