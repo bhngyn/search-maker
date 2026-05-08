@@ -69,12 +69,12 @@ Source attribution: Facebook filter values, JSON keys, and encoding sequence are
 
 The page is a single vertical column at all viewport widths. From top to bottom:
 
-1. **Header** — Arabic title, one-sentence subtitle (engine-driven), engine toggle (Google / X / Facebook), mode toggle (Beginner / Advanced), Arabic normalization toggle with info popover.
-2. **Welcome panel** (Beginner only, collapsible) — a single-line in-flow blurb at the top of `main` that names the tool and points at the Enter-to-commit flow, with an inline `إخفاء` link at its trailing edge. Once dismissed the panel disappears entirely and frees the row; a refresh restores it, consistent with the no-persistence rule. The blurb is intentionally lightweight so the chip section is the visual anchor on first paint.
-3. **Chip section** — heading "ابنِ بحثك بإضافة كلمات", chip area. When the chip array is empty in Beginner mode the chip area itself renders as the templates picker (heading "ابدأ من قالب جاهز:" + three template cards with descriptions + "أو اكتب كلمة في الأسفل وابدأ من الصفر."). Once any chip exists, chips replace the picker. The standalone templates row that used to live above the chip section has been retired. Below the chip area: composer input with one primary commit button (`أضف`) and the `+ إضافة` drawer trigger. A ghost-chip preview sits between the input and commit buttons in Beginner mode showing what would commit on Enter, below it a row of operator-conversion pills (`كلمة عادية`, `في الموقع`, `في عنوان الصفحة`, `في رابط الصفحة`, `في نص الصفحة`, `في الروابط الواردة`) so the user can pick the operator before commit, and below the pills a `اقتباس حرفي` toggle that pre-marks the term as a literal phrase. The toggle disables when the chosen operator is non-quotable (`site:`, `inurl:`) and resets after each commit, like the operator selection.
-4. **Bulk-actions toolbar** (Advanced only, visible when ≥1 chip is selected) — appears below the chip area with the selection count, a shared-operator dropdown, a bulk negate toggle, a bulk delete, and a clear-selection button.
+1. **Header** — Arabic title, one-sentence subtitle (engine-driven), engine toggle (Google / X / Facebook), language toggle (AR / EN), Arabic normalization toggle with info popover.
+2. **Welcome panel** (collapsible) — a single-line in-flow blurb at the top of `main` that names the tool and points at the Enter-to-commit flow, with an inline `إخفاء` link at its trailing edge. Once dismissed the panel disappears entirely and frees the row; a refresh restores it, consistent with the no-persistence rule. The blurb is intentionally lightweight so the chip section is the visual anchor on first paint.
+3. **OSINT recipe library panel** — collapsible catalog of pre-built operator recipes (35 per chip-based engine). Default state is a single ~40px collapsed pill (`📚 وصفات بحث جاهزة · 35 وصفة · ▼`); clicking expands to a 5-column × 7-row grid of compact cards. Visually distinct from the chip area (raised `--bg-subtle` background, solid border, larger corner radius, dedicated header bar with a `📖 شروح` toggle and close chevron). Clicking a card seeds chips into the chip array via the existing `applyTemplate` flow; the panel stays open so investigators can stack recipes. Hidden when the active engine is Facebook. See **OSINT recipe library panel** section below.
+4. **Chip section** — heading "ابنِ بحثك بإضافة كلمات", chip area. When the chip array is empty the chip area renders a one-line muted hint ("أو اكتب كلمة في الأسفل وابدأ من الصفر.") that explicitly bridges the recipe panel above with the composer below. Once any chip exists, chips replace the hint. Below the chip area: composer input with one primary commit button (`أضف`) and the `+ إضافة` drawer trigger. A ghost-chip preview sits between the input and commit buttons showing what would commit on Enter, below it a row of operator-conversion pills (`كلمة عادية`, `في الموقع`, `في عنوان الصفحة`, `في رابط الصفحة`, `في نص الصفحة`, `في الروابط الواردة`) so the user can pick the operator before commit, and below the pills a `اقتباس حرفي` toggle that pre-marks the term as a literal phrase. The toggle disables when the chosen operator is non-quotable (`site:`, `inurl:`) and resets after each commit, like the operator selection.
 5. **Warnings region** — coaching warnings appear here, dismissible per session. Banner warnings cover only aggregate concerns (query too long, too many restrictions, Latin-only operator with Arabic chars). Issues local to a single chip live as per-chip glyphs on the chip itself.
-6. **Tips region** — strategy tips appear here in Beginner mode only, single-tip queue, priority-ordered.
+6. **Tips region** — strategy tips appear here, single-tip queue, priority-ordered.
 7. **Sticky preview** — the assembled query (or, for Facebook, the assembled URL) in a read-only LTR monospace box, sticking to the bottom of the viewport. For chip-based engines each chip's contribution is wrapped in a `.preview-frag[data-chip-id]` span so the chip-area can flash the matching fragment when a chip is added or focused; for Facebook the box holds the full URL with `word-break: break-all` and a slightly smaller font. Click the box to copy. Below it, three buttons: نسخ (copy), engine-driven search button (`البحث في Google` / `البحث في X` / `البحث في Facebook`), مسح الكل (reset).
 
 ### Commit flow (the heart of the tool)
@@ -109,6 +109,26 @@ Beyond the operator dropdown, NOT toggle, and quote toggle on each keyword chip:
 ### Visual binding between chips and the preview
 
 Each chip's contribution to the assembled query is wrapped in a `.preview-frag` span tagged with `data-chip-id` inside the sticky preview at the bottom. When a chip is added or focused, chip-area calls `preview.highlightChip(id)` which flashes that span's background for ~600ms. This is the only visual link between a chip and its substring; it teaches the chip→string mapping by observation.
+
+### OSINT recipe library panel
+
+A dedicated `<section id="idiom-panel">` between the welcome blurb and the chip section. Owns its own visual identity (raised `--bg-subtle` surface, solid border, generous header padding) so it reads as a *catalog of recipes* rather than an extension of the chip workspace. Engine-aware: swaps content automatically when Google ↔ X. Hidden entirely when Facebook is active.
+
+**Three states** driven by `data-state` and `data-descriptions` attributes on the panel root; CSS handles all visual transitions, JS only mutates the attributes:
+
+- **State 1 — collapsed pill** (default on first paint): a single ~40px button reading `📚 وصفات بحث جاهزة · 35 وصفة · ▼`. Click anywhere expands to State 2.
+- **State 2 — open compact grid**: pill becomes a header bar (title + `📖 شروح` toggle + `▲` close chevron); body shows seven Arabic section headers and 35 compact cards (5 per row, ~38px tall, icon + title only). Hovering or focusing a card reveals a transient popover with the operator pattern + an Arabic description after a 200ms delay (cancelable on `mouseleave`; keyboard `focusin` shows immediately). The popover auto-flips above the anchor near the viewport bottom and clamps horizontal position to ≥ 8px from each viewport edge.
+- **State 3 — open with descriptions inline**: the `📖 شروح` toggle expands every card to ~76px showing pattern + description inline; popovers are suppressed (descriptions are already visible). Body applies `max-height: min(620px, 60vh) overflow-y: auto` so it never dominates the viewport on smaller laptops.
+
+**Click flow**: clicking a card runs `applyTemplate(idiom.id, { chipState, focusComposer })` — same call path the legacy 3-card empty-state used. The idiom's `apply(chipState)` seeds one or more chips; preview fragments flash for ~600ms; the chip section gains a `.chip-section--just-seeded` outline-flash class for ~400ms to bridge the user's eye from the panel down to the chip area; the composer is focused. **The panel does NOT auto-collapse** — investigators stack recipes (e.g., add `intitle:` then `filetype:pdf` from two separate cards). The user explicitly clicks `▲` when they're done browsing.
+
+**Engine swap reset**: the panel collapses to State 1 (`data-state="closed"`) on every engine change so the user always re-opens to a freshly-rendered grid for the active engine. The chip array is preserved across engine swaps (Google ↔ X) per existing engine-controller behavior; only the recipe panel resets.
+
+**Idiom data**: each engine ships its own catalog as `src/idioms/<engine>.js`, exporting `IDIOMS` (35-entry array of `{ id, title, icon, pattern, description, group, apply(chipState) }`), `GROUP_ORDER` (7 group slugs in render order), and `GROUP_LABELS` (slug → Arabic row label map). The engine descriptor exposes `idioms`, `idiomGroupOrder`, `idiomGroupLabels` alongside the legacy `templates` field. Adding an engine means writing one new idiom file plus the existing engine descriptor entries — no panel code changes.
+
+**Google grid** (Russell-grounded): seven thematic rows of five — نطاقات (sites), وثائق (docs), مفردات (vocabulary refinement, Russell's #1 habit), زمن (time), بنية منطقية (boolean), موقع الكلمة (position-of-keyword, includes Russell's stated favorite `intext:` doubled), توقيع المحقق (signature recovery moves: fill-blank, quote-attribution, subdomain-star, CV-hunt, mentioned-by-others). Russell's three explicit Feb 2024 PDF idioms (subdomain-discovery, fill-blank, subdomain-star) are all present. Three Arab-region tactical idioms (`arab-gov-tlds` OR-chain, `arabic-leak-stamps`, `transliteration-or` for cross-script names) translate Russell's "search by synonyms" principle into multi-state, multi-script Arab-region OSINT.
+
+**X grid** (investigator-arc): seven rows along the X-OSINT investigative flow — المصدر الأول (origin / first-source), شبكة التضخيم (amplification networks via `quoted_tweet_id`), إعادة بناء المحادثة (conversation reconstruction via `conversation_id`), الشخص والموضوع (person-on-topic), الجمهور والتفاعل (audience + engagement anomaly), تأطير وروايات متضادة (framing & counter-narrative, includes `cross-script-name`), تحقق وتخصص (verification: geo-image, raw video, source: app fingerprinting, URL tracking, Spaces). Cross-validated against Bellingcat / OSINTCurio / Igor Brigadir's `twitter-advanced-search` reference / Henk van Ess.
 
 ### `+ إضافة` drawer
 
@@ -325,7 +345,7 @@ Build: `npm run build` produces `dist/index.html` with no runtime dependencies, 
 
 ## Source attribution
 
-Google operator definitions and quirks are derived from Daniel M. Russell's "Advanced Search Operators" reference dated February 8, 2024. X / Twitter operators are sourced from Igor Brigadir's `twitter-advanced-search` reference (see CLAUDE-X.md). Facebook filter encoding is derived from the WhoPostedWhat reference (`whopostedwhat.com`). When in doubt about a specific operator or filter's exact behavior, consult the matching upstream document.
+Google operator definitions and quirks are derived from Daniel M. Russell's "Advanced Search Operators" reference dated February 8, 2024. The Google idiom catalog (`src/idioms/google.js`) is grounded in Russell's SearchResearch blog (https://searchresearch1.blogspot.com/), the two long Tedesco/Russell interviews, and Russell's IRE 2013 tipsheet — his most-repeated investigative habits (vocabulary refinement via Wikipedia, `intext:` doubled, negative-space `before:date -event-noun`, path-fragment narrowing, Wayback as a pivot) drive the row composition. X / Twitter operators are sourced from Igor Brigadir's `twitter-advanced-search` reference (see CLAUDE-X.md); the X idiom catalog (`src/idioms/x.js`) is cross-validated against Bellingcat / OSINTCurio / Henk van Ess practitioner writing. Facebook filter encoding is derived from the WhoPostedWhat reference (`whopostedwhat.com`). When in doubt about a specific operator or filter's exact behavior, consult the matching upstream document.
 
 ## Implementation status
 
@@ -337,39 +357,47 @@ The deliverable is `dist/index.html` — a single self-contained file built from
 
 ```
 src/
-  index.html              shell with mount points (chip section + Facebook form section)
+  index.html              shell with mount points (welcome, idiom panel, chip section, Facebook form, sticky preview)
   main.js                 bootstrap: builds engine controller, ctx, wires UI, iterates registries; engine-aware assembleQuery
   styles/
     tokens.css            :root custom properties (dark palette only; --page-max-width caps the centered column)
     base.css              global non-chip styles
-    chips.css             chip pills, composer, sticky preview, drawer, popover, OR-group, empty-state, etc.
+    chips.css             chip pills, composer, sticky preview, drawer, popover, OR-group, .chip-section--just-seeded bridge flash
+    idioms.css            recipe panel + popover styles (visually self-contained; data-state / data-descriptions selectors)
     facebook.css          Facebook form + show/hide rules keyed off body.engine-facebook
   core/
     ctx.js                the integration seam; passed to every register*
     assemble.js           segment-ordered query string builder
     normalize.js          Arabic char normalization (factory + getEnabled)
     warnings.js           slug-keyed coaching banner system
-    tips.js               Beginner-only single-tip priority queue
-    mode.js               Beginner/Advanced toggle + listener fan-out
-    engine.js             active-engine controller (Google/X/Facebook) + getActiveEngine() module-level accessor
+    tips.js               single-tip priority queue
+    engine.js             active-engine controller (Google/X/Facebook) + getActiveEngine() module-level accessor + engine.on() listener fan-out
+    history.js            chip-state undo/redo (Cmd/Ctrl+Z + button)
+    lang.js               AR / EN UI-language toggle controller
     preview.js            live render with .preview-frag spans + setEmptyMessage; copy, search (engine-driven URL), two-tap reset, highlightChip
     chip-state.js         canonical chip array; add/addAfter/remove/removeMany/update/reorder/getQueryFragments
     parse-query.js        tokenize + walk pasted query strings into chip descriptors (engine-aware: keyword ops, prefix ops, date ops)
   engines/
-    google.js             Google descriptor (keyword ops, drawer, templates, search URL)
-    x.js                  X / Twitter descriptor (keyword ops incl. prefix-style @/#/$, drawer, templates, search URL)
+    google.js             Google descriptor (keyword ops, drawer, templates, search URL, idioms / idiomGroupOrder / idiomGroupLabels)
+    x.js                  X / Twitter descriptor (keyword ops incl. prefix-style @/#/$, drawer, templates, search URL, idioms / groups)
     facebook.js           Facebook descriptor: form-based (formBased: true), categories[], categorySections{}, buildUrl(state) — base64'd JSON filter encoder
+  idioms/
+    google.js             35 Google OSINT recipes — IDIOMS array + GROUP_ORDER + GROUP_LABELS (sites, docs, vocabulary, time, boolean, position, signature)
+    x.js                  35 X / Twitter OSINT recipes — IDIOMS + GROUP_ORDER + GROUP_LABELS (origin, amplification, thread, person, audience, framing, verify)
   chips/
     _registry.js          chip-type map (one entry per file)
     keyword.js, or-connector.js, filetype.js, date-range.js,
     proximity.js, number-range.js, filter.js, engagement.js
   ui/
     welcome.js            close-button wiring (no re-open affordance — refresh restores the panel)
-    templates.js          template definitions exported as TEMPLATES + applyTemplate
+    templates.js          template definitions exported as TEMPLATES + applyTemplate (consumed by both legacy 3-template surface and the new idiom panel)
+    idiom-panel.js        recipe library panel: three-state machine (closed pill / open compact / open expanded), lazy body render, engine-swap reset, click → applyTemplate + bridge flash on chip section
+    idiom-popover.js      hover/focus popover for recipe cards: 200ms hover delay, auto-flip-above, viewport clamp, suppressed when data-descriptions="visible"
+    arabic-calendar.js    Arabic / Hijri date picker overlay used by the date-range chip
     normalize-toggle.js   header normalization checkbox + info popover
-    composer.js           input, ghost preview, operator pills, اقتباس حرفي toggle + leading-trailing-`"` shortcut, paste handler + undo toast
-    chip-area.js          chip rendering, OR-group walker (filled container + real-DOM header + trailing add button), AND-seam between non-grouped units, empty-state templates picker, drag, Alt+Arrow, multi-select, focus→preview highlight
-    chip-toolbar.js       Advanced-mode bulk-actions toolbar (operator change, negate, delete, clear)
+    composer.js           input, ghost preview, operator pills, اقتباس حرفي toggle + leading-trailing-`"` shortcut, paste handler + undo toast, NOT/OR modifier row
+    chip-area.js          chip rendering, OR-group walker (filled container + real-DOM header + trailing add button), AND-seam between non-grouped units, empty-state hint line (no in-area template picker), drag, Alt+Arrow, multi-select, focus→preview highlight
+    chip-toolbar.js       multi-select bulk-actions toolbar (operator change, negate, delete, clear)
     chip-popover.js       per-chip warning glyph + viewport-clamped popover
     drawer.js             + إضافة popover; user-language items + descriptions + operator badges
     facebook-form.js      Facebook form: category cards, required keyword input, per-category radio sections, ID inputs, date pickers; owns its own state, requestUpdate-driven
@@ -408,3 +436,5 @@ Open `dist/index.html` directly via `file://` in Chrome, Firefox, or Safari. No 
 - The `filetype:` chip's dropdown was widened beyond the original Office + RTF + TXT set to cover the full investigator-relevant slice of Google's officially indexable file formats: OpenDocument (`odt`/`ods`/`odp`), geospatial (`kml`/`kmz`/`gpx`), and markup (`xml`/`svg`). Obscure formats Google still indexes (`ps`, `wpd`, `hwp`, `tex`, `dwf`) were considered and dropped — they pad the dropdown without serving the Arabic-speaking OSINT audience. `csv` and `mp3` remain excluded per the original spec (Google does not index their contents).
 - The `.app` shell is now a centered single column capped at `--page-max-width: 1080px` with a `calc(100vw - 32px)` floor, instead of the previous `min(1600px, 98vw)` sprawl. The earlier note at the top of `.app` about "the full viewport width" is obsolete. All interior sections (header, chip area, composer, Facebook form, sticky preview) cascade from this constraint without their own widths. UI font sizes were lifted ~1px across the board so nothing visible drops below ~12px and most labels/body text sit at 14–15px, since the narrower column made the previous floor feel cramped on a laptop.
 - The header is a single-row layout at laptop widths: title block on the leading edge (top-right in RTL), `app-controls` strip — engine toggle, language toggle, Arabic-normalization toggle — on the trailing edge (top-left). The title block uses `flex: 1 1 240px; min-width: 0` so the long subtitle wraps inside it instead of forcing the strip onto a second row, and the strip uses `flex: 0 1 auto` so it holds its natural size on laptop widths but shrinks (with internal `flex-wrap` letting its `control-group` children re-row) on viewports below ~600px. Earlier prototype work added floating `data-section-label` badges (`بناء البحث`, `نتيجة الاستعلام`) to the chip and preview sections; those were removed because both sections already have heading affordances (the chip section's h2; the preview's sticky border + action row) and the badges overlapped the rounded container borders. Do not re-introduce the badges.
+- The Beginner / Advanced mode toggle was removed in an earlier iteration — `src/core/mode.js` no longer exists, and there is no `body.mode-*` cascade in CSS. Surfaces previously gated to one mode (welcome blurb, ghost-chip preview, operator-conversion pills, AND-seam, OR-group helper subtitle, strategy tips) are now visible unconditionally; surfaces previously gated to Advanced (drag-to-reorder, Alt+Arrow keyboard reorder, Shift+Click multi-select with bulk-actions toolbar) are now also unconditional. Earlier paragraphs in this document that read "(Beginner only)" or "(Advanced only)" describe a previous iteration; the implementation is mode-less.
+- The empty-state templates picker that used to render inside the chip area when the chip array was length 0 has been retired in favor of a dedicated **OSINT recipe library panel** that sits as its own region above the chip section. The panel carries 35 idioms per chip-based engine (Google + X), opens/closes independently of chip-array state, and remains accessible mid-composition so investigators can stack recipes (`intitle:` + `filetype:pdf` from two clicks). The panel is hidden when Facebook is active. New files: `src/idioms/google.js`, `src/idioms/x.js`, `src/ui/idiom-panel.js`, `src/ui/idiom-popover.js`, `src/styles/idioms.css`. Engine descriptors expose the idiom catalog as `idioms` / `idiomGroupOrder` / `idiomGroupLabels` alongside the legacy `templates` field; the panel reads the new fields, the legacy `templates` is no longer consumed by any UI surface but is kept on the descriptor for any future code that wants the simpler 3-card list. The chip-area's empty state is now a single-line muted hint paragraph (`أو اكتب كلمة في الأسفل وابدأ من الصفر.`) that bridges the recipe panel above with the composer below. See **OSINT recipe library panel** section for the full UX spec.
