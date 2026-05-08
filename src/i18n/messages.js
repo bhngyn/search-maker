@@ -29,7 +29,6 @@ export const MESSAGES = {
   },
   'app.welcomeCloseLabel':  { ar: 'إخفاء لوحة الترحيب',                 en: 'Hide welcome panel' },
   'app.welcomeCloseText':   { ar: 'إخفاء',                              en: 'Hide' },
-  'app.welcomeReopen':      { ar: '↩ إظهار الترحيب',                   en: '↩ Show welcome' },
   'app.chipSectionHeading': { ar: 'ابنِ بحثك بإضافة كلمات',             en: 'Build your search by adding terms' },
   'app.previewHeading':     { ar: 'استعلامك جاهز',                      en: 'Your query' },
   'app.copyBtn':            { ar: 'نسخ',                                 en: 'Copy' },

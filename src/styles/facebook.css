@@ -20,7 +20,6 @@ body.engine-facebook .chip-section,
 body.engine-facebook #warnings-region,
 body.engine-facebook #tips-region,
 body.engine-facebook #welcome-panel,
-body.engine-facebook #welcome-reopen-btn,
 body.engine-facebook #undo-btn { display: none !important; }
 
 /* Bottom padding on main so the last form section scrolls clear of the
