@@ -391,6 +391,20 @@ export const MESSAGES = {
     en: 'Date range is inverted — "After" is later than "Before"; no results will match.',
   },
   'chip.dateRange.validate.invertedFix': { ar: 'بدّل التاريخين',              en: 'Swap dates' },
+  'chip.dateRange.calendar.placeholder': { ar: 'اختر تاريخاً',                  en: 'Pick a date' },
+  'chip.dateRange.calendar.openAria':    { ar: 'افتح التقويم',                  en: 'Open calendar' },
+  'chip.dateRange.calendar.prevAria':    { ar: 'الشهر السابق',                  en: 'Previous month' },
+  'chip.dateRange.calendar.nextAria':    { ar: 'الشهر التالي',                  en: 'Next month' },
+  'chip.dateRange.calendar.clearAria':   { ar: 'امسح التاريخ',                  en: 'Clear date' },
+  'chip.dateRange.calendar.todayLabel':  { ar: 'اليوم',                          en: 'Today' },
+  'chip.dateRange.calendar.months': {
+    ar: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
+    en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+  },
+  'chip.dateRange.calendar.weekdays': {
+    ar: ['أحد', 'اثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'],
+    en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  },
 
   // ===== Chip strings (proximity) =====
   'chip.proximity.deleteAria':     { ar: 'حذف بحث القرب',                    en: 'Delete proximity search' },
