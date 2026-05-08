@@ -37,12 +37,12 @@ Within both modes, the tool *teaches* operators by letting users observe cause a
 The page is a single vertical column at all viewport widths. From top to bottom:
 
 1. **Header** — Arabic title, one-sentence subtitle, mode toggle (Beginner / Advanced), Arabic normalization toggle with info popover.
-2. **Welcome panel** (Beginner only, collapsible) — three short paragraphs explaining what the tool does and how to use it.
-3. **Templates row** (Beginner only) — three large buttons that pre-seed chips: site search, document search (filetype = PDF), date range (last 12 months).
-4. **Chip section** — heading "ابنِ بحثك بإضافة كلمات", chip area showing committed chips. When the chip array is empty in Beginner mode the chip area renders as the templates picker (heading + 3 cards + "أو اكتب كلمة في الأسفل وابدأ من الصفر."). Once any chip exists, the chips replace the picker. Below the chip area: composer input with one primary commit button (`أضف`) and the `+ إضافة` drawer trigger. A ghost-chip preview sits between the input and commit buttons in Beginner mode showing what would commit on Enter, and below it a row of operator-conversion pills (`كلمة عادية`, `في الموقع`, `في عنوان الصفحة`, `في رابط الصفحة`, `في نص الصفحة`, `في الروابط الواردة`) so the user can pick the operator before commit.
-5. **Warnings region** — coaching warnings appear here, dismissible per session.
+2. **Welcome panel** (Beginner only, collapsible) — three short paragraphs explaining what the tool does and how to use it. Once collapsed, a small `↩ إظهار الترحيب` link appears in its place so the user can re-open without losing chip state to a refresh.
+3. **Chip section** — heading "ابنِ بحثك بإضافة كلمات", chip area. When the chip array is empty in Beginner mode the chip area itself renders as the templates picker (heading "ابدأ من قالب جاهز:" + three template cards with descriptions + "أو اكتب كلمة في الأسفل وابدأ من الصفر."). Once any chip exists, chips replace the picker. The standalone templates row that used to live above the chip section has been retired. Below the chip area: composer input with one primary commit button (`أضف`) and the `+ إضافة` drawer trigger. A ghost-chip preview sits between the input and commit buttons in Beginner mode showing what would commit on Enter, and below it a row of operator-conversion pills (`كلمة عادية`, `في الموقع`, `في عنوان الصفحة`, `في رابط الصفحة`, `في نص الصفحة`, `في الروابط الواردة`) so the user can pick the operator before commit.
+4. **Bulk-actions toolbar** (Advanced only, visible when ≥1 chip is selected) — appears below the chip area with the selection count, a shared-operator dropdown, a bulk negate toggle, a bulk delete, and a clear-selection button.
+5. **Warnings region** — coaching warnings appear here, dismissible per session. Banner warnings cover only aggregate concerns (query too long, too many restrictions, Latin-only operator with Arabic chars). Issues local to a single chip live as per-chip glyphs on the chip itself.
 6. **Tips region** — strategy tips appear here in Beginner mode only, single-tip queue, priority-ordered.
-7. **Sticky preview** — the assembled query in a read-only LTR monospace box, sticking to the bottom of the viewport. Click the box to copy. Below it, three buttons: نسخ (copy), البحث في Google (search), مسح الكل (reset).
+7. **Sticky preview** — the assembled query in a read-only LTR monospace box, sticking to the bottom of the viewport. Each chip's contribution is wrapped in a `.preview-frag[data-chip-id]` span so the chip-area can flash the matching fragment when a chip is added or focused. Click the box to copy. Below it, three buttons: نسخ (copy), البحث في Google (search), مسح الكل (reset).
 
 ### Commit flow (the heart of the tool)
 
@@ -56,6 +56,21 @@ The composer has a single text input with one primary commit button (`أضف`) p
 Space alone never auto-commits — Arabic phrases contain spaces, and auto-chipping on space would surprise users with names like "محمد علي". Empty Enter is a no-op; the commit button disables when the input is empty.
 
 Backspace on an empty composer removes the most recent chip. No undo step — fluent typists expect this and the chip can be re-typed.
+
+### Paste-parsing
+
+Pasting text into the composer routes through `core/parse-query.js`. If the pasted text contains structural markers — operators (`site:`, `intitle:`, `filetype:`, `before:`, `after:`), quoted phrases, the uppercase `OR` keyword, parens, `AROUND(N)`, `..` ranges, or leading `-` negation — the parser tokenizes and emits a list of chip descriptors that get committed in one pass and the input is cleared. A toast at the bottom reads `أُضيفت N كلمة من اللصق — تراجع` with the trailing word as a clickable button; clicking تراجع removes those exact chips via `chipState.removeMany(addedIds)`. The toast auto-clears after 1.5s.
+
+Plain-text pastes (no structural markers) fall through to the browser's default paste so the input fills with the text. In Beginner mode a transient hint appears below the ghost row explaining that the paste will become a single chip on Enter and that wrapping in quotes would have produced separate fragments. The hint fades after ~4s.
+
+### Per-chip controls and Advanced-mode interactions
+
+Beyond the operator dropdown, NOT toggle, and quote toggle on each keyword chip:
+- **Per-chip warning glyph (`⚠` / `ℹ`)** appears when the chip's `validate()` exports issues. Clicking opens a popover with the issue text and (when applicable) a one-tap fix button (e.g., `فعّل الاقتباس`, `بدّل التاريخين`, `إلغاء الاقتباس`). Popover positioning auto-flips above the glyph if the default below-anchor placement would overflow the viewport bottom; the leading edge is clamped to ≥ 8px from each viewport edge. See `src/ui/chip-popover.js`.
+- **Per-chip `+أو` handle** (covered above) is the discoverable path to OR groups.
+- **Drag-to-reorder** (Advanced mode only) is wired by `src/ui/chip-area.js`. Each chip becomes `draggable=true` with a soft drop-indicator on the leading or trailing edge of the hover target. Editable widgets inside chips suppress dragstart so typing can't accidentally start a drag.
+- **Alt + ArrowLeft / Alt + ArrowRight** on a focused chip (Advanced mode only) reorders the chip in the array by ±1 and refocuses it after the re-render. Plain arrows stay free for cursor movement inside the chip's contenteditable text.
+- **Shift + Click** (Advanced mode only) toggles the chip's selection. A plain click with an active selection clears it. Esc clears the selection globally. The bulk-actions toolbar (see IA section above) appears when the selection is non-empty.
 
 ### Visual binding between chips and the preview
 
@@ -88,8 +103,8 @@ The current chip types and their query output:
 
 | Slug | Visual | Output |
 |---|---|---|
-| `keyword` | text + optional NOT/quote tools + operator dropdown | `<text>`, `<op>:<text>`, or quoted/negated variant |
-| `or-connector` | "أو" pill between two term chips | (no direct output — the chip-state walker handles OR grouping) |
+| `keyword` | text + leading-edge `+أو` handle + optional NOT/quote tools + operator dropdown + optional warning glyph | `<text>`, `<op>:<text>`, or quoted/negated variant |
+| `or-connector` | "أو" pill between two term chips (rendered without its own border when wrapped inside a `.chip-or-group` container) | (no direct output — the chip-state walker handles OR grouping) |
 | `filetype` | dropdown of PDF/Word/Excel/etc. | `filetype:<value>` |
 | `date-range` | two date pickers | `after:YYYY-MM-DD` and/or `before:YYYY-MM-DD` |
 | `proximity` | term + distance + term | `"term1" AROUND(N) "term2"` |
@@ -199,9 +214,11 @@ State (the chip array) is preserved across mode switches.
 
 Standard accessibility (screen readers, keyboard navigation, contrast):
 - Every form control has an associated label.
-- Mode toggles use `aria-pressed`. Drawer trigger uses `aria-expanded`. Tip dismiss buttons have explicit Arabic `aria-label`.
-- The chip area is `aria-live="polite"` so screen readers announce additions and removals.
+- Mode toggles use `aria-pressed`. Drawer trigger uses `aria-expanded`. Tip dismiss buttons have explicit Arabic `aria-label`. Operator pills under the ghost row use `aria-pressed` for the active selection. The bulk-actions toolbar is `aria-hidden`-aware (only rendered when the selection is non-empty).
+- The chip area is `aria-live="polite"` so screen readers announce additions and removals. The OR-group container uses `role="group"` with `aria-label="مجموعة \"أو\""`.
 - Tab order follows visual RTL order. Visible focus indicators meet WCAG contrast requirements.
+- **Keyboard reorder (Advanced mode)**: Alt + ArrowLeft / Alt + ArrowRight on a focused chip moves it ±1 in the array. The keyboard alternative for drag-and-drop. The chip's `title` attribute carries the hint `اضغط Alt+سهم لتحريك الكلمة` so screen readers and hover users discover it.
+- Per-chip warning glyph popovers close on outside click, Esc, and `window.resize`.
 
 Cognitive accessibility (the lower-literacy half of the audience):
 - Plain Arabic vocabulary; second-person informal register.
@@ -239,21 +256,25 @@ Do not add a guided interactive tour with arrows pointing at chips, a multi-step
 
 The implementing model should consider the work done when all of the following hold true.
 
-The `dist/index.html` file opens correctly via `file://` on Chrome, Firefox, and Safari. Typing Arabic text into the composer produces no cursor jumps and no visible character reordering. Pressing Enter commits a keyword chip; the input clears; focus stays on the composer. Pressing Shift+Enter creates an OR group with the previous chip. Typing `-word` and pressing Enter creates a NOT-flagged chip. Pressing Backspace with an empty composer removes the most recent chip. The ghost-chip preview updates on every keystroke and mirrors what would commit. The leading `-` shortcut shows the ghost in red-border negate styling.
+The `dist/index.html` file opens correctly via `file://` on Chrome, Firefox, and Safari. Typing Arabic text into the composer produces no cursor jumps and no visible character reordering. Pressing Enter commits a keyword chip with the operator chosen from the inline pills row (defaults to `كلمة عادية` = no operator); the input clears; the pills reset; focus stays on the composer. Clicking a pill before Enter changes the ghost-chip preview to show the operator-prefixed form. The leading `-` shortcut shows the ghost in red-border negate styling and commits a NOT-flagged chip on Enter. Pressing Backspace with an empty composer removes the most recent chip.
 
-The `+ إضافة` drawer opens and closes on click, dismisses on outside click and Escape, and contains all six keyword operators plus four specialized chip types (with proximity and number-range hidden behind a disclosure in Beginner mode). Clicking a drawer item adds the corresponding chip to the chip array.
+Clicking the per-chip `+أو` handle on any keyword chip splices an or-connector + a fresh empty keyword chip after the LAST member of that chip's OR run, focuses the new chip, and wraps the run in a `.chip-or-group` container with the leading `أيٌ مما يلي:` label. Shift+Enter from the composer is still wired and produces the same OR-group structure. Deleting a chip auto-removes any stale or-connectors so the chip array stays well-formed.
 
-The sticky preview at the bottom updates on every chip mutation. Clicking the preview box copies the query to the clipboard and shows visible confirmation. The Google-search button URL-encodes the query and opens it in a new tab with `target="_blank"` and `rel="noopener noreferrer"`.
+Pasting a Google-style query into the composer (e.g., `"محمد" OR "علي" site:bbc.com`) produces multiple chips in one pass and shows a `أُضيفت N كلمة من اللصق — تراجع` toast; clicking تراجع removes those exact chips. Pasting plain text falls through to default paste with a transient hint in Beginner mode.
+
+The `+ إضافة` drawer opens and closes on click, dismisses on outside click and Escape, and contains all six keyword operators plus four specialized chip types (with proximity and number-range hidden behind a disclosure in Beginner mode). Each item shows a user-language Arabic primary label, a one-line description, and a small mono operator badge on the trailing edge. Beginner mode reorders for frequency-of-use (date-range, filetype, site first); Advanced keeps the operators-then-specials grouping. Clicking a drawer item adds the corresponding chip.
+
+The sticky preview at the bottom updates on every chip mutation. Each chip's contribution is wrapped in a `.preview-frag[data-chip-id]` span; when a chip is added or focused, that span flashes accent-tinted for ~600ms. Clicking the preview box copies the query to the clipboard and shows visible confirmation. The Google-search button URL-encodes the query and opens it in a new tab with `target="_blank"` and `rel="noopener noreferrer"`.
 
 The Arabic normalization toggle, when enabled, transforms the preview to use bare alef and dotted ya forms and strips diacritics — only on chip props flagged Arabic-aware.
 
 Refreshing the page resets all chip state. No network requests are made except the Google search the user explicitly triggers.
 
-All three template buttons in Beginner mode pre-fill chips (not form fields) and focus the composer.
+In Beginner mode, the empty chip-area renders three template cards as the start-here affordance. Clicking a card pre-seeds chips and moves focus to the composer.
 
-The mode toggle is visible in the header at all times in both modes. Switching from Beginner to Advanced preserves the chip array; switching back also preserves them. In Beginner mode, the welcome panel, the empty-state templates picker, the ghost-chip preview, the operator-conversion pills, and the composer hint are visible. In Advanced mode they are hidden.
+The mode toggle is visible in the header at all times in both modes. Switching from Beginner to Advanced preserves the chip array; switching back also preserves them. In Beginner mode the welcome panel (with `↩ إظهار الترحيب` re-open link after collapse), the empty-state templates picker, the ghost-chip preview, the operator-conversion pills, and the composer hint are visible. In Advanced mode all of those are hidden, and three additional interactions become available: drag-to-reorder, Alt+Arrow keyboard reorder, and Shift+Click multi-select with the bulk-actions toolbar.
 
-Strategy tips appear in Beginner mode when their triggering conditions are met and only one is visible at a time. Coaching warnings appear in both modes and disappear automatically when the condition resolves.
+Strategy tips (5 modules registered) appear in Beginner mode when their triggering conditions are met and only one is visible at a time. Coaching banner warnings (3 modules) appear in both modes for aggregate concerns. Per-chip warning glyphs cover chip-local issues with one-tap fixes and auto-flip above the anchor when the popover would overflow the viewport bottom.
 
 Every chip has a × delete button. The global reset uses the two-tap inline confirmation. All interactive elements meet a minimum touch target size of 44 px in Beginner mode. No interactions in either mode require hover.
 
@@ -276,27 +297,34 @@ src/
   index.html              shell with mount points
   main.js                 bootstrap: builds ctx, wires UI, iterates registries
   styles/
-    tokens.css            :root custom properties + dark-mode media query
+    tokens.css            :root custom properties (incl. --accent-muted) + dark-mode media query
     base.css              global non-chip styles
-    chips.css             chip pills, composer, sticky preview, drawer
+    chips.css             chip pills, composer, sticky preview, drawer, popover, OR-group, empty-state, etc.
   core/
     ctx.js                the integration seam; passed to every register*
     assemble.js           segment-ordered query string builder
     normalize.js          Arabic char normalization (factory + getEnabled)
-    warnings.js           multi-warning slug-keyed coaching system
+    warnings.js           slug-keyed coaching banner system
     tips.js               Beginner-only single-tip priority queue
     mode.js               Beginner/Advanced toggle + listener fan-out
-    preview.js            live render, copy, search, two-tap reset
-    chip-state.js         the canonical chip array + segment producer
+    preview.js            live render with .preview-frag spans, copy, search, two-tap reset, highlightChip
+    chip-state.js         canonical chip array; add/addAfter/remove/removeMany/update/reorder/getQueryFragments
+    parse-query.js        tokenize + walk pasted Google-style queries into chip descriptors
   chips/
     _registry.js          chip-type map (one entry per file)
     keyword.js, or-connector.js, filetype.js, date-range.js,
     proximity.js, number-range.js
   ui/
-    welcome.js, templates.js, normalize-toggle.js,
-    composer.js, chip-area.js, drawer.js
+    welcome.js            close + re-open link wiring
+    templates.js          template definitions exported as TEMPLATES + applyTemplate
+    normalize-toggle.js   header normalization checkbox + info popover
+    composer.js           input, ghost preview, operator pills, paste handler + undo toast
+    chip-area.js          chip rendering, OR-group walker, empty-state templates picker, drag, Alt+Arrow, multi-select, focus→preview highlight
+    chip-toolbar.js       Advanced-mode bulk-actions toolbar (operator change, negate, delete, clear)
+    chip-popover.js       per-chip warning glyph + viewport-clamped popover
+    drawer.js             + إضافة popover; user-language items + descriptions + operator badges
   warnings/
-    _registry.js + 6 modules (see Warnings table above)
+    _registry.js + 3 modules (banner-only; chip-local issues live as glyphs in chip types)
   tips/
     _registry.js + 5 modules (see Tips table above)
 ```
@@ -314,3 +342,9 @@ Open `dist/index.html` directly via `file://` in Chrome, Firefox, or Safari. No 
 - The original draft described a 14-field form. The current implementation replaces it with a chip composer that produces all 15 query segments via 6 chip types. The form-based fields/, fields.css, more-options disclosure, and `merge.js`/`validate.js` fragment-merging tooling have been deleted; the file-based per-module convention has replaced the JSON-fragment contract.
 - Template button #2 label is "بحث في الوثائق" (neutral framing) rather than "بحث عن وثائق مسربة" — editorial decision agreed before implementation began.
 - Touch targets in Beginner mode are ≥ 36 px for secondary chip-internal tools and ≥ 44 px for primary action buttons, rather than a uniform 44 px everywhere — secondary controls are visually subordinate and the relaxed minimum was applied deliberately.
+- The composer's commit row is two buttons (`أضف` + `+ إضافة`), not the original three (`أضف (و)`, `أو`, `ليس (−)`) + drawer. OR is reached via the per-chip `+أو` handle and Shift+Enter; NOT via leading `-` and the per-chip `−` toggle. The commit row stayed two-button to keep boolean grammar from blocking a first-time user.
+- The Beginner-mode templates row was retired in favor of an empty-state templates picker rendered inside the chip area itself. Same three templates, same focus-after-apply behavior; one less competing affordance to scan.
+- The drawer items show user-language Arabic primary labels with one-line descriptions and trailing mono operator badges, rather than icon-plus-jargon items. Beginner orders by frequency-of-use; Advanced keeps the original two-section grouping.
+- Chip-local issues (intitle multi-word without quoting, inverted date range, single-word quoting) ship as per-chip warning glyphs with one-tap fixes — there is no banner duplicate. Banner warnings are reserved for aggregate / cross-cutting concerns.
+- The Advanced-mode-only interactions (drag-to-reorder, Shift+Click multi-select with bulk toolbar, Alt+Arrow keyboard reorder, paste-parsing of Google-style queries with paste-undo) were added incrementally on top of the original chip-only spec. None of them appear in Beginner mode, where the surface stays minimal.
+- `chipState.addAfter()` deliberately does NOT call `cleanupConnectors()` mid-mutation — the OR-branch flow makes two consecutive `addAfter` calls (or-connector then keyword), and intermediate cleanup would prune the connector before its trailing term landed. The mutating ops that *can* leave stale connectors (`remove`, `reorder`) still cleanup themselves.
