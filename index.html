@@ -177,6 +177,25 @@
   .tip { background: var(--tip-bg); color: var(--tip); border: 1px solid var(--tip); }
   body.mode-advanced .tips-region { display: none; }
 
+  .field-keywords .field-keywords-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-keywords .field-keywords-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-keywords .quote-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+.field-keywords .quote-toggle input { accent-color: var(--accent); width: 15px; height: 15px; }
+.field-keywords input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-exact-phrase .field-exact-phrase-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-exact-phrase .field-exact-phrase-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-exact-phrase input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-excluded .field-excluded-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-excluded .field-excluded-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-excluded input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-site .field-site-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-site .field-site-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-site input[type="text"] { text-align: left; }
+.field-site input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
   /* === STYLES_INSERT === */
 
 </style>
@@ -209,6 +228,79 @@
 
   <main>
     <div id="fields-container" class="fields-container">
+      <div class="field field-keywords">
+  <div class="field-keywords-header">
+    <label for="field-keywords-input">
+      الكلمات الرئيسية
+      <span class="op-badge">keywords</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-keywords-clear" aria-label="مسح الكلمات الرئيسية" hidden>×</button>
+  </div>
+  <input
+    id="field-keywords-input"
+    type="text"
+    placeholder="اكتب كلمات البحث هنا، مثلاً: انتخابات"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <label class="quote-toggle" for="field-keywords-quote">
+    <input type="checkbox" id="field-keywords-quote" />
+    اقتباس حرفي
+  </label>
+  <p class="field-help">أدخل كلمات البحث الرئيسية — يبحث Google عنها بأي ترتيب. عند تفعيل «اقتباس حرفي»، يطلب Google العثور على الكلمات بالتسلسل الذي كتبته تماماً.</p>
+</div>
+      <div class="field field-exact-phrase">
+  <div class="field-exact-phrase-header">
+    <label for="field-exact-phrase-input">
+      عبارة بعينها
+      <span class="op-badge">&quot;…&quot;</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-exact-phrase-clear" aria-label="مسح العبارة بعينها" hidden>×</button>
+  </div>
+  <input
+    id="field-exact-phrase-input"
+    type="text"
+    placeholder="جملة كاملة بين علامتي اقتباس"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <p class="field-help">يطلب Google العثور على هذه الكلمات بالتسلسل الحرفي الذي كتبته. مفيد جداً للأسماء العربية، لأن محركات البحث قد تُفرّق رموز الاسم. يمكنك استخدام هذا الحقل مع الكلمات الرئيسية معاً للجمع بين بحث مرن وعبارة إلزامية.</p>
+</div>
+      <div class="field field-excluded">
+  <div class="field-excluded-header">
+    <label for="field-excluded-input">
+      كلمات مستبعدة
+      <span class="op-badge">-</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-excluded-clear" aria-label="مسح الكلمات المستبعدة" hidden>×</button>
+  </div>
+  <input
+    id="field-excluded-input"
+    type="text"
+    placeholder="سيارة كرة برمجة"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <p class="field-help">أي كلمة تكتبها هنا ستُحذف من نتائج البحث. مفيد لتصفية المعنى الخاطئ لكلمة مشتركة — مثلاً للبحث عن «النمر» الحيوان بعيداً عن نتائج كرة القدم أو الكمبيوتر.</p>
+</div>
+      <div class="field field-site">
+  <div class="field-site-header">
+    <label for="field-site-input">
+      الموقع
+      <span class="op-badge">site:</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-site-clear" aria-label="مسح تقييد الموقع" hidden>×</button>
+  </div>
+  <input
+    id="field-site-input"
+    type="text"
+    dir="ltr"
+    placeholder="example.com أو *.gov"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <p class="field-help">يقصر النتائج على نطاق واحد فقط. يمكن استخدام الرمز * للبحث في جميع النطاقات الفرعية (مثل *.gov للمواقع الحكومية). وبالدمج مع «نوع الملف» يصبح هذا أحد أقوى أنماط البحث الاستخباراتي.</p>
+</div>
       <!-- === FIELDS_INSERT === -->
     </div>
 
@@ -461,6 +553,231 @@
   // followed by a `__pendingRegisters.push(<functionName>);` line. The bootstrap below
   // then invokes every collected register* function with the shared ctx.
   const __pendingRegisters = [];
+
+  function registerFieldKeywords(ctx) {
+  var input = document.getElementById('field-keywords-input');
+  var quoteToggle = document.getElementById('field-keywords-quote');
+  var clearBtn = document.getElementById('field-keywords-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  function checkTips() {
+    var v = getValue();
+    if (v && quoteToggle.checked && /\s/.test(v)) {
+      ctx.addTip('keywords-name-variants', {
+        priority: 50,
+        messageHtml: '💡 تلميح: الأسماء العربية لها كثير من التهجئات المختلفة (أ، إ، آ). يمكنك تفعيل «توحيد الأحرف العربية» في الأعلى ليشمل البحث هذه الاختلافات تلقائياً.'
+      });
+    } else {
+      ctx.removeTip('keywords-name-variants');
+    }
+
+    if (v && !quoteToggle.checked) {
+      ctx.addTip('keywords-no-restrictions', {
+        priority: 20,
+        messageHtml: '💡 تلميح: الكلمات الرئيسية وحدها قد تُعيد نتائج كثيرة جداً. فكّر في إضافة تقييد للموقع أو نطاق زمني لتضييق النتائج.'
+      });
+    } else {
+      ctx.removeTip('keywords-no-restrictions');
+    }
+  }
+
+  function checkSingleWordQuote() {
+    var v = getValue();
+    if (quoteToggle.checked && v && !(/\s/.test(v))) {
+      ctx.addWarning('keywords-single-word-quote', '⚠️ تقييد كلمة واحدة بالاقتباس يُعطّل تصحيح التهجئة والمرادفات في Google. هذا مقصود أحياناً (للأسماء الخاصة أو المصطلحات التقنية)، لكنه غالباً غير ضروري.');
+    } else {
+      ctx.removeWarning('keywords-single-word-quote');
+    }
+  }
+
+  ctx.registerField('keywords', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(1, function() {
+    var v = getValue();
+    if (!v) return '';
+    var normalized = ctx.normalize(v);
+    return quoteToggle.checked ? ('"' + normalized + '"') : normalized;
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    checkTips();
+    checkSingleWordQuote();
+    ctx.requestUpdate();
+  });
+
+  quoteToggle.addEventListener('change', function() {
+    checkTips();
+    checkSingleWordQuote();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    quoteToggle.checked = false;
+    updateClearBtn();
+    checkTips();
+    checkSingleWordQuote();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldKeywords);
+
+  function registerFieldExactPhrase(ctx) {
+  var input = document.getElementById('field-exact-phrase-input');
+  var clearBtn = document.getElementById('field-exact-phrase-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('exact-phrase', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(2, function() {
+    var v = getValue();
+    if (!v) return '';
+    return '"' + ctx.normalize(v) + '"';
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    updateClearBtn();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldExactPhrase);
+
+  function registerFieldExcluded(ctx) {
+  var input = document.getElementById('field-excluded-input');
+  var clearBtn = document.getElementById('field-excluded-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('excluded', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(3, function() {
+    var v = getValue();
+    if (!v) return '';
+    var tokens = v.split(/\s+/).filter(function(t) { return t.length > 0; });
+    if (!tokens.length) return '';
+    return tokens.map(function(t) { return '-' + ctx.normalize(t); }).join(' ');
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    updateClearBtn();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldExcluded);
+
+  function registerFieldSite(ctx) {
+  var input = document.getElementById('field-site-input');
+  var clearBtn = document.getElementById('field-site-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  function checkArabicWarning() {
+    var v = getValue();
+    if (v && /[\u0600-\u06FF]/.test(v)) {
+      ctx.addWarning('site-arabic-chars', '⚠️ هذا الحقل يتوقع اسم نطاق أو عنوان URL بالأحرف اللاتينية. لن يتطابق Google مع النص العربي في عناوين المواقع.');
+    } else {
+      ctx.removeWarning('site-arabic-chars');
+    }
+  }
+
+  ctx.registerField('site', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      checkArabicWarning();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(4, function() {
+    var v = getValue();
+    if (!v) return '';
+    return 'site:' + v;
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    checkArabicWarning();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    updateClearBtn();
+    checkArabicWarning();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldSite);
 
   /* === SCRIPT_INSERT === */
 
