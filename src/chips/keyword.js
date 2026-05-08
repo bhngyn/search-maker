@@ -143,7 +143,7 @@ export function assemble(chip, ctx) {
 
 /**
  * @param {{ id: string, type: string, props: object }} chip
- * @param {{ onDelete: () => void, onToggleNegate: () => void, onToggleQuoted: () => void, onChangeOperator?: (op: string) => void, onChangeText?: (text: string) => void }} handlers
+ * @param {{ onDelete: () => void, onToggleNegate: () => void, onToggleQuoted: () => void, onChangeOperator?: (op: string) => void, onChangeText?: (text: string) => void, onAddOrBranch?: () => void }} handlers
  */
 export function render(chip, handlers) {
   const op = OPERATORS[chip.props.operator] || OPERATORS.none;
@@ -165,6 +165,24 @@ export function render(chip, handlers) {
     e.stopPropagation();
     handlers.onDelete();
   });
+
+  // "+أو" branch handle — leading-edge button that extends this chip into
+  // an OR group (or appends a new alternative to an existing group). The
+  // chip-area handler walks the chip array forward to find the end of the
+  // contiguous OR run before splicing in the connector + new keyword.
+  let orHandle = null;
+  if (handlers.onAddOrBranch) {
+    orHandle = document.createElement('button');
+    orHandle.type = 'button';
+    orHandle.className = 'chip-or-handle';
+    orHandle.setAttribute('aria-label', 'إضافة بديل بـ "أو"');
+    orHandle.title = 'إضافة بديل بـ "أو"';
+    orHandle.textContent = '+ أو';
+    orHandle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handlers.onAddOrBranch();
+    });
+  }
 
   // Operator badge (LTR mono prefix). Only rendered when an operator is set.
   let opBadge = null;
@@ -268,6 +286,7 @@ export function render(chip, handlers) {
   // Per-chip warning/tip glyph (opens a popover with the issues + fix buttons).
   const glyph = renderWarningGlyph(chip, validate(chip), handlers);
 
+  if (orHandle) el.appendChild(orHandle);
   el.appendChild(del);
   if (opBadge) el.appendChild(opBadge);
   if (glyph) el.appendChild(glyph);

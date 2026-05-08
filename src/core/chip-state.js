@@ -72,6 +72,32 @@ export function createChipState({ ctx, segmentOrder = 100 }) {
     return chip.id;
   }
 
+  /**
+   * Insert a chip immediately after the chip identified by `afterId`.
+   * Returns the new chip's id, or null if `afterId` isn't found or `type`
+   * isn't registered. Used by the per-chip "+أو" handle to splice a new
+   * connector + keyword pair next to an existing chip without an explicit
+   * reorder pass.
+   */
+  function addAfter(afterId, type, props = {}) {
+    if (!chipTypes[type]) {
+      console.warn('unknown chip type', type);
+      return null;
+    }
+    const idx = chips.findIndex(c => c.id === afterId);
+    if (idx < 0) return null;
+    const chip = {
+      id: makeId(),
+      type,
+      props: { ...defaultPropsFor(type), ...props },
+    };
+    chips.splice(idx + 1, 0, chip);
+    cleanupConnectors();
+    notify({ kind: 'add', chip });
+    ctx.requestUpdate();
+    return chip.id;
+  }
+
   function remove(id) {
     const idx = chips.findIndex(c => c.id === id);
     if (idx < 0) return false;
@@ -164,7 +190,7 @@ export function createChipState({ ctx, segmentOrder = 100 }) {
   ctx.registerSegment(segmentOrder, () => assembleChips(chips, ctx));
 
   return {
-    add, remove, removeMany, update, reorder, clear, getAll, subscribe,
+    add, addAfter, remove, removeMany, update, reorder, clear, getAll, subscribe,
     /** Last chip in the list, or null. */
     last() { return chips.length ? chips[chips.length - 1] : null; },
   };

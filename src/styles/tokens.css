@@ -12,6 +12,8 @@
   --warning-bg: #fef3c7;
   --tip: #0369a1;
   --tip-bg: #e0f2fe;
+  /* OR-group framing — accent at ~30% alpha for the dashed outline. */
+  --accent-muted: rgba(37, 99, 235, 0.32);
   --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --gap: 24px;
   --gap-tight: 12px;
@@ -28,5 +30,6 @@
     --warning-bg: #422006;
     --tip: #38bdf8;
     --tip-bg: #082f49;
+    --accent-muted: rgba(56, 189, 248, 0.4);
   }
 }

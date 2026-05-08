@@ -102,7 +102,16 @@ let composerHandle = null;
 const chipAreaHost = document.getElementById('chip-area');
 const composerHost = document.getElementById('composer');
 const chipToolbarHost = document.getElementById('chip-toolbar');
-if (chipAreaHost) wireChipArea({ host: chipAreaHost, chipState, mode, selection: chipSelection });
+// chip-area is wired before the composer exists — pass a thunk that
+// resolves the composer's focus method lazily so empty-state template
+// cards can move focus to the composer once it's mounted.
+if (chipAreaHost) wireChipArea({
+  host: chipAreaHost,
+  chipState,
+  mode,
+  selection: chipSelection,
+  focusComposer: () => { if (composerHandle && composerHandle.focus) composerHandle.focus(); },
+});
 if (chipToolbarHost) wireChipToolbar({ host: chipToolbarHost, chipState, selection: chipSelection, mode });
 if (composerHost) {
   composerHandle = wireComposer({ host: composerHost, chipState });
