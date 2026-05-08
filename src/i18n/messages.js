@@ -494,6 +494,85 @@ export const MESSAGES = {
   // ===== Tip framework =====
   'ui.tip.dismissAria':            { ar: 'إخفاء الاقتراح',                  en: 'Dismiss tip' },
 
+  // ===== Idiom panel chrome (existing) =====
+  'idiom.empty':       { ar: 'لا توجد وصفات لهذا المحرك.', en: 'No recipes for this engine.' },
+  'idiom.pillCount':   {
+    ar: (v) => v.n + ' وصفة',
+    en: (v) => v.n + ' recipe' + (v.n === 1 ? '' : 's'),
+  },
+  'idiom.toggleShow':  { ar: '📖 شروح',           en: '📖 Descriptions' },
+  'idiom.toggleHide':  { ar: '📖 إخفاء الشروح',   en: '📖 Hide descriptions' },
+  // idiom.previewHint removed — unused after the inspector redesign.
+
+  // ===== Idiom panel — search + group filter =====
+  'idiom.search.placeholder': { ar: 'ابحث في الوصفات...', en: 'Search recipes...' },
+  'idiom.groupFilter.label':  { ar: 'تصفية حسب المجموعة', en: 'Filter by group' },
+  'idiom.groupFilter.all':    { ar: 'الكل', en: 'All' },
+
+  // ===== Idiom panel — inspector section headings =====
+  'idiom.section.whatItDoes': { ar: 'ما تفعله الوصفة',        en: 'What this recipe does' },
+  'idiom.section.anatomy':    { ar: 'بنية الوصفة',             en: 'Recipe anatomy' },
+  'idiom.section.howto':      { ar: 'كيف تبنيها يدوياً',       en: 'Build it manually' },
+  'idiom.section.assembled':  { ar: 'النص المُجمَّع',           en: 'Assembled query' },
+
+  // ===== Idiom panel — inspector action buttons =====
+  'idiom.applyRecipe':    { ar: 'أضِف الوصفة كاملة',     en: 'Add recipe to query' },
+  'idiom.replaceRecipe':  { ar: 'استبدل البحث الحالي',   en: 'Replace current query' },
+  'idiom.reapply':        { ar: 'أضِف مرة أخرى',          en: 'Apply again' },
+  'idiom.applied':        { ar: 'مُطبَّقة',                en: 'Applied' },
+  'idiom.addThisChip':    { ar: 'أضِف هذه الكلمة فقط',   en: 'Add only this chip' },
+
+  // ===== Idiom panel — empty / fallback states =====
+  'idiom.search.noResults': {
+    ar: (v) => 'لا توجد وصفات تطابق "' + v.q + '"',
+    en: (v) => 'No recipes match "' + v.q + '"',
+  },
+  'idiom.anatomy.unavailable': {
+    ar: 'تعذّر استخراج بنية الوصفة. اضغط أضِف لتجربتها مباشرة.',
+    en: "Couldn't extract this recipe's anatomy. Press Apply to try it directly.",
+  },
+
+  // ===== Idiom panel — "Build it manually" step templates =====
+  //
+  // Strings use [[...]] markers around control names; the renderer replaces
+  // them with `.idiom-control-mention` styled spans.
+  //
+  // keyword chip — op is not 'none': mention the pill click
+  'idiom.howto.keyword': {
+    ar: (v) => 'اكتب «' + v.text + '» في صندوق الكلمة، اضغط [[' + v.opLabel + ']] من شريط المؤشرات، ثم Enter.',
+    en: (v) => 'Type "' + v.text + '" in the keyword box, click [[' + v.opLabel + ']] in the operator row, then Enter.',
+  },
+  // keyword chip — op is 'none' (plain word): skip the pill step
+  'idiom.howto.keyword.plain': {
+    ar: (v) => 'اكتب «' + v.text + '»، ثم اضغط Enter.',
+    en: (v) => 'Type "' + v.text + '", then press Enter.',
+  },
+  // keyword chip — text is empty (placeholder chip): generic instruction
+  'idiom.howto.keyword.empty': {
+    ar: (v) => 'اكتب الكلمة المرغوبة، اضغط [[' + v.opLabel + ']]، ثم Enter.',
+    en: (v) => 'Type your search term, click [[' + v.opLabel + ']], then Enter.',
+  },
+  // sub-step added when negate: true
+  'idiom.howto.negate': {
+    ar: '(اضغط [[− NOT]] قبل Enter لاستبعاد الكلمة، أو ابدأ بـ "-".)',
+    en: '(Press [[− NOT]] before Enter to exclude, or start with "-".)',
+  },
+  // sub-step added when quoted: true
+  'idiom.howto.quote': {
+    ar: '(فعّل [[اقتباس حرفي]] قبل Enter.)',
+    en: '(Toggle [[Literal quote]] before Enter.)',
+  },
+  // or-connector chip
+  'idiom.howto.or': {
+    ar: 'اضغط [[+أو]] على آخر كلمة، ثم اكتب البديل.',
+    en: 'Click [[+Or]] on the previous chip, then type the alternative.',
+  },
+  // special chip types (filetype, date-range, proximity, number-range, filter, engagement)
+  'idiom.howto.special': {
+    ar: (v) => 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]، ثم اضبط الحقول.',
+    en: (v) => 'Click [[+ Add]], pick [[' + v.itemLabel + ']], then fill the fields.',
+  },
+
   // ===== Warnings =====
   'warning.queryTooLong':          {
     ar: (v) => '⚠️ الاستعلام طويل (' + v.count + ' كلمة). Google قد يُعيد نتائج قليلة أو لا شيء عند تجاوز نحو 32 كلمة. حاول تبسيط البحث.',
