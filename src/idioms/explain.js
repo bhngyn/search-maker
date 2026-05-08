@@ -318,7 +318,7 @@ export function explainAnatomy(captured, engine) {
   ]).then(([sandboxMod, googleIdiomsmod, xIdiomsMod, googleEngine, xEngine]) => {
     const { captureAnatomy } = sandboxMod;
     const testCases = [
-      { engine: googleEngine.default, idioms: googleIdiomsmod.IDIOMS, ids: ['gov-only', 'arab-gov-tlds'] },
+      { engine: googleEngine.default, idioms: googleIdiomsmod.IDIOMS, ids: ['facebook-groups', 'subdomain-discovery'] },
       { engine: xEngine.default,      idioms: xIdiomsMod.IDIOMS,      ids: ['first-tweeter', 'thread-top-replies'] },
     ];
     for (const { engine, idioms, ids } of testCases) {

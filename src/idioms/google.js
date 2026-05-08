@@ -6,56 +6,53 @@
 // his stated favorite operator is `intext:` (Row 6); his signature idioms
 // (subdomain-discovery, fill-blank, subdomain-star) anchor Row 1 and Row 7.
 //
-// Arab-region tactical idioms (`arab-gov-tlds`, `arabic-leak-stamps`,
-// `arabic-name-variants`) translate Russell's "search by synonyms" principle
-// into the multi-state, multi-script reality of Arabic-language OSINT.
+// Arab-region tactical idioms (`arabic-leak-stamps`, `arabic-name-variants`)
+// translate Russell's "search by synonyms" principle into the multi-state,
+// multi-script reality of Arabic-language OSINT.
 
 export const IDIOMS = [
   // ── Row 1: نطاقات ─────────────────────────────────────────────────────────
   {
-    id: 'gov-only',
-    title: { ar: 'حكومي أمريكي فقط', en: 'US government only' },
-    icon: '🏛️',
-    pattern: 'site:.gov',
+    id: 'facebook-groups',
+    title: { ar: 'مجموعات Facebook', en: 'Facebook groups' },
+    icon: '👥',
+    pattern: 'site:facebook.com inurl:groups',
     description: {
-      ar: 'يقصر النتائج على نطاقات .gov، وهي حصراً للحكومة الفيدرالية الأمريكية. مدخل سريع للتقارير والإحصاءات والوثائق الرسمية الأمريكية الأصلية. للجهات الحكومية العربية، استخدم وصفة "جهات حكومية عربية" التي تعتمد لاحقات .gov.sa و.gov.ae و.gov.eg وغيرها.',
-      en: 'Limits results to .gov domains — reserved exclusively for the US federal government. A fast door into US federal reports, statistics, and original official documents without media noise. For Arab government bodies, use the "Arab government TLDs" recipe (which targets .gov.sa, .gov.ae, .gov.eg, and friends).',
+      ar: 'يحصر النتائج بمحادثات مجموعات Facebook التي يفهرسها Google. النقاش داخل المجموعات أكثر صراحة من الصفحات العامة، وغالباً يحوي تسريبات لقطات شاشة وآراء محلية لا تظهر في صفحة عامة. أضف كلمة موضوع لاستهداف نقاش بعينه.',
+      en: 'Restricts results to Facebook group discussions that Google has indexed. Group conversations are more candid than public pages and often contain leaked screenshots, local sentiment, and niche discussion you won\'t find on a public page. Add a topic keyword to home in on a specific debate.',
     },
     group: 'sites',
     apply(chipState) {
-      chipState.add('keyword', { operator: 'site', text: '.gov' });
+      chipState.add('keyword', { operator: 'site', text: 'facebook.com' });
+      chipState.add('keyword', { operator: 'inurl', text: 'groups' });
     },
   },
   {
-    id: 'edu-only',
-    title: { ar: 'جامعي فقط', en: 'Universities only' },
-    icon: '🎓',
-    pattern: 'site:.edu',
+    id: 'tiktok-only',
+    title: { ar: 'تيك توك فقط', en: 'TikTok only' },
+    icon: '🎵',
+    pattern: 'site:tiktok.com',
     description: {
-      ar: 'نتائج من الجامعات. الأبحاث والأطروحات تُنشر هنا، لا في المواقع الإخبارية.',
-      en: 'University-only results. Academic research and theses live here, not on news sites.',
+      ar: 'يبحث في تيك توك عبر فهرس Google بدلاً من بحث التطبيق الداخلي. مفيد للوصول إلى مقاطع شاهد عيان، اتجاهات إقليمية، ومحتوى أزاله البحث الداخلي للتطبيق أو خفّضه. عدّل النطاق إلى vm.tiktok.com لاستهداف الروابط المختصرة.',
+      en: 'Searches TikTok through Google\'s index instead of the in-app search. Useful for surfacing eyewitness clips, regional trends, and content that TikTok\'s own search has buried or de-ranked. Swap the domain to vm.tiktok.com to target short links.',
     },
     group: 'sites',
     apply(chipState) {
-      chipState.add('keyword', { operator: 'site', text: '.edu' });
+      chipState.add('keyword', { operator: 'site', text: 'tiktok.com' });
     },
   },
   {
-    id: 'arab-gov-tlds',
-    title: { ar: 'جهات حكومية عربية', en: 'Arab government TLDs' },
-    icon: '🌍',
-    pattern: 'site:.gov.sa OR site:.gov.ae OR site:.gov.eg',
+    id: 'youtube-only',
+    title: { ar: 'يوتيوب فقط', en: 'YouTube only' },
+    icon: '▶️',
+    pattern: 'site:youtube.com',
     description: {
-      ar: 'شبكة المصادر الحكومية العربية في استعلام واحد بدلاً من ثلاثة متتالية. عدّل النطاقات لتشمل الدول التي تهمّك (.gov.qa, .gov.bh, .gov.ma...).',
-      en: 'Arab government sources in a single query instead of three sequential searches. Adjust the TLDs for the countries you care about (.gov.qa, .gov.bh, .gov.ma…).',
+      ar: 'يحصر النتائج بفيديوهات وقنوات يوتيوب. Google يفهرس عناوين الفيديوهات وأوصافها، لذا يمكن العثور على خطابات مؤرشفة، صحافة مواطن طويلة، ومقابلات قديمة لا يجدها بحث يوتيوب الداخلي. أضف "before:" أو "after:" لتضييق النافذة الزمنية.',
+      en: 'Limits results to YouTube videos and channels. Google indexes video titles and descriptions, so this surfaces archived speeches, long-form citizen journalism, and older interviews that YouTube\'s native search misses. Add a `before:` or `after:` to narrow the time window.',
     },
     group: 'sites',
     apply(chipState) {
-      const id1 = chipState.add('keyword', { operator: 'site', text: '.gov.sa' });
-      const orId1 = chipState.addAfter(id1, 'or-connector', { kind: 'or' });
-      const id2 = chipState.addAfter(orId1, 'keyword', { operator: 'site', text: '.gov.ae' });
-      const orId2 = chipState.addAfter(id2, 'or-connector', { kind: 'or' });
-      chipState.addAfter(orId2, 'keyword', { operator: 'site', text: '.gov.eg' });
+      chipState.add('keyword', { operator: 'site', text: 'youtube.com' });
     },
   },
   {
