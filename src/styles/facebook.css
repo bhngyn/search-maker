@@ -134,9 +134,6 @@ body.engine-facebook main { padding-bottom: 140px; }
 .fb-cat-label { font-size: 14px; font-weight: 600; }
 .fb-cat-hint  { font-size: 11px; color: var(--fg-muted); line-height: 1.4; }
 .fb-cat-btn.is-active .fb-cat-hint { color: var(--fg); opacity: 0.85; }
-@media (prefers-color-scheme: dark) {
-  .fb-cat-btn.is-active { background: rgba(56, 189, 248, 0.14); }
-}
 
 /* ===== Keyword input ===== */
 .fb-form-keyword .fb-form-legend {
@@ -182,12 +179,7 @@ body.engine-facebook main { padding-bottom: 140px; }
 }
 .fb-radio-row:hover { background: var(--bg-subtle); }
 .fb-radio-row:has(input[type="radio"]:checked) {
-  background: rgba(37, 99, 235, 0.08);
-}
-@media (prefers-color-scheme: dark) {
-  .fb-radio-row:has(input[type="radio"]:checked) {
-    background: rgba(56, 189, 248, 0.12);
-  }
+  background: rgba(56, 189, 248, 0.12);
 }
 .fb-radio-row input[type="radio"],
 .fb-toggle-row input[type="checkbox"] {
@@ -301,11 +293,8 @@ body.engine-facebook main { padding-bottom: 140px; }
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16);
 }
 
-/* Date pickers in dark mode use the system widget — leave color-scheme as
-   default. The Safari date picker icon will follow prefers-color-scheme. */
-@media (prefers-color-scheme: dark) {
-  .fb-date-input { color-scheme: dark; }
-}
+/* Date pickers use the dark system widget. */
+.fb-date-input { color-scheme: dark; }
 
 /* ===== Preview tweaks: when Facebook is active the box holds a URL,
    not a query. Word-break for long URLs and slightly smaller font. ===== */

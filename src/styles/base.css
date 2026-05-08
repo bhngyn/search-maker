@@ -3,6 +3,7 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
+html { color-scheme: dark; }
 body {
   font-family: "Segoe UI", Tahoma, "Geeza Pro", "Arabic Typesetting", system-ui, sans-serif;
   background: var(--bg);
@@ -11,12 +12,14 @@ body {
   min-height: 100vh;
 }
 
-/* ===== App shell ===== */
-/* Take advantage of the full viewport width — this is a single-column
-   layout, so individual elements still cap their own widths where it
-   makes sense (preview box, chip rows). The outer shell stays generous
-   so chip-area, composer, and templates row stretch on wide displays. */
-.app { max-width: min(1600px, 98vw); margin: 0 auto; padding: 24px; }
+/* ===== App shell =====
+   Single centered column capped at --page-max-width. The floor keeps
+   16px gutters on narrow viewports so content never touches the edge. */
+.app {
+  max-width: min(var(--page-max-width), calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 20px 24px;
+}
 
 /* ===== Header ===== */
 .app-header {
@@ -82,7 +85,7 @@ body {
   color: var(--fg-muted);
   min-width: 280px;
   max-width: 360px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 .normalize-info-panel[hidden] { display: none; }
 

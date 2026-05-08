@@ -226,7 +226,7 @@
   color: var(--fg);
   border: 1.5px solid var(--accent-muted);
   border-radius: 10px;
-  box-shadow: 0 1px 0 var(--bg-subtle), 0 2px 6px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 0 var(--bg-subtle), 0 2px 6px rgba(0, 0, 0, 0.35);
   transition: border-color 150ms, box-shadow 150ms;
 }
 .composer-input::placeholder {
@@ -336,13 +336,8 @@
   background: var(--bg);
   border-top: 1px solid var(--border);
   /* Faint shadow above so users notice it sticks. */
-  box-shadow: 0 -4px 12px -4px rgba(0,0,0,0.08);
+  box-shadow: 0 -4px 12px -4px rgba(0,0,0,0.4);
   z-index: 10;
-}
-@media (prefers-color-scheme: dark) {
-  .preview-section.preview-section-sticky {
-    box-shadow: 0 -4px 12px -4px rgba(0,0,0,0.4);
-  }
 }
 .preview-section-sticky .preview-heading { display: none; }
 .preview-section-sticky .preview-box {
@@ -397,14 +392,11 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 10px;
-  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.18), 0 4px 8px -2px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 8px -2px rgba(0,0,0,0.3);
   padding: 4px;
   min-width: 240px;
   font-size: 13px;
   line-height: 1.4;
-}
-@media (prefers-color-scheme: dark) {
-  .chip-warning-popover { box-shadow: 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 8px -2px rgba(0,0,0,0.3); }
 }
 .chip-warning-popover-issue {
   display: flex;
@@ -633,16 +625,13 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 10px;
-  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.18), 0 4px 8px -2px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 8px -2px rgba(0,0,0,0.3);
   padding: 6px;
   min-width: 240px;
   max-width: 320px;
   z-index: 100;
   overflow-y: auto;
   font-size: 14px;
-}
-@media (prefers-color-scheme: dark) {
-  .drawer-panel { box-shadow: 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 8px -2px rgba(0,0,0,0.3); }
 }
 .drawer-section { padding: 6px 0; }
 .drawer-section + .drawer-section { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 8px; }
@@ -1148,7 +1137,7 @@
 }
 .chip-area-empty-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 @media (max-width: 600px) {
@@ -1273,7 +1262,7 @@
   background: var(--bg);
   border: 1px solid var(--accent);
   border-radius: 8px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
   font-size: 13px;
   color: var(--fg);
 }
