@@ -53,7 +53,7 @@ export function wireDrawer({ trigger, chipState, engine }) {
     if (item.kind === 'keyword') {
       return () => chipState.add('keyword', { operator: item.operator });
     }
-    return () => chipState.add(item.type, {});
+    return () => chipState.add(item.type, item.props || {});
   }
 
   function buildItem(key) {
@@ -65,10 +65,11 @@ export function wireDrawer({ trigger, chipState, engine }) {
     btn.className = 'drawer-item';
     // The badge is a Latin operator name; keep it explicitly LTR so it
     // renders correctly inside the RTL panel.
+    const descHtml = item.desc ? `<span class="drawer-item-desc">${t(item.desc)}</span>` : '';
     btn.innerHTML = `
       <span class="drawer-item-text">
         <span class="drawer-item-label">${t(item.label)}</span>
-        <span class="drawer-item-desc">${t(item.desc)}</span>
+        ${descHtml}
       </span>
       <span class="drawer-item-badge" dir="ltr">${item.badge}</span>
     `;

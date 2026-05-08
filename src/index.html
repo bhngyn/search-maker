@@ -10,21 +10,27 @@
 <div class="app">
 
   <header class="app-header">
-    <div>
+    <div class="app-header-titles">
       <h1 class="app-title" id="app-title"></h1>
       <p class="app-subtitle" id="app-subtitle"></p>
     </div>
-    <div class="header-controls">
-      <div class="engine-toggle" role="group" id="engine-toggle-group" aria-label="">
-        <button id="engine-btn-google" type="button" aria-pressed="true">Google</button>
-        <button id="engine-btn-x" type="button" aria-pressed="false"></button>
-        <button id="engine-btn-facebook" type="button" aria-pressed="false">Facebook</button>
+    <div class="app-controls" role="group" aria-label="إعدادات الأداة">
+      <div class="control-group">
+        <span class="control-label">محرك البحث</span>
+        <div class="engine-toggle" role="group" id="engine-toggle-group" aria-label="">
+          <button id="engine-btn-google" type="button" aria-pressed="true">Google</button>
+          <button id="engine-btn-x" type="button" aria-pressed="false"></button>
+          <button id="engine-btn-facebook" type="button" aria-pressed="false">Facebook</button>
+        </div>
       </div>
-      <div class="header-controls-secondary">
+      <div class="control-group">
+        <span class="control-label">اللغة</span>
         <div class="lang-toggle" role="group" id="lang-toggle-group" aria-label="">
           <button id="lang-btn-ar" type="button" aria-pressed="true"></button>
           <button id="lang-btn-en" type="button" aria-pressed="false"></button>
         </div>
+      </div>
+      <div class="control-group control-group-normalize">
         <div class="normalize-toggle">
           <label>
             <input type="checkbox" id="normalize-toggle-input">
@@ -32,8 +38,8 @@
           </label>
           <button type="button" id="normalize-info-btn" class="normalize-info-btn" aria-expanded="false" aria-controls="normalize-info-panel" title="">i</button>
         </div>
+        <div id="normalize-info-panel" class="normalize-info-panel" hidden></div>
       </div>
-      <div id="normalize-info-panel" class="normalize-info-panel" hidden></div>
     </div>
   </header>
 
@@ -44,7 +50,6 @@
         <button type="button" class="welcome-close-btn" id="welcome-close-btn" aria-label=""></button>
       </p>
     </section>
-    <button id="welcome-reopen-btn" type="button" class="welcome-reopen" hidden></button>
 
     <section id="idiom-panel" class="idiom-panel" data-state="closed" data-descriptions="hidden">
       <button class="idiom-panel-pill" type="button" aria-expanded="false" aria-controls="idiom-panel-body">
@@ -79,13 +84,15 @@
       <h2 class="preview-heading" id="preview-heading"></h2>
       <div id="preview-box" class="preview-box empty" dir="ltr" aria-live="polite"></div>
       <div class="action-row">
-        <button id="copy-btn" class="btn-primary" type="button" disabled></button>
+        <button id="copy-btn" class="btn-emphasis" type="button" disabled></button>
         <button id="search-btn" class="btn-primary" type="button" disabled></button>
         <button id="undo-btn" class="btn-secondary" type="button" disabled aria-keyshortcuts="Control+Z Meta+Z"></button>
-        <button id="reset-btn" class="btn-secondary" type="button"></button>
+        <button id="reset-btn" class="btn-danger" type="button"></button>
       </div>
     </section>
   </main>
+
+  <footer class="app-version" id="app-version" aria-label=""></footer>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </div>

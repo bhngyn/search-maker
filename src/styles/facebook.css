@@ -20,7 +20,6 @@ body.engine-facebook .chip-section,
 body.engine-facebook #warnings-region,
 body.engine-facebook #tips-region,
 body.engine-facebook #welcome-panel,
-body.engine-facebook #welcome-reopen-btn,
 body.engine-facebook #undo-btn { display: none !important; }
 
 /* Bottom padding on main so the last form section scrolls clear of the
@@ -62,7 +61,7 @@ body.engine-facebook main { padding-bottom: 140px; }
 
 .fb-form-legend {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--fg-muted);
   letter-spacing: 0.02em;
@@ -71,14 +70,14 @@ body.engine-facebook main { padding-bottom: 140px; }
 
 .fb-form-hint {
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fg-muted);
   line-height: 1.5;
 }
 
 .fb-form-empty {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg-muted);
   font-style: italic;
 }
@@ -93,7 +92,7 @@ body.engine-facebook main { padding-bottom: 140px; }
   padding: 16px;
 }
 .fb-form-categories .fb-form-legend {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--fg);
   margin-bottom: 4px;
 }
@@ -131,16 +130,13 @@ body.engine-facebook main { padding-bottom: 140px; }
   border-color: var(--accent);
   box-shadow: inset 0 0 0 1px var(--accent);
 }
-.fb-cat-label { font-size: 14px; font-weight: 600; }
-.fb-cat-hint  { font-size: 11px; color: var(--fg-muted); line-height: 1.4; }
+.fb-cat-label { font-size: 15px; font-weight: 600; }
+.fb-cat-hint  { font-size: 12px; color: var(--fg-muted); line-height: 1.4; }
 .fb-cat-btn.is-active .fb-cat-hint { color: var(--fg); opacity: 0.85; }
-@media (prefers-color-scheme: dark) {
-  .fb-cat-btn.is-active { background: rgba(56, 189, 248, 0.14); }
-}
 
 /* ===== Keyword input ===== */
 .fb-form-keyword .fb-form-legend {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--fg);
   font-weight: 600;
 }
@@ -182,12 +178,7 @@ body.engine-facebook main { padding-bottom: 140px; }
 }
 .fb-radio-row:hover { background: var(--bg-subtle); }
 .fb-radio-row:has(input[type="radio"]:checked) {
-  background: rgba(37, 99, 235, 0.08);
-}
-@media (prefers-color-scheme: dark) {
-  .fb-radio-row:has(input[type="radio"]:checked) {
-    background: rgba(56, 189, 248, 0.12);
-  }
+  background: rgba(56, 189, 248, 0.12);
 }
 .fb-radio-row input[type="radio"],
 .fb-toggle-row input[type="checkbox"] {
@@ -199,7 +190,7 @@ body.engine-facebook main { padding-bottom: 140px; }
   flex-shrink: 0;
 }
 .fb-radio-label {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--fg);
   flex: 1;
   min-width: 100px;
@@ -214,7 +205,7 @@ body.engine-facebook main { padding-bottom: 140px; }
   min-width: 200px;
   padding: 8px 10px;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-family: var(--mono);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -230,7 +221,7 @@ body.engine-facebook main { padding-bottom: 140px; }
 .fb-id-input::placeholder { color: var(--fg-muted); opacity: 0.7; }
 .fb-id-hint {
   flex-basis: 100%;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--fg-muted);
   margin-inline-start: 28px;
 }
@@ -262,14 +253,14 @@ body.engine-facebook main { padding-bottom: 140px; }
   padding: 4px 0;
 }
 .fb-date-label {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg-muted);
   font-weight: 600;
   min-width: 32px;
 }
 .fb-date-input {
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-family: var(--mono);
   padding: 8px 10px;
   border: 1px solid var(--border);
@@ -289,7 +280,7 @@ body.engine-facebook main { padding-bottom: 140px; }
 .fb-date-row .date-trigger-wrap { display: inline-flex; align-items: center; }
 .fb-date-row .date-trigger {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 14px;
   padding: 8px 28px 8px 10px;
   min-width: 160px;
   min-height: 38px;
@@ -301,16 +292,13 @@ body.engine-facebook main { padding-bottom: 140px; }
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16);
 }
 
-/* Date pickers in dark mode use the system widget — leave color-scheme as
-   default. The Safari date picker icon will follow prefers-color-scheme. */
-@media (prefers-color-scheme: dark) {
-  .fb-date-input { color-scheme: dark; }
-}
+/* Date pickers use the dark system widget. */
+.fb-date-input { color-scheme: dark; }
 
 /* ===== Preview tweaks: when Facebook is active the box holds a URL,
    not a query. Word-break for long URLs and slightly smaller font. ===== */
 body.engine-facebook .preview-box:not(.empty) {
   word-break: break-all;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.55;
 }

@@ -1,9 +1,12 @@
 /* Chip-based composer + chip area + sticky visualizer.
    Phase 4: lives ABOVE the existing form. Phase 5 will absorb the form. */
 
-/* ===== Section frame ===== */
+/* ===== Section frame =====
+   Lifted one surface tier (--bg-elevated) so the active workspace pops
+   above the page background and the recessed sticky-preview below reads
+   as a different region by contrast. */
 .chip-section {
-  background: var(--bg-subtle);
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 14px;
@@ -14,7 +17,7 @@
 }
 .chip-section h2 {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg-muted);
   font-weight: 500;
 }
@@ -35,7 +38,7 @@
   margin: 0;
   padding: 4px 8px;
   color: var(--fg-muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* ===== Chip pill ===== */
@@ -47,7 +50,7 @@
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 4px 8px 4px 4px;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.3;
   max-width: 100%;
   transition: border-color 150ms, background 150ms;
@@ -87,7 +90,7 @@
 
 .chip-op-badge {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   background: var(--bg);
   color: var(--accent);
   padding: 2px 6px;
@@ -100,7 +103,7 @@
 
 .chip-neg-prefix {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--warning);
   padding: 0 2px 0 4px;
   font-weight: 700;
@@ -111,7 +114,7 @@
   border: 1px solid var(--border);
   border-radius: 4px;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg-muted);
   padding: 2px 4px;
   cursor: pointer;
@@ -135,7 +138,7 @@
   padding: 4px 6px;
   border-radius: 4px;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1;
   min-width: 24px;
   min-height: 24px;
@@ -181,7 +184,7 @@
   border-radius: 6px;
   padding: 2px 6px;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
 }
 .chip-or-text { padding: 0 4px; }
 
@@ -226,7 +229,7 @@
   color: var(--fg);
   border: 1.5px solid var(--accent-muted);
   border-radius: 10px;
-  box-shadow: 0 1px 0 var(--bg-subtle), 0 2px 6px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 0 var(--bg-subtle), 0 2px 6px rgba(0, 0, 0, 0.35);
   transition: border-color 150ms, box-shadow 150ms;
 }
 .composer-input::placeholder {
@@ -251,7 +254,7 @@
   min-height: 44px;
   padding: 10px 14px;
   font: inherit;
-  font-size: 15px;
+  font-size: 16px;
   background: var(--bg);
   color: var(--fg);
   border: 1px solid var(--border);
@@ -275,14 +278,14 @@
 
 .composer-btn-hint {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
   margin-inline-start: 4px;
   opacity: 0.85;
 }
 
 .composer-hint {
   margin: 0;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.4;
   color: var(--fg-muted);
   opacity: 0.85;
@@ -305,7 +308,7 @@
   opacity: 0.85;
 }
 .composer-ghost-label {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fg-muted);
 }
 .composer-ghost-chip {
@@ -315,7 +318,7 @@
   border: 1px dashed var(--accent);
   border-radius: 999px;
   padding: 4px 12px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--fg);
   font-style: italic;
   max-width: 100%;
@@ -336,13 +339,8 @@
   background: var(--bg);
   border-top: 1px solid var(--border);
   /* Faint shadow above so users notice it sticks. */
-  box-shadow: 0 -4px 12px -4px rgba(0,0,0,0.08);
+  box-shadow: 0 -4px 12px -4px rgba(0,0,0,0.4);
   z-index: 10;
-}
-@media (prefers-color-scheme: dark) {
-  .preview-section.preview-section-sticky {
-    box-shadow: 0 -4px 12px -4px rgba(0,0,0,0.4);
-  }
 }
 .preview-section-sticky .preview-heading { display: none; }
 .preview-section-sticky .preview-box {
@@ -376,7 +374,7 @@
   cursor: pointer;
   padding: 2px 4px;
   margin: 0 2px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1;
   border-radius: 50%;
   min-width: 22px;
@@ -397,14 +395,11 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 10px;
-  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.18), 0 4px 8px -2px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 8px -2px rgba(0,0,0,0.3);
   padding: 4px;
   min-width: 240px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
-}
-@media (prefers-color-scheme: dark) {
-  .chip-warning-popover { box-shadow: 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 8px -2px rgba(0,0,0,0.3); }
 }
 .chip-warning-popover-issue {
   display: flex;
@@ -441,7 +436,7 @@
 .chip-warning-popover-fix {
   align-self: flex-start;
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
   padding: 4px 10px;
   background: var(--accent);
   color: var(--accent-fg);
@@ -470,7 +465,7 @@
   border: 1px solid var(--accent);
   border-radius: 8px;
   margin-top: 4px;
-  font-size: 13px;
+  font-size: 14px;
 }
 .chip-toolbar[hidden] { display: none; }
 .chip-toolbar-count {
@@ -486,7 +481,7 @@
 }
 .chip-toolbar-select {
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   padding: 4px 8px;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -498,7 +493,7 @@
 .chip-toolbar-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .chip-toolbar-btn {
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   padding: 6px 12px;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -566,13 +561,13 @@
   flex-wrap: wrap;
 }
 .chip-wide-input-label {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fg-muted);
   white-space: nowrap;
 }
 .chip-wide-input {
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   padding: 4px 8px;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -589,7 +584,7 @@
 
 .chip-wide-select {
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   padding: 4px 8px;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -603,7 +598,7 @@
 /* ===== Engagement chip — direction toggle ===== */
 .chip-engagement-dir {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
   padding: 4px 10px;
   white-space: nowrap;
 }
@@ -633,7 +628,7 @@
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 10px;
-  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.18), 0 4px 8px -2px rgba(0,0,0,0.08);
+  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 8px -2px rgba(0,0,0,0.3);
   padding: 6px;
   min-width: 240px;
   max-width: 320px;
@@ -641,13 +636,10 @@
   overflow-y: auto;
   font-size: 14px;
 }
-@media (prefers-color-scheme: dark) {
-  .drawer-panel { box-shadow: 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 8px -2px rgba(0,0,0,0.3); }
-}
 .drawer-section { padding: 6px 0; }
 .drawer-section + .drawer-section { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 8px; }
 .drawer-section-heading {
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--fg-muted);
@@ -682,7 +674,7 @@
 .drawer-more { padding: 6px 8px; }
 .drawer-more summary {
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fg-muted);
   padding: 4px 0;
   list-style: none;
@@ -716,20 +708,20 @@
 }
 .drawer-item-label {
   flex: none;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--fg);
   line-height: 1.3;
 }
 .drawer-item-desc {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fg-muted);
   line-height: 1.4;
 }
 .drawer-item-badge {
   flex: 0 0 auto;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--fg-muted);
   background: var(--bg-subtle);
   border: 1px solid var(--border);
@@ -753,27 +745,6 @@
 .chip-warning-popover-above {
   /* No visual change yet — left intentionally minimal. */
 }
-
-/* === Welcome re-open link (B6) === */
-/* A small, unobtrusive "I changed my mind" link that appears in place of
-   the welcome panel after the user collapses it. Hidden in Advanced mode
-   alongside the panel itself. */
-.welcome-reopen {
-  display: inline-block;
-  background: transparent;
-  border: 0;
-  color: var(--fg-muted);
-  cursor: pointer;
-  font: inherit;
-  font-size: 13px;
-  padding: 6px 10px;
-  margin: 0 0 16px 0;
-  min-height: 32px;
-  border-radius: 4px;
-}
-.welcome-reopen:hover { color: var(--fg); text-decoration: underline; }
-.welcome-reopen:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.welcome-reopen[hidden] { display: none !important; }
 
 /* === Composer redesign (A1+A3) ===
    New rules added after the redesign. Older composer rules above remain for
@@ -814,7 +785,7 @@
 }
 .composer-ghost-op-badge {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 12px;
   background: var(--bg-subtle);
   color: var(--accent);
   padding: 1px 5px;
@@ -832,6 +803,15 @@
   flex-wrap: wrap;
   gap: 6px;
 }
+
+/* Operator pills + quote toggle share one wrapping row so the literal-match
+   modifier sits next to the operator choice instead of on a row of its own. */
+.composer-op-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
 .composer-op-pill {
   display: inline-flex;
   flex-direction: column;
@@ -844,7 +824,7 @@
   border-radius: 999px;
   padding: 4px 10px;
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
   min-height: 32px;
   line-height: 1.15;
@@ -860,10 +840,12 @@
 .composer-op-pill-label { font-weight: 500; }
 .composer-op-pill-badge {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   opacity: 0.75;
 }
 .composer-op-pill[aria-pressed="true"] .composer-op-pill-badge { opacity: 0.85; }
+.composer-op-pill-instant { border-style: dashed; }
+.composer-op-pill-instant:hover { border-style: dashed; border-color: var(--accent); }
 
 /* === Composer quote toggle (Beginner only) ===
    Independent of the operator pills (orthogonal: any operator + quoted).
@@ -887,7 +869,7 @@
   border-radius: 999px;
   padding: 4px 12px;
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
   min-height: 32px;
   transition: background 120ms, border-color 120ms, color 120ms;
@@ -909,16 +891,80 @@
   border-color: var(--accent);
   color: var(--accent);
 }
+/* === Composer modifier row ===
+   NOT and OR are pre-commit boolean modifiers — distinct semantics from the
+   operator pills (which select a content operator) and the quote toggle
+   (which wraps in literal-match). They get their own row with a tinted
+   surface and a leading-edge label so the separation reads at a glance. */
+.composer-modifier-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: var(--bg-subtle);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+.composer-modifier-row-label {
+  font-size: 12px;
+  color: var(--fg-muted);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  margin-inline-end: 4px;
+  white-space: nowrap;
+}
+.composer-modifier-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  min-height: 32px;
+  transition: background 120ms, border-color 120ms, color 120ms;
+}
+.composer-modifier-toggle:hover { border-color: var(--accent); background: var(--bg-subtle); }
+.composer-modifier-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.composer-modifier-toggle-glyph {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+}
+.composer-modifier-toggle-label { font-weight: 500; }
+.composer-not-toggle[aria-pressed="true"] {
+  background: var(--warning, #fbbf24);
+  border-color: var(--warning, #fbbf24);
+  color: var(--accent-fg, #0f172a);
+}
+.composer-or-toggle[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
+}
+.composer-ghost-or {
+  font-family: var(--mono);
+  color: var(--accent);
+  font-weight: 600;
+  margin-inline-end: 4px;
+}
 .composer-quote-toggle-glyph {
   font-family: var(--mono);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1;
 }
 .composer-quote-toggle-label { font-weight: 500; }
 .composer-quote-hint {
   margin: 0;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--fg-muted);
   opacity: 0.85;
 }
@@ -951,7 +997,7 @@
   border-radius: 6px;
   padding: 4px 12px;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
   min-height: 32px;
 }
@@ -964,7 +1010,7 @@
 .composer-ghost-paste-hint {
   display: none;
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--fg-muted);
   padding: 6px 10px;
   background: var(--bg-subtle);
@@ -986,7 +1032,7 @@
   color: var(--fg-muted);
   cursor: pointer;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1;
   padding: 4px 8px;
@@ -1011,6 +1057,50 @@
 }
 .chip-or-handle:focus-visible {
   outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* "− ليس" / "− NOT" toggle — visual sibling of .chip-or-handle so the two
+   boolean modifiers read at the same weight on every keyword chip. Warning
+   palette signals exclusion semantics distinct from OR's accent palette.
+   When pressed the button takes a solid filled state so the chip's negate
+   flag is legible without leaning on the small leading "−" prefix. */
+.chip-not-handle {
+  background: transparent;
+  border: 1px dashed var(--warning, #f47272);
+  color: var(--fg-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 4px;
+  min-width: 32px;
+  min-height: 28px;
+  margin-inline-start: 4px;
+  white-space: nowrap;
+  transition: background 120ms, border-color 120ms, color 120ms, border-style 120ms;
+}
+.chip:hover .chip-not-handle,
+.chip:focus-within .chip-not-handle {
+  color: var(--warning, #f47272);
+  border-style: solid;
+}
+.chip-not-handle:hover {
+  background: var(--warning-soft, rgba(244, 114, 114, 0.18));
+  border-color: var(--warning, #f47272);
+  color: var(--warning, #f47272);
+  border-style: solid;
+}
+.chip-not-handle[aria-pressed="true"] {
+  background: var(--warning, #f47272);
+  border-color: var(--warning, #f47272);
+  color: var(--accent-fg, #fff);
+  border-style: solid;
+}
+.chip-not-handle:focus-visible {
+  outline: 2px solid var(--warning, #f47272);
   outline-offset: 1px;
 }
 
@@ -1049,7 +1139,7 @@
   flex-wrap: wrap;
   gap: 6px;
   flex-basis: 100%;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--tip);
   margin-bottom: 2px;
@@ -1061,7 +1151,7 @@
 .chip-or-group-label-text { font-weight: 600; }
 .chip-or-group-label-helper {
   margin-inline-start: 2px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--fg-muted);
 }
@@ -1075,7 +1165,7 @@
   border-radius: 999px;
   color: var(--tip);
   padding: 2px 8px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   opacity: 1;
 }
@@ -1091,7 +1181,7 @@
   border: 1px dashed var(--tip);
   color: var(--tip);
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   padding: 4px 12px;
@@ -1117,7 +1207,7 @@
 .chip-and-seam {
   display: inline-flex;
   align-items: center;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--fg-muted);
   padding: 0 8px;
@@ -1199,7 +1289,7 @@
   text-align: start;
   padding-inline-end: 24px;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
 }
 .date-trigger:hover { border-color: var(--accent); }
 .date-trigger-label--placeholder {
@@ -1230,8 +1320,8 @@
   background: var(--bg);
   border: 1px solid var(--accent);
   border-radius: 8px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
-  font-size: 13px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  font-size: 14px;
   color: var(--fg);
 }
 .date-picker-header {
@@ -1244,7 +1334,7 @@
   flex: 1;
   text-align: center;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
 }
 .date-picker-nav {
   width: 28px; height: 28px;
@@ -1268,7 +1358,7 @@
 }
 .date-picker-weekday {
   text-align: center;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--fg-muted);
   padding: 4px 0;
 }
@@ -1286,7 +1376,7 @@
   color: var(--fg);
   cursor: pointer;
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
 }
 .date-picker-day:hover { background: var(--bg-subtle); border-color: var(--accent); }
 .date-picker-day:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }

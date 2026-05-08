@@ -64,8 +64,8 @@ export function wireComposer({ host, chipState, engine, lang }) {
         <span class="composer-ghost-label" id="composer-ghost-label-text"></span>
         <span class="composer-ghost-chip" id="composer-ghost-chip"></span>
       </div>
-      <div class="composer-op-pills" id="composer-op-pills" role="group"></div>
-      <div class="composer-quote-row" id="composer-quote-row">
+      <div class="composer-op-row">
+        <div class="composer-op-pills" id="composer-op-pills" role="group"></div>
         <button
           type="button"
           class="composer-quote-toggle"
@@ -75,8 +75,29 @@ export function wireComposer({ host, chipState, engine, lang }) {
           <span class="composer-quote-toggle-glyph" dir="ltr">"&nbsp;"</span>
           <span class="composer-quote-toggle-label" id="composer-quote-toggle-label-text"></span>
         </button>
-        <p class="composer-quote-hint" id="composer-quote-hint-text"></p>
       </div>
+      <div class="composer-modifier-row" role="group" id="composer-modifier-row">
+        <span class="composer-modifier-row-label" id="composer-modifier-row-label-text"></span>
+        <button
+          type="button"
+          class="composer-modifier-toggle composer-not-toggle"
+          id="composer-not-toggle"
+          aria-pressed="false"
+        >
+          <span class="composer-modifier-toggle-glyph" dir="ltr">−</span>
+          <span class="composer-modifier-toggle-label" id="composer-not-toggle-label-text"></span>
+        </button>
+        <button
+          type="button"
+          class="composer-modifier-toggle composer-or-toggle"
+          id="composer-or-toggle"
+          aria-pressed="false"
+        >
+          <span class="composer-modifier-toggle-glyph" dir="ltr">⫦</span>
+          <span class="composer-modifier-toggle-label" id="composer-or-toggle-label-text"></span>
+        </button>
+      </div>
+      <p class="composer-quote-hint" id="composer-quote-hint-text"></p>
       <p class="composer-ghost-paste-hint" id="composer-ghost-paste-hint" aria-live="polite"></p>
     </div>
     <div class="composer-commit-row" role="group" id="composer-commit-row">
@@ -97,6 +118,12 @@ export function wireComposer({ host, chipState, engine, lang }) {
   const pillsRow = host.querySelector('#composer-op-pills');
   const quoteToggle = host.querySelector('#composer-quote-toggle');
   const quoteToggleLabel = host.querySelector('#composer-quote-toggle-label-text');
+  const notToggle = host.querySelector('#composer-not-toggle');
+  const notToggleLabel = host.querySelector('#composer-not-toggle-label-text');
+  const orToggle = host.querySelector('#composer-or-toggle');
+  const orToggleLabel = host.querySelector('#composer-or-toggle-label-text');
+  const modifierRow = host.querySelector('#composer-modifier-row');
+  const modifierRowLabel = host.querySelector('#composer-modifier-row-label-text');
   const quoteHint = host.querySelector('#composer-quote-hint-text');
   const pasteHintEl = host.querySelector('#composer-ghost-paste-hint');
   const helpHint = host.querySelector('#composer-ghost-hint');
@@ -114,6 +141,18 @@ export function wireComposer({ host, chipState, engine, lang }) {
       quoteToggle.setAttribute('title', t('ui.composer.quoteToggleTitle'));
     }
     if (quoteToggleLabel) quoteToggleLabel.textContent = t('ui.composer.quoteToggleLabel');
+    if (notToggle) {
+      notToggle.setAttribute('aria-label', t('ui.composer.notToggleLabel'));
+      notToggle.setAttribute('title', t('ui.composer.notToggleTitle'));
+    }
+    if (notToggleLabel) notToggleLabel.textContent = t('ui.composer.notToggleLabel');
+    if (orToggle) {
+      orToggle.setAttribute('aria-label', t('ui.composer.orToggleLabel'));
+      orToggle.setAttribute('title', t('ui.composer.orToggleTitle'));
+    }
+    if (orToggleLabel) orToggleLabel.textContent = t('ui.composer.orToggleLabel');
+    if (modifierRow) modifierRow.setAttribute('aria-label', t('ui.composer.modifierRowLabel'));
+    if (modifierRowLabel) modifierRowLabel.textContent = t('ui.composer.modifierRowLabel');
     if (quoteHint) quoteHint.textContent = t('ui.composer.quoteHint');
     if (pasteHintEl) pasteHintEl.textContent = t('ui.composer.pasteHint');
     if (commitRow) commitRow.setAttribute('aria-label', t('ui.composer.commitGroupLabel'));
@@ -132,6 +171,11 @@ export function wireComposer({ host, chipState, engine, lang }) {
   // Pre-commit literal-quote selection. Orthogonal to chosenOp. Resets
   // after each commit so quoting stays explicit per chip.
   let chosenQuoted = false;
+  // Pre-commit NOT (negate) and OR (alternative-of-previous) modifiers.
+  // Both reset after commit. Mirror the leading-`-` and Shift+Enter
+  // shortcuts as discoverable buttons.
+  let chosenNegate = false;
+  let chosenOr = false;
 
   function buildPills() {
     pillsRow.innerHTML = '';
@@ -141,33 +185,52 @@ export function wireComposer({ host, chipState, engine, lang }) {
     // If the chosen op isn't in this engine's catalogue (e.g. user switched
     // engines mid-typing), reset to 'none' so commit doesn't blow up.
     if (!ops[chosenOp]) chosenOp = 'none';
-    pills.forEach(({ op, label }) => {
+    pills.forEach((descriptor) => {
+      const { kind = 'op', label } = descriptor;
       const pill = document.createElement('button');
       pill.type = 'button';
       pill.className = 'composer-op-pill';
-      pill.dataset.op = op;
-      pill.setAttribute('aria-pressed', op === chosenOp ? 'true' : 'false');
-      const opEntry = ops[op] || { opName: '' };
-      const badgeText = opEntry.badge != null
-        ? opEntry.badge
-        : (opEntry.opName ? opEntry.opName + ':' : '—');
-      pill.innerHTML = `
-        <span class="composer-op-pill-label">${t(label)}</span>
-        <span class="composer-op-pill-badge" dir="ltr">${badgeText}</span>
-      `;
-      pill.addEventListener('click', (e) => {
-        e.preventDefault();
-        chosenOp = op;
-        syncPillsPressed();
-        ghostPreview();
-        input.focus();
-      });
+
+      if (kind === 'instant') {
+        // One-click shortcut that adds a special chip directly. No toggle
+        // state — clicking always adds, regardless of typed input.
+        const badgeText = descriptor.badge || '';
+        pill.classList.add('composer-op-pill-instant');
+        pill.innerHTML = `
+          <span class="composer-op-pill-label">${t(label)}</span>
+          <span class="composer-op-pill-badge" dir="ltr">${badgeText}</span>
+        `;
+        pill.addEventListener('click', (e) => {
+          e.preventDefault();
+          chipState.add(descriptor.type, descriptor.props || {});
+          input.focus();
+        });
+      } else {
+        const op = descriptor.op;
+        pill.dataset.op = op;
+        pill.setAttribute('aria-pressed', op === chosenOp ? 'true' : 'false');
+        const opEntry = ops[op] || { opName: '' };
+        const badgeText = opEntry.badge != null
+          ? opEntry.badge
+          : (opEntry.opName ? opEntry.opName + ':' : '—');
+        pill.innerHTML = `
+          <span class="composer-op-pill-label">${t(label)}</span>
+          <span class="composer-op-pill-badge" dir="ltr">${badgeText}</span>
+        `;
+        pill.addEventListener('click', (e) => {
+          e.preventDefault();
+          chosenOp = op;
+          syncPillsPressed();
+          ghostPreview();
+          input.focus();
+        });
+      }
       pillsRow.appendChild(pill);
     });
   }
 
   function syncPillsPressed() {
-    pillsRow.querySelectorAll('.composer-op-pill').forEach(p => {
+    pillsRow.querySelectorAll('.composer-op-pill:not(.composer-op-pill-instant)').forEach(p => {
       p.setAttribute('aria-pressed', p.dataset.op === chosenOp ? 'true' : 'false');
     });
     syncQuoteToggleEnabled();
@@ -188,6 +251,16 @@ export function wireComposer({ host, chipState, engine, lang }) {
     quoteToggle.setAttribute('aria-pressed', chosenQuoted ? 'true' : 'false');
   }
 
+  function syncNotTogglePressed() {
+    if (!notToggle) return;
+    notToggle.setAttribute('aria-pressed', chosenNegate ? 'true' : 'false');
+  }
+
+  function syncOrTogglePressed() {
+    if (!orToggle) return;
+    orToggle.setAttribute('aria-pressed', chosenOr ? 'true' : 'false');
+  }
+
   /**
    * Detect the leading-and-trailing `"` shortcut. Mirrors the leading-`-`
    * shortcut for negate. Returns { stripped, quoted } where `stripped` is
@@ -204,7 +277,7 @@ export function wireComposer({ host, chipState, engine, lang }) {
     let raw = input.value.trim();
     if (!raw) return;
 
-    let negate = false;
+    let negate = chosenNegate;
     if (raw.startsWith('-') && raw.length > 1) {
       negate = true;
       raw = raw.slice(1).trim();
@@ -219,7 +292,8 @@ export function wireComposer({ host, chipState, engine, lang }) {
     raw = stripped;
     if (!raw) return;
 
-    if (mode === 'or') {
+    const wantsOr = mode === 'or' || chosenOr;
+    if (wantsOr) {
       const prev = chipState.last();
       if (prev && prev.type !== 'or-connector') {
         chipState.add('or-connector', {});
@@ -235,8 +309,12 @@ export function wireComposer({ host, chipState, engine, lang }) {
     input.value = '';
     chosenOp = 'none';
     chosenQuoted = false;
+    chosenNegate = false;
+    chosenOr = false;
     syncPillsPressed();
     syncQuoteTogglePressed();
+    syncNotTogglePressed();
+    syncOrTogglePressed();
     refresh();
     input.focus();
   }
@@ -248,7 +326,7 @@ export function wireComposer({ host, chipState, engine, lang }) {
       ghostChip.textContent = '';
       return;
     }
-    let negate = false;
+    let negate = chosenNegate;
     if (raw.startsWith('-') && raw.length > 1) {
       negate = true;
       raw = raw.slice(1).trim();
@@ -272,6 +350,13 @@ export function wireComposer({ host, chipState, engine, lang }) {
       + (negate ? ' composer-ghost-chip-negate' : '')
       + (willQuote ? ' composer-ghost-chip-quoted' : '');
     ghostChip.innerHTML = '';
+    if (chosenOr) {
+      const orMark = document.createElement('span');
+      orMark.className = 'composer-ghost-or';
+      orMark.dir = 'ltr';
+      orMark.textContent = '⫦ ';
+      ghostChip.appendChild(orMark);
+    }
     if (negate) {
       const neg = document.createElement('span');
       neg.className = 'composer-ghost-neg';
@@ -412,8 +497,30 @@ export function wireComposer({ host, chipState, engine, lang }) {
     });
   }
 
+  if (notToggle) {
+    notToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      chosenNegate = !chosenNegate;
+      syncNotTogglePressed();
+      ghostPreview();
+      input.focus();
+    });
+  }
+
+  if (orToggle) {
+    orToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      chosenOr = !chosenOr;
+      syncOrTogglePressed();
+      ghostPreview();
+      input.focus();
+    });
+  }
+
   buildPills();
   syncQuoteToggleEnabled();
+  syncNotTogglePressed();
+  syncOrTogglePressed();
 
   // Rebuild pills whenever the engine switches so the user sees the right
   // operator surface for the active engine. The chosen-op reset and quote

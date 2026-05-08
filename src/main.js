@@ -76,10 +76,10 @@ const engineBtnXLabel = document.getElementById('engine-btn-x');
 const normalizeLabelText = document.getElementById('normalize-label-text');
 const welcomeBlurb = document.getElementById('welcome-blurb');
 const welcomeCloseBtn = document.getElementById('welcome-close-btn');
-const welcomeReopenBtn = document.getElementById('welcome-reopen-btn');
 const chipSectionHeading = document.getElementById('chip-section-heading');
 const previewHeading = document.getElementById('preview-heading');
 const fbFormHeading = document.getElementById('facebook-form-heading');
+const appVersionEl = document.getElementById('app-version');
 
 // ===== Core state =====
 const segments = [];
@@ -291,7 +291,6 @@ function applyLangLabels() {
     welcomeCloseBtn.textContent = t('app.welcomeCloseText');
     welcomeCloseBtn.setAttribute('aria-label', t('app.welcomeCloseLabel'));
   }
-  if (welcomeReopenBtn) welcomeReopenBtn.textContent = t('app.welcomeReopen');
   if (chipSectionHeading) chipSectionHeading.textContent = t('app.chipSectionHeading');
   if (previewHeading) previewHeading.textContent = t('app.previewHeading');
   if (fbFormHeading) fbFormHeading.textContent = t('app.fbFormHeading');
@@ -300,6 +299,12 @@ function applyLangLabels() {
   if (undoBtn) {
     undoBtn.textContent = t('app.undoBtn');
     undoBtn.title = t('app.undoBtnTitle');
+  }
+  if (appVersionEl) {
+    // __APP_VERSION__ is a build-time substitution from package.json (see vite.config.js).
+    const v = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
+    appVersionEl.textContent = t('app.versionLabel', { v });
+    appVersionEl.setAttribute('aria-label', t('app.versionAriaLabel', { v }));
   }
   // Engine labels overlap with lang (subtitle, search-btn label, empty-preview).
   // Always re-apply — the engine's strings are themselves i18n keys.

@@ -7,7 +7,7 @@ import { t } from '../i18n/messages.js';
 // engine descriptor (see src/core/engine.js + src/engines/<id>.js); this
 // module reads it lazily so a single chip type covers Google operators
 // (site, intitle, intext, inanchor, inurl) AND X / Twitter operators (from,
-// to, mention, hashtag, cashtag, url, list, lang, near, source, ...).
+// to, mention, hashtag, url, list, lang, near, source, ...).
 //
 // Per-chip toggles:
 //   - negate (NOT prefix, leading `-`)
@@ -174,6 +174,22 @@ export function render(chip, handlers) {
     });
   }
 
+  // "− ليس" toggle — edge button that flips this chip's negate flag.
+  // Visual sibling of the OR handle so the two boolean modifiers read at
+  // the same weight, instead of OR being prominent and NOT hiding inside
+  // the small tools cluster.
+  const notHandle = document.createElement('button');
+  notHandle.type = 'button';
+  notHandle.className = 'chip-not-handle';
+  notHandle.setAttribute('aria-pressed', chip.props.negate ? 'true' : 'false');
+  notHandle.setAttribute('aria-label', chip.props.negate ? t('chip.keyword.notOn') : t('chip.keyword.notOff'));
+  notHandle.title = chip.props.negate ? t('chip.keyword.notOn') : t('chip.keyword.notOff');
+  notHandle.textContent = t('chip.keyword.notHandleText');
+  notHandle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    handlers.onToggleNegate();
+  });
+
   // Operator badge (LTR mono prefix). Only rendered when an operator is set.
   // Honors `op.badge` (e.g. '@', '#', '$' for prefix operators) when present;
   // otherwise falls back to `op.opName + ':'`.
@@ -262,20 +278,6 @@ export function render(chip, handlers) {
     tools.appendChild(quoteBtn);
   }
 
-  // NOT toggle.
-  const negBtn = document.createElement('button');
-  negBtn.type = 'button';
-  negBtn.className = 'chip-tool-btn';
-  negBtn.setAttribute('aria-pressed', chip.props.negate ? 'true' : 'false');
-  negBtn.setAttribute('aria-label', chip.props.negate ? t('chip.keyword.notOn') : t('chip.keyword.notOff'));
-  negBtn.textContent = '−';
-  negBtn.title = chip.props.negate ? t('chip.keyword.notOn') : t('chip.keyword.notOff');
-  negBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    handlers.onToggleNegate();
-  });
-  tools.appendChild(negBtn);
-
   // Per-chip warning/tip glyph (opens a popover with the issues + fix buttons).
   const glyph = renderWarningGlyph(chip, validate(chip), handlers);
 
@@ -285,6 +287,7 @@ export function render(chip, handlers) {
   if (negPrefix) el.appendChild(negPrefix);
   el.appendChild(textEl);
   el.appendChild(tools);
+  el.appendChild(notHandle);
   if (orHandle) el.appendChild(orHandle);
   return el;
 }

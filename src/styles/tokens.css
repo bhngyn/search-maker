@@ -1,35 +1,23 @@
-/* Design tokens. Light theme by default; dark theme via prefers-color-scheme. */
+/* Design tokens. Dark theme is the only theme. */
 
 :root {
   --accent: #2563eb;
   --accent-fg: #ffffff;
-  --bg: #ffffff;
-  --bg-subtle: #f5f7fa;
-  --fg: #1a1a1a;
-  --fg-muted: #6b7280;
-  --border: #d1d5db;
-  --warning: #b45309;
-  --warning-bg: #fef3c7;
-  --tip: #0369a1;
-  --tip-bg: #e0f2fe;
-  /* OR-group framing — accent at ~30% alpha for the dashed outline. */
-  --accent-muted: rgba(37, 99, 235, 0.32);
+  --accent-soft: rgba(37, 99, 235, 0.18);
+  --bg: #0f172a;
+  --bg-subtle: #1e293b;
+  --bg-elevated: #243246;
+  --fg: #f1f5f9;
+  --fg-muted: #94a3b8;
+  --border: #334155;
+  --warning: #fbbf24;
+  --warning-bg: #422006;
+  --tip: #38bdf8;
+  --tip-bg: #082f49;
+  /* OR-group framing — accent at ~40% alpha for the dashed outline. */
+  --accent-muted: rgba(56, 189, 248, 0.4);
   --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --gap: 24px;
+  --page-max-width: 1080px;
+  --gap: 20px;
   --gap-tight: 12px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f172a;
-    --bg-subtle: #1e293b;
-    --fg: #f1f5f9;
-    --fg-muted: #94a3b8;
-    --border: #334155;
-    --warning: #fbbf24;
-    --warning-bg: #422006;
-    --tip: #38bdf8;
-    --tip-bg: #082f49;
-    --accent-muted: rgba(56, 189, 248, 0.4);
-  }
 }
