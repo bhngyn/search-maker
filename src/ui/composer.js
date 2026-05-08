@@ -7,6 +7,11 @@
 //                            forming/extending an OR group
 //   "ليس (−)"              ⇒ append a keyword chip with negate=true
 //   Leading "-" + space    ⇒ same as ليس; convenience shortcut
+//   Paste                  ⇒ if the pasted text looks like a Google query
+//                            (has operators, quotes, OR, etc.), parse it
+//                            into chips. Plain-text pastes fall through.
+
+import { parseQuery } from '../core/parse-query.js';
 //
 // Flow-state ergonomics (Phase 6):
 //   - Ghost-chip preview that mirrors what would commit on Enter, sitting
@@ -118,6 +123,25 @@ export function wireComposer({ host, chipState }) {
   }
 
   input.addEventListener('input', refresh);
+  input.addEventListener('paste', (e) => {
+    // Try to parse the pasted text as a Google-style query. If it parses
+    // into one or more chip descriptors, insert them and clear the input.
+    // If parseQuery returns null (the paste looks like plain text), let the
+    // browser's default paste behavior fill the input as usual.
+    const cd = e.clipboardData || window.clipboardData;
+    if (!cd) return;
+    const pasted = cd.getData('text');
+    if (!pasted) return;
+    const descriptors = parseQuery(pasted);
+    if (descriptors == null) return; // plain text → default paste
+    e.preventDefault();
+    if (descriptors.length === 0) return; // empty / whitespace → no-op
+    for (const d of descriptors) {
+      chipState.add(d.type, d.props);
+    }
+    input.value = '';
+    refresh();
+  });
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
