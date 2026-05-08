@@ -19,3 +19,5 @@ npm-debug.log
 # (committed only on release tags via `npm run build`)
 dist/
 
+# Claude Code agent worktrees (local-only, never tracked)
+.claude/worktrees/
