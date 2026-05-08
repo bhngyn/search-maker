@@ -314,6 +314,77 @@ body.mode-advanced .composer-ghost-row { display: none; }
   opacity: 1;
 }
 
+/* ===== Multi-select (Advanced mode) ===== */
+.chip-selected {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  background: var(--bg);
+}
+body.mode-advanced .chip-area .chip {
+  /* In Advanced mode, give chips a subtle hint that they're selectable
+     by hovering. The cursor is overridden by chip-draggable to grab
+     during drag mode. */
+  cursor: pointer;
+}
+body.mode-advanced .chip-area .chip:hover:not(.chip-selected) {
+  border-color: var(--accent);
+}
+
+.chip-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  margin-top: 4px;
+  font-size: 13px;
+}
+.chip-toolbar[hidden] { display: none; }
+.chip-toolbar-count {
+  font-weight: 600;
+  color: var(--accent);
+  margin-inline-end: 4px;
+}
+.chip-toolbar-op-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--fg-muted);
+}
+.chip-toolbar-select {
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  color: var(--fg);
+  cursor: pointer;
+  min-height: 32px;
+}
+.chip-toolbar-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.chip-toolbar-btn {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  color: var(--fg);
+  cursor: pointer;
+  min-height: 32px;
+}
+.chip-toolbar-btn:hover { background: var(--bg); border-color: var(--accent); }
+.chip-toolbar-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chip-toolbar-btn-danger {
+  color: var(--warning);
+  border-color: var(--warning);
+}
+.chip-toolbar-btn-danger:hover { background: var(--warning-bg); }
+
 /* ===== Drag-to-reorder (Advanced mode) ===== */
 .chip-draggable {
   cursor: grab;

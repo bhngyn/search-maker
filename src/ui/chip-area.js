@@ -1,7 +1,8 @@
 // Chip area — renders the committed chips. Subscribes to chip-state and
 // re-renders on every change. Each chip type renders itself; this module
 // just wires delete/toggle handlers, stitches chips into the DOM in order,
-// and (in Advanced mode) wires HTML5 drag-and-drop for reordering.
+// and (in Advanced mode) wires HTML5 drag-and-drop for reordering plus
+// Shift-click multi-select.
 //
 // RTL note: the chip area uses `dir="rtl"` from the document. Newest chips
 // appear on the LEADING edge in RTL flow (i.e. visually on the left when
@@ -10,12 +11,32 @@
 import { chipTypes } from '../chips/_registry.js';
 
 /**
+ * Selection observable shared with the bulk-actions toolbar. A simple
+ * Set-of-ids store with subscribe + notify.
+ */
+export function createChipSelection() {
+  const ids = new Set();
+  const subscribers = [];
+  function notify() { subscribers.forEach(cb => { try { cb(new Set(ids)); } catch (e) { console.warn(e); } }); }
+  return {
+    get() { return ids; },
+    has(id) { return ids.has(id); },
+    add(id) { if (!ids.has(id)) { ids.add(id); notify(); } },
+    remove(id) { if (ids.has(id)) { ids.delete(id); notify(); } },
+    toggle(id) { if (ids.has(id)) ids.delete(id); else ids.add(id); notify(); },
+    clear() { if (ids.size > 0) { ids.clear(); notify(); } },
+    subscribe(cb) { subscribers.push(cb); return () => { const i = subscribers.indexOf(cb); if (i >= 0) subscribers.splice(i, 1); }; },
+  };
+}
+
+/**
  * @param {object} args
  * @param {HTMLElement} args.host
  * @param {{ subscribe: Function, getAll: Function, remove: Function, update: Function, clear: Function, reorder?: Function }} args.chipState
  * @param {{ get: () => 'beginner' | 'advanced', on?: (cb: (mode: string) => void) => void }} [args.mode]
+ * @param {ReturnType<typeof createChipSelection>} [args.selection]
  */
-export function wireChipArea({ host, chipState, mode }) {
+export function wireChipArea({ host, chipState, mode, selection }) {
   host.classList.add('chip-area');
   host.setAttribute('aria-live', 'polite');
   host.setAttribute('aria-relevant', 'additions removals');
@@ -46,6 +67,8 @@ export function wireChipArea({ host, chipState, mode }) {
         onChangeText: (text) => chipState.update(chip.id, { text }),
         onChangeProps: (patch) => chipState.update(chip.id, patch),
       });
+      if (selection && selection.has(chip.id)) el.classList.add('chip-selected');
+      if (selection && isAdvanced()) wireSelectionClick(el, chip.id);
       if (isAdvanced() && chipState.reorder) {
         wireDrag(el, chip.id);
       }
@@ -53,23 +76,32 @@ export function wireChipArea({ host, chipState, mode }) {
     });
   }
 
+  function wireSelectionClick(el, chipId) {
+    el.addEventListener('click', (e) => {
+      // Don't intercept clicks on inner editable / interactive widgets.
+      if (e.target && e.target.closest && e.target.closest('button, select, input, textarea, [contenteditable]')) return;
+      if (e.shiftKey) {
+        e.preventDefault();
+        selection.toggle(chipId);
+      } else if (selection.get().size > 0) {
+        // Plain click with an active selection clears it.
+        selection.clear();
+      }
+    });
+  }
+
   function wireDrag(el, chipId) {
     el.draggable = true;
     el.classList.add('chip-draggable');
     el.addEventListener('dragstart', (e) => {
-      // Don't start a drag if the user is editing the chip's text
-      // (contenteditable elements set draggable internally).
       const target = e.target;
       if (target && target.matches && target.matches('[contenteditable], input, select, textarea, button')) {
-        // Browsers will still fire dragstart on chip-level handlers when
-        // the inner target is contenteditable; suppress it.
         e.preventDefault();
         return;
       }
       draggedChipId = chipId;
       el.classList.add('chip-dragging');
       e.dataTransfer.effectAllowed = 'move';
-      // Some browsers require setData to actually start the drag.
       try { e.dataTransfer.setData('text/plain', chipId); } catch (_) {}
     });
     el.addEventListener('dragend', () => {
@@ -85,21 +117,10 @@ export function wireChipArea({ host, chipState, mode }) {
     });
   }
 
-  /**
-   * Compute the target index in the post-removal chip array given a cursor
-   * position. Walks the visible chip elements (excluding the dragged one)
-   * and decides "insert at i" by comparing the cursor to each chip's
-   * horizontal midpoint, accounting for RTL where chip[0] has the highest
-   * client x.
-   *
-   * Returns also the closest element + a `placement` ('before' | 'after')
-   * so the caller can paint a drop indicator.
-   */
   function computeInsertIndex(clientX, clientY) {
     const visible = Array.from(host.querySelectorAll('.chip:not(.chip-dragging)'));
     if (visible.length === 0) return { index: 0, placement: null, anchor: null };
 
-    // Find the closest chip in 2D. Manhattan-ish distance to chip center.
     let closest = null;
     let closestDist = Infinity;
     let closestIdx = -1;
@@ -119,12 +140,10 @@ export function wireChipArea({ host, chipState, mode }) {
 
     const r = closest.getBoundingClientRect();
     const cx = r.left + r.width / 2;
-    // In RTL, "before in array order" = "to the right visually" (higher x).
-    // If cursor.x > chip.midpoint, insert BEFORE the chip; otherwise insert AFTER.
+    // RTL: "before in array order" = "to the right visually" (higher x).
     const before = clientX > cx;
-    const index = before ? closestIdx : closestIdx + 1;
     return {
-      index,
+      index: before ? closestIdx : closestIdx + 1,
       placement: before ? 'before' : 'after',
       anchor: closest,
     };
@@ -146,8 +165,6 @@ export function wireChipArea({ host, chipState, mode }) {
   });
 
   host.addEventListener('dragleave', (e) => {
-    // Only clear if leaving the host entirely (not transitioning between
-    // children). Use relatedTarget heuristic.
     if (e.relatedTarget && host.contains(e.relatedTarget)) return;
     clearDropIndicator();
   });
@@ -161,7 +178,15 @@ export function wireChipArea({ host, chipState, mode }) {
     draggedChipId = null;
   });
 
+  // Esc clears selection.
+  if (selection) {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && selection.get().size > 0) selection.clear();
+    });
+  }
+
   chipState.subscribe(() => render());
+  if (selection) selection.subscribe(() => render());
   if (mode && mode.on) mode.on(() => render());
   render();
 }

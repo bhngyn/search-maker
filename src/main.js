@@ -28,7 +28,8 @@ import { wireWelcomePanel } from './ui/welcome.js';
 import { wireTemplates } from './ui/templates.js';
 import { wireNormalizeToggle } from './ui/normalize-toggle.js';
 import { wireComposer } from './ui/composer.js';
-import { wireChipArea } from './ui/chip-area.js';
+import { wireChipArea, createChipSelection } from './ui/chip-area.js';
+import { wireChipToolbar } from './ui/chip-toolbar.js';
 import { wireDrawer } from './ui/drawer.js';
 
 import { warnings as warningModules } from './warnings/_registry.js';
@@ -95,10 +96,15 @@ onResetHooks.push(() => chipState.clear());
 // ===== UI wiring =====
 wireWelcomePanel();
 
+// Selection store for multi-select (Advanced mode).
+const chipSelection = createChipSelection();
+
 let composerHandle = null;
 const chipAreaHost = document.getElementById('chip-area');
 const composerHost = document.getElementById('composer');
-if (chipAreaHost) wireChipArea({ host: chipAreaHost, chipState, mode });
+const chipToolbarHost = document.getElementById('chip-toolbar');
+if (chipAreaHost) wireChipArea({ host: chipAreaHost, chipState, mode, selection: chipSelection });
+if (chipToolbarHost) wireChipToolbar({ host: chipToolbarHost, chipState, selection: chipSelection, mode });
 if (composerHost) {
   composerHandle = wireComposer({ host: composerHost, chipState });
   if (composerHandle.drawerTrigger) {
