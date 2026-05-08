@@ -175,7 +175,7 @@ body {
 .tip { background: var(--tip-bg); color: var(--tip); border: 1px solid var(--tip); }
 
 .tip-dismiss-btn {
-  margin-inline-start: 8px;
+  margin-inline-start: auto;
   background: transparent; border: 0; color: inherit;
   cursor: pointer;
   font-size: 16px; line-height: 1;
