@@ -189,8 +189,22 @@ export function createChipState({ ctx, segmentOrder = 100 }) {
   // ===== Query assembly =====
   ctx.registerSegment(segmentOrder, () => assembleChips(chips, ctx));
 
+  /**
+   * Per-chip query fragments for the visual binding between chips and the
+   * preview box. Walks the same OR-aware path as assembleChips() but emits
+   * a structured list — chip fragments interleaved with separators and
+   * group parens — so the preview can wrap each chip's contribution in a
+   * span tagged with its id and highlight that span on add/focus.
+   *
+   * @returns {Array<{ kind: 'chip'|'sep'|'open'|'close', text: string, chipId?: string }>}
+   */
+  function getQueryFragments() {
+    return assembleChipFragments(chips, ctx);
+  }
+
   return {
     add, addAfter, remove, removeMany, update, reorder, clear, getAll, subscribe,
+    getQueryFragments,
     /** Last chip in the list, or null. */
     last() { return chips.length ? chips[chips.length - 1] : null; },
   };
@@ -243,4 +257,51 @@ function chipAssemble(chip, ctx) {
     console.warn('chip assemble failed', chip, e);
     return '';
   }
+}
+
+/**
+ * Same OR-aware walk as assembleChips, but instead of a flat string returns
+ * a fragment list so preview.js can render each chip's contribution inside
+ * a span tagged with its id. The string formed by joining .text values is
+ * byte-for-byte identical to assembleChips' output.
+ */
+function assembleChipFragments(chips, ctx) {
+  /** @type {Array<{ kind: string, text: string, chipId?: string }>} */
+  const out = [];
+  let needSep = false;
+  const pushSep = () => { if (needSep) { out.push({ kind: 'sep', text: ' ' }); needSep = false; } };
+
+  let i = 0;
+  while (i < chips.length) {
+    const chip = chips[i];
+    if (chip.type === 'or-connector') { i++; continue; }
+    const run = [chip];
+    while (
+      i + 2 < chips.length &&
+      chips[i + 1].type === 'or-connector' &&
+      chips[i + 2].type !== 'or-connector'
+    ) {
+      run.push(chips[i + 2]);
+      i += 2;
+    }
+    const rendered = run
+      .map(c => ({ chipId: c.id, text: chipAssemble(c, ctx) }))
+      .filter(r => r.text && r.text.trim());
+    if (rendered.length >= 2) {
+      pushSep();
+      out.push({ kind: 'open', text: '(' });
+      rendered.forEach((r, idx) => {
+        if (idx > 0) out.push({ kind: 'sep', text: ' OR ' });
+        out.push({ kind: 'chip', chipId: r.chipId, text: r.text });
+      });
+      out.push({ kind: 'close', text: ')' });
+      needSep = true;
+    } else if (rendered.length === 1) {
+      pushSep();
+      out.push({ kind: 'chip', chipId: rendered[0].chipId, text: rendered[0].text });
+      needSep = true;
+    }
+    i++;
+  }
+  return out;
 }

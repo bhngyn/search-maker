@@ -1014,3 +1014,21 @@ body.mode-beginner .chip-area > .chip-area-empty { display: none; }
   outline: 2px dashed var(--accent);
   outline-offset: 3px;
 }
+
+/* === Preview fragment highlight (A6) ===
+   Each chip's contribution to the assembled preview is wrapped in a
+   .preview-frag span. When a chip is added or focused, chip-area calls
+   preview.highlightChip(id), which adds .preview-frag-active for ~600ms.
+   The flash is the only visual binding between a chip and its piece of
+   the query string — keeps the preview teaching, not just outputting. */
+.preview-frag {
+  display: inline;
+  border-radius: 3px;
+  padding: 0 1px;
+  transition: background-color 600ms ease-out, color 600ms ease-out;
+}
+.preview-frag-active {
+  background-color: var(--accent-muted, var(--bg-subtle));
+  color: var(--accent);
+  transition: background-color 80ms ease-in, color 80ms ease-in;
+}

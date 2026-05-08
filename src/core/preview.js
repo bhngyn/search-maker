@@ -15,6 +15,10 @@
  * @param {() => string} args.assembleQuery
  * @param {{ clearAll: () => void }} args.warnings
  * @param {{ clearAll: () => void }} args.tips
+ * @param {() => Array<{ kind: string, text: string, chipId?: string }>} [args.getQueryFragments]
+ *        Optional structured fragment list. When supplied, the preview wraps
+ *        each chip's contribution in a <span data-chip-id="..."> so callers
+ *        can highlight a specific chip's fragment via highlightChip(id).
  * @param {string} [args.emptyMessage]
  * @param {Array<() => void>} [args.postRenderHooks]
  * @param {Array<() => void>} [args.onResetHooks] - callbacks fired on the second tap of the global reset
@@ -22,6 +26,7 @@
 export function createPreview({
   previewBox, copyBtn, searchBtn, resetBtn, toastEl,
   assembleQuery, warnings, tips,
+  getQueryFragments,
   emptyMessage = 'ابدأ بكتابة كلمات البحث',
   postRenderHooks = [],
   onResetHooks = [],
@@ -34,7 +39,7 @@ export function createPreview({
       copyBtn.disabled = true;
       searchBtn.disabled = true;
     } else {
-      previewBox.textContent = q;
+      renderFragments(q);
       previewBox.classList.remove('empty');
       copyBtn.disabled = false;
       searchBtn.disabled = false;
@@ -42,6 +47,42 @@ export function createPreview({
     postRenderHooks.forEach(hook => {
       try { hook(); } catch (e) { console.warn('post-render hook failed', e); }
     });
+  }
+
+  function renderFragments(fallbackText) {
+    if (typeof getQueryFragments !== 'function') {
+      previewBox.textContent = fallbackText;
+      return;
+    }
+    const frags = getQueryFragments();
+    while (previewBox.firstChild) previewBox.removeChild(previewBox.firstChild);
+    frags.forEach(f => {
+      if (f.kind === 'chip' && f.chipId) {
+        const span = document.createElement('span');
+        span.className = 'preview-frag';
+        span.dataset.chipId = f.chipId;
+        span.textContent = f.text;
+        previewBox.appendChild(span);
+      } else {
+        previewBox.appendChild(document.createTextNode(f.text));
+      }
+    });
+  }
+
+  /**
+   * Briefly highlight the preview span tagged with `chipId`. Used by
+   * chip-area to show the visual link between a just-added or just-focused
+   * chip and the preview text it produces.
+   */
+  function highlightChip(chipId) {
+    if (!chipId) return;
+    const span = previewBox.querySelector(`.preview-frag[data-chip-id="${chipId}"]`);
+    if (!span) return;
+    span.classList.add('preview-frag-active');
+    clearTimeout(span._previewHighlightTimer);
+    span._previewHighlightTimer = setTimeout(() => {
+      span.classList.remove('preview-frag-active');
+    }, 600);
   }
 
   function showToast(msg) {
@@ -111,5 +152,5 @@ export function createPreview({
     }
   });
 
-  return { render, showToast };
+  return { render, showToast, highlightChip };
 }

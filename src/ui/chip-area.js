@@ -37,8 +37,9 @@ export function createChipSelection() {
  * @param {{ get: () => 'beginner' | 'advanced', on?: (cb: (mode: string) => void) => void }} [args.mode]
  * @param {ReturnType<typeof createChipSelection>} [args.selection]
  * @param {() => void} [args.focusComposer]  used by the empty-state templates to focus the composer after applying
+ * @param {(chipId: string) => void} [args.onChipHighlight]  invoked when a chip is added or focused; preview uses it to flash the matching fragment
  */
-export function wireChipArea({ host, chipState, mode, selection, focusComposer }) {
+export function wireChipArea({ host, chipState, mode, selection, focusComposer, onChipHighlight }) {
   host.classList.add('chip-area');
   host.setAttribute('aria-live', 'polite');
   host.setAttribute('aria-relevant', 'additions removals');
@@ -363,8 +364,29 @@ export function wireChipArea({ host, chipState, mode, selection, focusComposer }
     });
   }
 
-  chipState.subscribe(() => render());
+  chipState.subscribe((_chips, change) => {
+    render();
+    // Flash the preview fragment for the just-added chip so the user sees
+    // the visual link between the chip and its piece of the assembled query.
+    // Defer to rAF so preview's own re-render (driven by ctx.requestUpdate
+    // after the same notify pass) has a chance to mount the fragment span.
+    if (change && change.kind === 'add' && change.chip && onChipHighlight) {
+      requestAnimationFrame(() => onChipHighlight(change.chip.id));
+    }
+  });
   if (selection) selection.subscribe(() => render());
   if (mode && mode.on) mode.on(() => render());
+
+  // Focus binding: when a chip element gains focus (tab, click, or focus()
+  // call), highlight its fragment in the preview. Uses focusin so it bubbles
+  // from inner editable widgets too.
+  host.addEventListener('focusin', (e) => {
+    if (!onChipHighlight) return;
+    const chipEl = e.target && e.target.closest && e.target.closest('[data-chip-id]');
+    if (chipEl && chipEl.dataset && chipEl.dataset.chipId) {
+      onChipHighlight(chipEl.dataset.chipId);
+    }
+  });
+
   render();
 }

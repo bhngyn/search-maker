@@ -69,12 +69,17 @@ mode.on(() => tips.reflow());
 // `postRenderHooks` is captured by reference so warnings/tips registered
 // after createPreview can still push into it. `onResetHooks` is similar
 // — chip-state pushes its `clear` callback after construction.
+// `getQueryFragmentsRef` lets preview call into chip-state's fragment
+// emitter once chip-state has been constructed (chip-state needs ctx,
+// ctx needs preview, preview is constructed first — wire via a thunk).
 const postRenderHooks = [];
 const onResetHooks = [];
+let chipStateRef = null;
 const preview = createPreview({
   previewBox, copyBtn, searchBtn, resetBtn, toastEl,
   assembleQuery, warnings, tips,
   postRenderHooks, onResetHooks,
+  getQueryFragments: () => chipStateRef ? chipStateRef.getQueryFragments() : [],
 });
 
 const ctx = createCtx({
@@ -88,6 +93,7 @@ const ctx = createCtx({
 // number doesn't matter functionally but a low number is conventionally
 // the "main content" slot.
 const chipState = createChipState({ ctx, segmentOrder: 1 });
+chipStateRef = chipState;
 
 // Wire chip clearing into the global reset (second-tap branch).
 onResetHooks.push(() => chipState.clear());
@@ -111,6 +117,7 @@ if (chipAreaHost) wireChipArea({
   mode,
   selection: chipSelection,
   focusComposer: () => { if (composerHandle && composerHandle.focus) composerHandle.focus(); },
+  onChipHighlight: id => preview.highlightChip(id),
 });
 if (chipToolbarHost) wireChipToolbar({ host: chipToolbarHost, chipState, selection: chipSelection, mode });
 if (composerHost) {
