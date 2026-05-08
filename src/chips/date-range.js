@@ -1,3 +1,5 @@
+import { renderWarningGlyph } from '../ui/chip-popover.js';
+
 // Date-range chip — wraps Google's `before:` and `after:` operators in a
 // single chip with two date inputs. Either or both may be empty; only the
 // non-empty operators are emitted.
@@ -16,6 +18,23 @@ export function assemble(chip) {
   if (after) parts.push('after:' + after);
   if (before) parts.push('before:' + before);
   return parts.join(' ');
+}
+
+/**
+ * @param {{ props: { after: string, before: string } }} chip
+ */
+export function validate(chip) {
+  const issues = [];
+  const after = chip.props.after;
+  const before = chip.props.before;
+  if (after && before && after > before) {
+    issues.push({
+      severity: 'warning',
+      message: 'النطاق الزمني مقلوب — تاريخ "بعد" أحدث من "قبل"، لن تكون هناك نتائج.',
+      fix: { label: 'بدّل التاريخين', apply: () => ({ after: before, before: after }) },
+    });
+  }
+  return issues;
 }
 
 export function render(chip, handlers) {
@@ -71,8 +90,11 @@ export function render(chip, handlers) {
   inputs.appendChild(beforeLabel);
   inputs.appendChild(beforeInput);
 
+  const glyph = renderWarningGlyph(chip, validate(chip), handlers);
+
   el.appendChild(del);
   el.appendChild(opBadge);
+  if (glyph) el.appendChild(glyph);
   el.appendChild(inputs);
   return el;
 }

@@ -1,3 +1,5 @@
+import { renderWarningGlyph } from '../ui/chip-popover.js';
+
 // Keyword chip — the primary chip type. Carries free-text content plus an
 // optional content operator (site, intitle, intext, inanchor, inurl). With
 // `operator: 'none'` (default) the chip is a plain keyword.
@@ -79,6 +81,48 @@ export const OPERATOR_KEYS = Object.keys(OPERATORS);
 
 export function defaultProps() {
   return { text: '', operator: 'none', negate: false, quoted: false };
+}
+
+/**
+ * Per-chip validation issues — surfaced as a glyph + popover on the chip.
+ *
+ * @param {{ props: { text: string, operator: string, negate: boolean, quoted: boolean } }} chip
+ * @returns {Array<{ severity: 'warning' | 'tip', message: string, fix?: { label: string, apply: () => object } }>}
+ */
+export function validate(chip) {
+  const issues = [];
+  const text = (chip.props.text || '').trim();
+  const opKey = OPERATORS[chip.props.operator] ? chip.props.operator : 'none';
+  const op = OPERATORS[opKey];
+
+  // Multi-word value in intitle/intext/inanchor without quoting silently
+  // binds only the first word to the operator.
+  if (['intitle', 'intext', 'inanchor'].includes(opKey) && text && /\s/.test(text) && !chip.props.quoted) {
+    issues.push({
+      severity: 'warning',
+      message: 'كلمات متعددة بدون اقتباس — Google سيربط الكلمة الأولى فقط بالعامل. فعّل الاقتباس.',
+      fix: { label: 'فعّل الاقتباس', apply: () => ({ quoted: true }) },
+    });
+  }
+
+  // Latin-only operator with Arabic chars.
+  if (['site', 'inurl'].includes(opKey) && /[؀-ۿ]/.test(text)) {
+    issues.push({
+      severity: 'warning',
+      message: 'هذا الحقل يتوقع نصاً لاتينياً (نطاق أو جزء من URL). لن يطابق Google النص العربي هنا.',
+    });
+  }
+
+  // Quoting a single word disables Google's spell correction and synonyms.
+  if (chip.props.quoted && op.quotable && text && !/\s/.test(text)) {
+    issues.push({
+      severity: 'tip',
+      message: 'اقتباس كلمة واحدة يُعطّل تصحيح التهجئة والمرادفات في Google. غالباً غير ضروري.',
+      fix: { label: 'إلغاء الاقتباس', apply: () => ({ quoted: false }) },
+    });
+  }
+
+  return issues;
 }
 
 /**
@@ -221,8 +265,12 @@ export function render(chip, handlers) {
   });
   tools.appendChild(negBtn);
 
+  // Per-chip warning/tip glyph (opens a popover with the issues + fix buttons).
+  const glyph = renderWarningGlyph(chip, validate(chip), handlers);
+
   el.appendChild(del);
   if (opBadge) el.appendChild(opBadge);
+  if (glyph) el.appendChild(glyph);
   if (negPrefix) el.appendChild(negPrefix);
   el.appendChild(textEl);
   el.appendChild(tools);

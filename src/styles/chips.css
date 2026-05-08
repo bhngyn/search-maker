@@ -314,6 +314,93 @@ body.mode-advanced .composer-ghost-row { display: none; }
   opacity: 1;
 }
 
+/* ===== Per-chip warning glyph + popover ===== */
+.chip-warning-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 2px 4px;
+  margin: 0 2px;
+  font-size: 13px;
+  line-height: 1;
+  border-radius: 50%;
+  min-width: 22px;
+  min-height: 22px;
+}
+.chip-warning-glyph-warning {
+  color: var(--warning);
+  background: var(--warning-bg);
+}
+.chip-warning-glyph-tip {
+  color: var(--tip);
+  background: var(--tip-bg);
+}
+.chip-warning-glyph:hover { filter: brightness(0.92); }
+.chip-warning-glyph:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.chip-warning-popover {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px -8px rgba(0,0,0,0.18), 0 4px 8px -2px rgba(0,0,0,0.08);
+  padding: 4px;
+  min-width: 240px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+@media (prefers-color-scheme: dark) {
+  .chip-warning-popover { box-shadow: 0 12px 32px -8px rgba(0,0,0,0.6), 0 4px 8px -2px rgba(0,0,0,0.3); }
+}
+.chip-warning-popover-issue {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+.chip-warning-popover-issue + .chip-warning-popover-issue {
+  border-top: 1px solid var(--border);
+  margin-top: 2px;
+  padding-top: 10px;
+}
+.chip-warning-popover-issue-warning .chip-warning-popover-icon {
+  color: var(--warning);
+}
+.chip-warning-popover-issue-tip .chip-warning-popover-icon {
+  color: var(--tip);
+}
+.chip-warning-popover-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.chip-warning-popover-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.chip-warning-popover-msg {
+  margin: 0;
+  color: var(--fg);
+}
+.chip-warning-popover-fix {
+  align-self: flex-start;
+  font: inherit;
+  font-size: 12px;
+  padding: 4px 10px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  min-height: 32px;
+}
+.chip-warning-popover-fix:hover { filter: brightness(1.05); }
+.chip-warning-popover-fix:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
 /* ===== Multi-select (Advanced mode) ===== */
 .chip-selected {
   outline: 2px solid var(--accent);
