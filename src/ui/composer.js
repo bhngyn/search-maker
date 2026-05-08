@@ -1,12 +1,15 @@
-// Chip composer — the input + commit buttons that turn typed text into
+// Chip composer — the input + commit button that turns typed text into
 // keyword chips.
 //
 // Commit paths:
-//   Enter / "أضف (و)"     ⇒ append a keyword chip (implicit AND)
-//   Shift+Enter / "أو"     ⇒ append an OR-connector then a keyword chip,
-//                            forming/extending an OR group
-//   "ليس (−)"              ⇒ append a keyword chip with negate=true
-//   Leading "-" + space    ⇒ same as ليس; convenience shortcut
+//   Enter / "أضف"          ⇒ append a keyword chip (implicit AND)
+//   Shift+Enter            ⇒ append an OR-connector then a keyword chip,
+//                            forming/extending an OR group (still in the
+//                            keydown handler — the standalone OR button was
+//                            removed in favor of per-chip OR affordances)
+//   Leading "-" + space    ⇒ append a keyword chip with negate=true. The
+//                            standalone NOT button was removed; this shortcut
+//                            and the per-chip "−" tool remain the entry points.
 //   Paste                  ⇒ if the pasted text looks like a Google query
 //                            (has operators, quotes, OR, etc.), parse it
 //                            into chips. Plain-text pastes fall through.
@@ -47,27 +50,19 @@ export function wireComposer({ host, chipState }) {
       <span class="composer-ghost-label">سيُضاف:</span>
       <span class="composer-ghost-chip" id="composer-ghost-chip"></span>
     </div>
-    <div class="composer-commit-row" role="group" aria-label="إضافة الكلمة بعامل">
+    <div class="composer-commit-row" role="group" aria-label="إضافة الكلمة">
       <button type="button" class="composer-btn composer-btn-and" id="composer-btn-and" disabled>
-        أضف <span class="composer-btn-hint">(و)</span>
-      </button>
-      <button type="button" class="composer-btn composer-btn-or" id="composer-btn-or" disabled>
-        أو
-      </button>
-      <button type="button" class="composer-btn composer-btn-not" id="composer-btn-not" disabled>
-        ليس <span class="composer-btn-hint">(−)</span>
+        أضف
       </button>
       <button type="button" class="composer-btn composer-btn-add" id="composer-btn-add" aria-label="إضافة عامل خاص">
         + إضافة
       </button>
     </div>
-    <p class="composer-hint" id="composer-ghost-hint">اضغط Enter لإضافة كلمة. Shift+Enter يضيفها كبديل (أو) للكلمة السابقة. Backspace في حقل فارغ يحذف آخر قطعة.</p>
+    <p class="composer-hint" id="composer-ghost-hint">اكتب كلمة واضغط Enter. ستظهر كـ«كلمة بحث» — اضغطها بعد ذلك لتعديلها.</p>
   `;
 
   const input = host.querySelector('#composer-input');
   const btnAnd = host.querySelector('#composer-btn-and');
-  const btnOr = host.querySelector('#composer-btn-or');
-  const btnNot = host.querySelector('#composer-btn-not');
   const ghostRow = host.querySelector('#composer-ghost-row');
   const ghostChip = host.querySelector('#composer-ghost-chip');
 
@@ -117,8 +112,6 @@ export function wireComposer({ host, chipState }) {
   function refresh() {
     const has = input.value.trim().length > 0;
     btnAnd.disabled = !has;
-    btnOr.disabled = !has;
-    btnNot.disabled = !has;
     ghostPreview();
   }
 
@@ -160,8 +153,6 @@ export function wireComposer({ host, chipState }) {
   });
 
   btnAnd.addEventListener('click', () => commit('and'));
-  btnOr.addEventListener('click', () => commit('or'));
-  btnNot.addEventListener('click', () => commit('not'));
 
   // React to chip state changes (e.g. so the input refocuses smoothly when
   // chips are deleted via Backspace and the user is mid-typing).
