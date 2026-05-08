@@ -844,6 +844,8 @@
   opacity: 0.75;
 }
 .composer-op-pill[aria-pressed="true"] .composer-op-pill-badge { opacity: 0.85; }
+.composer-op-pill-instant { border-style: dashed; }
+.composer-op-pill-instant:hover { border-style: dashed; border-color: var(--accent); }
 
 /* === Composer quote toggle (Beginner only) ===
    Independent of the operator pills (orthogonal: any operator + quoted).
@@ -888,6 +890,22 @@
   background: var(--accent-muted);
   border-color: var(--accent);
   color: var(--accent);
+}
+.composer-not-toggle[aria-pressed="true"] {
+  background: var(--warning-soft, rgba(244, 114, 114, 0.18));
+  border-color: var(--warning, #f47272);
+  color: var(--warning, #f47272);
+}
+.composer-or-toggle[aria-pressed="true"] {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.composer-ghost-or {
+  font-family: var(--mono);
+  color: var(--accent);
+  font-weight: 600;
+  margin-inline-end: 4px;
 }
 .composer-quote-toggle-glyph {
   font-family: var(--mono);
@@ -991,6 +1009,50 @@
 }
 .chip-or-handle:focus-visible {
   outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* "− ليس" / "− NOT" toggle — visual sibling of .chip-or-handle so the two
+   boolean modifiers read at the same weight on every keyword chip. Warning
+   palette signals exclusion semantics distinct from OR's accent palette.
+   When pressed the button takes a solid filled state so the chip's negate
+   flag is legible without leaning on the small leading "−" prefix. */
+.chip-not-handle {
+  background: transparent;
+  border: 1px dashed var(--warning, #f47272);
+  color: var(--fg-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 4px;
+  min-width: 32px;
+  min-height: 28px;
+  margin-inline-start: 4px;
+  white-space: nowrap;
+  transition: background 120ms, border-color 120ms, color 120ms, border-style 120ms;
+}
+.chip:hover .chip-not-handle,
+.chip:focus-within .chip-not-handle {
+  color: var(--warning, #f47272);
+  border-style: solid;
+}
+.chip-not-handle:hover {
+  background: var(--warning-soft, rgba(244, 114, 114, 0.18));
+  border-color: var(--warning, #f47272);
+  color: var(--warning, #f47272);
+  border-style: solid;
+}
+.chip-not-handle[aria-pressed="true"] {
+  background: var(--warning, #f47272);
+  border-color: var(--warning, #f47272);
+  color: var(--accent-fg, #fff);
+  border-style: solid;
+}
+.chip-not-handle:focus-visible {
+  outline: 2px solid var(--warning, #f47272);
   outline-offset: 1px;
 }
 

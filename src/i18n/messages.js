@@ -39,6 +39,14 @@ export const MESSAGES = {
   'app.undoBtnTitle':       { ar: 'تراجع (Ctrl+Z)',                       en: 'Undo (Ctrl+Z)' },
   'app.copyFailed':         { ar: 'تعذر النسخ — يرجى نسخ الاستعلام يدوياً', en: 'Copy failed — please copy the query manually.' },
   'app.fbFormHeading':      { ar: 'نموذج بحث Facebook',                  en: 'Facebook search form' },
+  'app.versionLabel':       {
+    ar: (vars) => 'الإصدار ' + vars.v,
+    en: (vars) => 'Version ' + vars.v,
+  },
+  'app.versionAriaLabel':   {
+    ar: (vars) => 'إصدار الأداة ' + vars.v,
+    en: (vars) => 'Tool version ' + vars.v,
+  },
 
   // ===== Engine: Google =====
   'engine.google.subtitle': {
@@ -107,7 +115,6 @@ export const MESSAGES = {
   'engine.x.op.to.label':              { ar: 'ردّاً على حساب (to:)',         en: 'Reply to account (to:)' },
   'engine.x.op.mention.label':         { ar: 'ذِكر (@user)',                en: 'Mention (@user)' },
   'engine.x.op.hashtag.label':         { ar: 'هاشتاج (#tag)',                en: 'Hashtag (#tag)' },
-  'engine.x.op.cashtag.label':         { ar: 'رمز سهم مالي ($TWTR)',         en: 'Cashtag ($TWTR)' },
   'engine.x.op.url.label':             { ar: 'رابط (url:)',                 en: 'Link (url:)' },
   'engine.x.op.list.label':            { ar: 'قائمة (list:)',               en: 'List (list:)' },
   'engine.x.op.lang.label':            { ar: 'لغة (lang:)',                 en: 'Language (lang:)' },
@@ -122,6 +129,9 @@ export const MESSAGES = {
   'engine.x.pill.to':      { ar: 'ردّاً على',                              en: 'Reply to' },
   'engine.x.pill.mention': { ar: 'ذِكر (@)',                              en: 'Mention (@)' },
   'engine.x.pill.hashtag': { ar: 'هاشتاج (#)',                            en: 'Hashtag (#)' },
+  'engine.x.pill.filterImages': { ar: 'صور فقط',                          en: 'Images only' },
+  'engine.x.pill.filterVideos': { ar: 'فيديو فقط',                        en: 'Videos only' },
+  'engine.x.pill.dateRange':    { ar: 'نطاق زمني',                        en: 'Date range' },
 
   // X drawer items
   'engine.x.drawer.from.label':            { ar: 'من حساب',                en: 'From an account' },
@@ -132,8 +142,6 @@ export const MESSAGES = {
   'engine.x.drawer.mention.desc':          { ar: 'تغريدات تذكر حساباً (@user)',  en: 'Tweets that mention @user' },
   'engine.x.drawer.hashtag.label':         { ar: 'هاشتاج',                  en: 'Hashtag' },
   'engine.x.drawer.hashtag.desc':          { ar: 'تغريدات تحتوي وسماً معيناً',   en: 'Tweets that contain a hashtag' },
-  'engine.x.drawer.cashtag.label':         { ar: 'رمز سهم مالي',            en: 'Cashtag' },
-  'engine.x.drawer.cashtag.desc':          { ar: 'رموز الأسهم المالية مثل $TWTR', en: 'Stock tickers like $TWTR' },
   'engine.x.drawer.list.label':            { ar: 'قائمة',                   en: 'List' },
   'engine.x.drawer.list.desc':             { ar: 'حصر النتائج بأعضاء قائمة معينة', en: 'Restrict to members of a list' },
   'engine.x.drawer.url.label':             { ar: 'رابط داخل التغريدة',        en: 'Link in tweet' },
@@ -282,6 +290,16 @@ export const MESSAGES = {
     ar: 'اقتباس حرفي — يطابق العبارة كما هي. اختصار: اكتب "العبارة" بين علامتي اقتباس.',
     en: 'Exact phrase — match the words as written. Shortcut: wrap the term in "quotes".',
   },
+  'ui.composer.notToggleLabel': { ar: 'استبعاد',                              en: 'Exclude' },
+  'ui.composer.notToggleTitle': {
+    ar: 'استبعاد هذه الكلمة من النتائج. اختصار: ابدأ الكلمة بـ "−".',
+    en: 'Exclude this term from the results. Shortcut: start the term with "−".',
+  },
+  'ui.composer.orToggleLabel':  { ar: 'بديل (أو)',                            en: 'Alternative (OR)' },
+  'ui.composer.orToggleTitle':  {
+    ar: 'إضافتها كبديل للكلمة السابقة. اختصار: Shift + Enter.',
+    en: 'Add as an alternative to the previous term. Shortcut: Shift + Enter.',
+  },
   'ui.composer.quoteHint':      {
     ar: 'يطابق العبارة بالضبط. اختصار: اكتب "كلمة" أو "عبارة" بين علامتَي اقتباس.',
     en: 'Matches the exact phrase. Shortcut: wrap a "word" or "phrase" in quotes.',
@@ -358,6 +376,7 @@ export const MESSAGES = {
   'chip.keyword.deleteAria':       { ar: 'حذف الكلمة',                      en: 'Delete chip' },
   'chip.keyword.orHandleAria':     { ar: 'إضافة بديل بـ "أو"',               en: 'Add OR alternative' },
   'chip.keyword.orHandleText':     { ar: '+ أو',                            en: '+ OR' },
+  'chip.keyword.notHandleText':    { ar: '− ليس',                           en: '− NOT' },
   'chip.keyword.opSelectAria':     { ar: 'اختر العامل',                      en: 'Choose operator' },
   'chip.keyword.quoteOn':          { ar: 'إلغاء الاقتباس',                   en: 'Remove exact-match' },
   'chip.keyword.quoteOff':         { ar: 'اقتباس حرفي',                      en: 'Exact phrase' },
