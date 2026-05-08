@@ -60,18 +60,35 @@ body.mode-beginner .chip-section:has(.chip-area-is-empty) h2 { display: none; }
 .chip:hover { border-color: var(--accent); }
 
 .chip-text {
-  padding: 2px 6px;
+  padding: 2px 8px;
   word-break: break-word;
   unicode-bidi: isolate;
   outline: none;
-  min-width: 16px;
+  min-width: 96px;
   cursor: text;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+/* Empty contenteditable spans collapse to a near-invisible cursor by
+   default — give them a clear "this is an input" affordance with a
+   dashed border + placeholder hint so users know to type. */
+.chip-text:empty {
+  border-style: dashed;
+  min-width: 120px;
+}
+.chip-text:empty::before {
+  content: "اكتب هنا…";
+  color: var(--fg-muted);
+  opacity: 0.65;
+  pointer-events: none;
 }
 .chip-text:focus {
-  background: var(--bg);
-  border-radius: 3px;
-  box-shadow: 0 0 0 2px var(--accent);
+  border-color: var(--accent);
+  border-style: solid;
+  box-shadow: 0 0 0 2px var(--accent-muted, var(--accent));
 }
+.chip-text:focus:empty::before { opacity: 0.45; }
 
 .chip-op-badge {
   font-family: var(--mono);
@@ -566,6 +583,21 @@ body.mode-advanced .chip-area .chip:hover:not(.chip-selected) {
   cursor: pointer;
 }
 .chip-wide-select:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ===== Engagement chip — direction toggle ===== */
+.chip-engagement-dir {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+.chip-engagement-dir.is-max {
+  background: var(--accent-muted);
+  color: var(--accent-fg);
+}
+
+/* ===== Filter chip body width ===== */
+.chip-filter .chip-wide-select { min-width: 180px; }
 
 /* ===== `+ إضافة` drawer ===== */
 .composer-btn-add {

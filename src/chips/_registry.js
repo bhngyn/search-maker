@@ -14,6 +14,8 @@ import * as filetype from './filetype.js';
 import * as dateRange from './date-range.js';
 import * as proximity from './proximity.js';
 import * as numberRange from './number-range.js';
+import * as filter from './filter.js';
+import * as engagement from './engagement.js';
 
 export const chipTypes = {
   keyword,
@@ -22,11 +24,15 @@ export const chipTypes = {
   'date-range': dateRange,
   proximity,
   'number-range': numberRange,
+  filter,
+  engagement,
 };
 
 /**
  * Term-chip types — those that can stand alone as user content. Used by the
  * "+ إضافة" drawer to list addable types and by chip-state's connector
- * cleanup to identify what counts as a term.
+ * cleanup to identify what counts as a term. Whether a given type is
+ * actually offered in the drawer is gated by the active engine's
+ * `addableChipTypes`.
  */
-export const termChipTypes = ['keyword', 'filetype', 'date-range', 'proximity', 'number-range'];
+export const termChipTypes = ['keyword', 'filetype', 'date-range', 'proximity', 'number-range', 'filter', 'engagement'];

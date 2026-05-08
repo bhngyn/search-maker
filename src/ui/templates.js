@@ -2,10 +2,11 @@
 // Clicking a template doesn't auto-submit a search — it just scaffolds the
 // chip state so the user can continue typing.
 //
-// As of A5 (chip-UX redesign): the standalone templates row is gone. The
-// only render path is the chip-area's empty state, which imports TEMPLATES
-// directly. The legacy wireTemplates() entry point still exists so older
-// fixed-DOM mounts (none in production today) wouldn't silently break.
+// The template list is engine-driven: see `templates` on each engine
+// descriptor in src/engines/<id>.js. chip-area's empty-state picker calls
+// `getTemplates()` so the surface always matches the active engine.
+
+import { getActiveEngine } from '../core/engine.js';
 
 /**
  * @typedef {object} Template
@@ -16,39 +17,11 @@
  * @property {(chipState: object) => void} apply  mutates chip-state to seed chips
  */
 
-/** @type {Template[]} */
-export const TEMPLATES = [
-  {
-    id: 'site',
-    title: 'بحث في موقع محدد',
-    description: 'حصر النتائج بنطاق معين مثل bbc.com',
-    icon: '🌐',
-    apply(chipState) {
-      chipState.add('keyword', { operator: 'site', text: '' });
-    },
-  },
-  {
-    id: 'docs',
-    title: 'بحث في الوثائق',
-    description: 'العثور على ملفات PDF أو Word',
-    icon: '📄',
-    apply(chipState) {
-      chipState.add('filetype', { value: 'pdf' });
-    },
-  },
-  {
-    id: 'daterange',
-    title: 'بحث في نطاق زمني',
-    description: 'حصر النتائج بين تاريخين',
-    icon: '📅',
-    apply(chipState) {
-      const today = new Date();
-      const lastYear = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
-      const fmt = (d) => d.toISOString().slice(0, 10);
-      chipState.add('date-range', { after: fmt(lastYear), before: fmt(today) });
-    },
-  },
-];
+/** Active-engine template list. */
+export function getTemplates() {
+  const eng = getActiveEngine();
+  return eng.templates || [];
+}
 
 /**
  * Apply a template by id and (optionally) move focus to the composer.
@@ -58,7 +31,7 @@ export const TEMPLATES = [
  * @param {{ chipState: object, focusComposer?: () => void }} deps
  */
 export function applyTemplate(id, { chipState, focusComposer }) {
-  const tpl = TEMPLATES.find(t => t.id === id);
+  const tpl = getTemplates().find(t => t.id === id);
   if (!tpl) return false;
   tpl.apply(chipState);
   if (focusComposer) setTimeout(focusComposer, 100);
@@ -76,7 +49,7 @@ export function applyTemplate(id, { chipState, focusComposer }) {
  * @param {() => void} [args.focusComposer]
  */
 export function wireTemplates({ chipState, focusComposer }) {
-  TEMPLATES.forEach(tpl => {
+  getTemplates().forEach(tpl => {
     const btn = document.getElementById('template-' + tpl.id);
     if (!btn) return;
     btn.addEventListener('click', () => applyTemplate(tpl.id, { chipState, focusComposer }));

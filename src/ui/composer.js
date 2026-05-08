@@ -25,29 +25,25 @@
 //   - Empty Enter is a no-op. Buttons disable when the input is empty.
 
 import { parseQuery } from '../core/parse-query.js';
-import { OPERATORS } from '../chips/keyword.js';
+import { getOperatorsForActive } from '../chips/keyword.js';
+import { getActiveEngine } from '../core/engine.js';
 
 // Beginner-mode "convert to" pills shown under the ghost preview while the
-// user is typing. Picking one re-renders the ghost so the user sees the
-// operator prefix before commit; Enter then commits with that operator
-// pre-set on the new keyword chip. Selection is local to the composer —
-// it never touches chip-state until commit, and it resets to 'none' after
-// each commit so the next keyword starts as a plain term.
-const OPERATOR_PILLS = [
-  { op: 'none',     label: 'كلمة عادية' },
-  { op: 'site',     label: 'في الموقع' },
-  { op: 'intitle',  label: 'في عنوان الصفحة' },
-  { op: 'inurl',    label: 'في رابط الصفحة' },
-  { op: 'intext',   label: 'في نص الصفحة' },
-  { op: 'inanchor', label: 'في الروابط الواردة' },
-];
+// user is typing. The pill list is engine-driven (see src/engines/<id>.js
+// `composerPills`): Google offers site/intitle/intext/etc.; X offers
+// from/to/mention/hashtag/etc. Picking one re-renders the ghost so the
+// user sees the operator prefix before commit; Enter then commits with
+// that operator pre-set on the new keyword chip. Selection is local to
+// the composer — it never touches chip-state until commit, and it resets
+// to 'none' after each commit so the next keyword starts as a plain term.
 
 /**
  * @param {object} args
  * @param {HTMLElement} args.host
  * @param {{ add: Function, last: Function, remove: Function, removeMany: Function, getAll: Function }} args.chipState
+ * @param {{ on: (cb: Function) => void }} [args.engine] - engine controller; rebuilds pills on switch
  */
-export function wireComposer({ host, chipState }) {
+export function wireComposer({ host, chipState, engine }) {
   host.classList.add('composer');
   host.innerHTML = `
     <div class="composer-input-row">
@@ -111,14 +107,22 @@ export function wireComposer({ host, chipState }) {
 
   function buildPills() {
     pillsRow.innerHTML = '';
-    OPERATOR_PILLS.forEach(({ op, label }) => {
+    const eng = getActiveEngine();
+    const pills = eng.composerPills || [{ op: 'none', label: 'كلمة عادية' }];
+    const ops = getOperatorsForActive();
+    // If the chosen op isn't in this engine's catalogue (e.g. user switched
+    // engines mid-typing), reset to 'none' so commit doesn't blow up.
+    if (!ops[chosenOp]) chosenOp = 'none';
+    pills.forEach(({ op, label }) => {
       const pill = document.createElement('button');
       pill.type = 'button';
       pill.className = 'composer-op-pill';
       pill.dataset.op = op;
       pill.setAttribute('aria-pressed', op === chosenOp ? 'true' : 'false');
-      const opName = OPERATORS[op].opName;
-      const badgeText = opName ? opName + ':' : '—';
+      const opEntry = ops[op] || { opName: '' };
+      const badgeText = opEntry.badge != null
+        ? opEntry.badge
+        : (opEntry.opName ? opEntry.opName + ':' : '—');
       pill.innerHTML = `
         <span class="composer-op-pill-label">${label}</span>
         <span class="composer-op-pill-badge" dir="ltr">${badgeText}</span>
@@ -147,7 +151,8 @@ export function wireComposer({ host, chipState }) {
   // (so flipping back to a quotable op restores the previous intent).
   function syncQuoteToggleEnabled() {
     if (!quoteToggle) return;
-    const op = OPERATORS[chosenOp] || OPERATORS.none;
+    const ops = getOperatorsForActive();
+    const op = ops[chosenOp] || ops.none || { quotable: true };
     quoteToggle.disabled = !op.quotable;
   }
   function syncQuoteTogglePressed() {
@@ -193,7 +198,8 @@ export function wireComposer({ host, chipState }) {
       }
     }
 
-    const op = OPERATORS[chosenOp] || OPERATORS.none;
+    const opsMap = getOperatorsForActive();
+    const op = opsMap[chosenOp] || opsMap.none || { quotable: true };
     const quoted = (chosenQuoted || shortcutQuoted) && op.quotable;
 
     chipState.add('keyword', { text: raw, operator: chosenOp, negate, quoted });
@@ -231,7 +237,8 @@ export function wireComposer({ host, chipState }) {
     // Render a faded preview chip mirroring keyword chip shape, including
     // the operator prefix when one is chosen so the user sees exactly what
     // will commit.
-    const op = OPERATORS[chosenOp] || OPERATORS.none;
+    const ops = getOperatorsForActive();
+    const op = ops[chosenOp] || ops.none || { opName: '', dir: 'rtl', quotable: true };
     const willQuote = (chosenQuoted || shortcutQuoted) && op.quotable;
     ghostChip.className = 'composer-ghost-chip'
       + (negate ? ' composer-ghost-chip-negate' : '')
@@ -247,12 +254,12 @@ export function wireComposer({ host, chipState }) {
       const badge = document.createElement('span');
       badge.className = 'composer-ghost-op-badge';
       badge.dir = 'ltr';
-      badge.textContent = op.opName + ':';
+      badge.textContent = op.badge != null ? op.badge : (op.opName + ':');
       ghostChip.appendChild(badge);
       ghostChip.appendChild(document.createTextNode(' '));
     }
     const term = document.createElement('span');
-    term.dir = op.dir;
+    term.dir = op.dir || 'rtl';
     term.textContent = willQuote ? '"' + raw + '"' : raw;
     ghostChip.appendChild(term);
     ghostRow.classList.add('visible');
@@ -380,6 +387,17 @@ export function wireComposer({ host, chipState }) {
 
   buildPills();
   syncQuoteToggleEnabled();
+
+  // Rebuild pills whenever the engine switches so the user sees the right
+  // operator surface for the active engine. The chosen-op reset and quote
+  // toggle are handled inside buildPills/refresh.
+  if (engine && typeof engine.on === 'function') {
+    engine.on(() => {
+      buildPills();
+      syncQuoteToggleEnabled();
+      refresh();
+    });
+  }
 
   // React to chip state changes (e.g. so the input refocuses smoothly when
   // chips are deleted via Backspace and the user is mid-typing).

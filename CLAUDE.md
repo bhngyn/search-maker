@@ -102,19 +102,18 @@ Adding a new chip type means writing one new file plus adding it to `src/chips/_
 
 The current chip types and their query output:
 
-| Slug | Visual | Output |
-|---|---|---|
-| `keyword` | text + leading-edge `+أو` handle + optional NOT/quote tools + operator dropdown + optional warning glyph | `<text>`, `<op>:<text>`, or quoted/negated variant |
-| `or-connector` | "أو" pill between two term chips (rendered as a small clear pill inside the `.chip-or-group` container — visually subordinate to the term chips it joins, but readable as a connector) | (no direct output — the chip-state walker handles OR grouping) |
-| `filetype` | dropdown of PDF/Word/Excel/etc. | `filetype:<value>` |
-| `date-range` | two date pickers | `after:YYYY-MM-DD` and/or `before:YYYY-MM-DD` |
-| `proximity` | term + distance + term | `"term1" AROUND(N) "term2"` |
-| `number-range` | low + high + optional prefix | `LOW..HIGH` or `PREFIX_LOW..PREFIX_HIGH` |
+| Slug | Visual | Output | Engines |
+|---|---|---|---|
+| `keyword` | text + leading-edge `+أو` handle + optional NOT/quote tools + operator dropdown + optional warning glyph | `<text>`, `<op>:<text>`, prefix-style (`@user`, `#tag`, `$AAPL`), or quoted/negated variant | both |
+| `or-connector` | "أو" pill between two term chips (rendered as a small clear pill inside the `.chip-or-group` container — visually subordinate to the term chips it joins, but readable as a connector) | (no direct output — the chip-state walker handles OR grouping) | both |
+| `filetype` | dropdown of PDF/Word/Excel/etc. | `filetype:<value>` | Google |
+| `date-range` | two date pickers | `after:YYYY-MM-DD`/`before:YYYY-MM-DD` (Google) or `since:YYYY-MM-DD`/`until:YYYY-MM-DD` (X) | both |
+| `proximity` | term + distance + term | `"term1" AROUND(N) "term2"` | Google |
+| `number-range` | low + high + optional prefix | `LOW..HIGH` or `PREFIX_LOW..PREFIX_HIGH` | Google |
+| `filter` | dropdown of Twitter `filter:*` flags + per-chip negate toggle | `filter:<value>`, `-filter:<value>`, or `include:nativeretweets` | X |
+| `engagement` | metric (`min_faves`/`min_replies`/`min_retweets`) + min/max direction + numeric threshold | `min_<metric>:N` (min) or `-min_<metric>:N` (max) | X |
 
-The keyword chip's `operator` property (one of `none`, `site`, `intitle`, `inurl`, `intext`, `inanchor`) governs both visual and behavior:
-- `site` and `inurl` are Latin-only (LTR text, no Arabic normalization); a warning fires if Arabic chars appear.
-- `intitle`, `intext`, `inanchor` are Arabic-aware (RTL text, normalization on); the per-chip quote toggle controls whether the value is wrapped in quotes.
-- `none` (the default) is a plain keyword: emits the bare text, optionally quoted, optionally negated.
+The keyword chip's operator catalogue is **engine-driven** — see `src/engines/<id>.js` `keywordOperators`. Google currently exposes `none`, `site`, `intitle`, `inurl`, `intext`, `inanchor`. X exposes `none`, `from`, `to`, `mention` (`@user`), `hashtag` (`#tag`), `cashtag` (`$AAPL`), `url`, `list`, `lang`, `near`, `source`, `conversation_id`, `quoted_tweet_id`. Each operator descriptor declares: `dir` (rtl/ltr), `normalizes` (whether Arabic normalization applies), `quotable` (whether the exact-phrase toggle wraps the value in quotes), `acceptsArabic` (false ⇒ surface a warning if Arabic chars appear), an optional `format(value)` hook (used by `@user`/`#tag`/`$AAPL` to prepend a glyph instead of `op:`), and an optional `badge` override for the LTR mono prefix shown on the chip.
 
 ## Boolean grammar
 
@@ -154,7 +153,9 @@ The 15 canonical query segments from the original spec all map to chip output:
 
 ## Global controls
 
-The header contains two controls.
+The header contains three controls.
+
+The **engine toggle** is a segmented control labeled محرك البحث with options Google, X / تويتر, and (in-progress) Facebook. The active engine drives every part of the surface that varies by search engine: the subtitle, the search-button label, the URL the search button opens, the keyword chip's operator catalogue, the composer's operator pills, the `+ إضافة` drawer's items and grouping, the templates picker, the date-range chip's emitted operator names (`before`/`after` on Google → `since`/`until` on X), and which chip types are addable (filetype/proximity/number-range are Google-only; filter/engagement are X-only). Switching engines preserves the chip array — chips with operators that don't exist on the new engine fall back to plain keywords visually, so the user's data is never destroyed by a switch. The engine descriptor lives in `src/engines/<id>.js`; the controller lives in `src/core/engine.js`. Refresh resets to Google (no persistence).
 
 The **mode toggle** is a segmented control with two options: وضع المبتدئ (Beginner, default) and وضع المتقدم (Advanced). The active mode is visually highlighted. Switching modes preserves all chips entered so far; only the presentation changes. The mode toggle is the single most important meta-control on the page and must be unambiguously visible at all times.
 
@@ -314,13 +315,17 @@ src/
     warnings.js           slug-keyed coaching banner system
     tips.js               Beginner-only single-tip priority queue
     mode.js               Beginner/Advanced toggle + listener fan-out
-    preview.js            live render with .preview-frag spans, copy, search, two-tap reset, highlightChip
+    engine.js             active-engine controller (Google/X/...) + getActiveEngine() module-level accessor
+    preview.js            live render with .preview-frag spans, copy, search (engine-driven URL), two-tap reset, highlightChip
     chip-state.js         canonical chip array; add/addAfter/remove/removeMany/update/reorder/getQueryFragments
-    parse-query.js        tokenize + walk pasted Google-style queries into chip descriptors
+    parse-query.js        tokenize + walk pasted query strings into chip descriptors (engine-aware: keyword ops, prefix ops, date ops)
+  engines/
+    google.js             Google descriptor (keyword ops, drawer, templates, search URL)
+    x.js                  X / Twitter descriptor (keyword ops incl. prefix-style @/#/$, drawer, templates, search URL)
   chips/
     _registry.js          chip-type map (one entry per file)
     keyword.js, or-connector.js, filetype.js, date-range.js,
-    proximity.js, number-range.js
+    proximity.js, number-range.js, filter.js, engagement.js
   ui/
     welcome.js            close + re-open link wiring
     templates.js          template definitions exported as TEMPLATES + applyTemplate

@@ -19,6 +19,8 @@
  *        Optional structured fragment list. When supplied, the preview wraps
  *        each chip's contribution in a <span data-chip-id="..."> so callers
  *        can highlight a specific chip's fragment via highlightChip(id).
+ * @param {(q: string) => string} [args.getSearchUrl] - resolves the search-engine URL
+ *        for the current query string. Defaults to Google.
  * @param {string} [args.emptyMessage]
  * @param {Array<() => void>} [args.postRenderHooks]
  * @param {Array<() => void>} [args.onResetHooks] - callbacks fired on the second tap of the global reset
@@ -27,14 +29,20 @@ export function createPreview({
   previewBox, copyBtn, searchBtn, resetBtn, toastEl,
   assembleQuery, warnings, tips,
   getQueryFragments,
+  getSearchUrl,
   emptyMessage = 'ابدأ بكتابة كلمات البحث',
   postRenderHooks = [],
   onResetHooks = [],
 }) {
+  const resolveSearchUrl = typeof getSearchUrl === 'function'
+    ? getSearchUrl
+    : (q) => 'https://www.google.com/search?q=' + encodeURIComponent(q);
+  let emptyMsg = emptyMessage;
+  function setEmptyMessage(m) { if (typeof m === 'string' && m) emptyMsg = m; }
   function render() {
     const q = assembleQuery();
     if (!q) {
-      previewBox.textContent = emptyMessage;
+      previewBox.textContent = emptyMsg;
       previewBox.classList.add('empty');
       copyBtn.disabled = true;
       searchBtn.disabled = true;
@@ -55,6 +63,12 @@ export function createPreview({
       return;
     }
     const frags = getQueryFragments();
+    if (!frags || frags.length === 0) {
+      // Engine returned no structured fragments (e.g. Facebook URL) —
+      // render the assembled query verbatim instead of clearing the box.
+      previewBox.textContent = fallbackText;
+      return;
+    }
     while (previewBox.firstChild) previewBox.removeChild(previewBox.firstChild);
     frags.forEach(f => {
       if (f.kind === 'chip' && f.chipId) {
@@ -125,7 +139,7 @@ export function createPreview({
   searchBtn.addEventListener('click', () => {
     const q = previewBox.textContent;
     if (!q) return;
-    const url = 'https://www.google.com/search?q=' + encodeURIComponent(q);
+    const url = resolveSearchUrl(q);
     window.open(url, '_blank', 'noopener,noreferrer');
   });
 
@@ -152,5 +166,5 @@ export function createPreview({
     }
   });
 
-  return { render, showToast, highlightChip };
+  return { render, showToast, highlightChip, setEmptyMessage };
 }
