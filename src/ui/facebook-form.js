@@ -92,9 +92,53 @@ export function wireFacebookForm({ host, engine, ctx, lang }) {
   // ===== DOM rendering =====
   function render() {
     while (host.firstChild) host.removeChild(host.firstChild);
+    if (!state.explainerDismissed) host.appendChild(renderExplainer());
     host.appendChild(renderCategoryRow());
     host.appendChild(renderKeywordRow());
     host.appendChild(renderSections());
+    host.appendChild(renderAttribution());
+  }
+
+  function renderExplainer() {
+    const wrap = el('section', {
+      class: 'fb-form-explainer',
+      'aria-labelledby': 'fb-explainer-title',
+    });
+    const head = el('div', { class: 'fb-form-explainer-head' });
+    head.appendChild(el('h3', {
+      id: 'fb-explainer-title',
+      class: 'fb-form-explainer-title',
+      text: t('ui.fbForm.explainer.title'),
+    }));
+    head.appendChild(el('button', {
+      type: 'button',
+      class: 'fb-form-explainer-dismiss',
+      'aria-label': t('ui.fbForm.explainer.dismiss'),
+      text: t('ui.fbForm.explainer.dismiss'),
+      onclick: () => {
+        state.explainerDismissed = true;
+        wrap.remove();
+        ctx.requestUpdate();
+      },
+    }));
+    wrap.appendChild(head);
+    wrap.appendChild(el('p', {
+      class: 'fb-form-explainer-intro',
+      text: t('ui.fbForm.explainer.intro'),
+    }));
+    const steps = el('ol', { class: 'fb-form-explainer-steps' });
+    ['step1', 'step2', 'step3', 'step4'].forEach(k => {
+      steps.appendChild(el('li', { text: t('ui.fbForm.explainer.' + k) }));
+    });
+    wrap.appendChild(steps);
+    return wrap;
+  }
+
+  function renderAttribution() {
+    return el('p', {
+      class: 'fb-form-attribution',
+      text: t('ui.fbForm.attribution'),
+    });
   }
 
   function renderCategoryRow() {
@@ -408,6 +452,7 @@ function makeInitialState() {
     toggles: {},
     date: null,
     keywordWarningDismissed: false,
+    explainerDismissed: false,
   };
 }
 
