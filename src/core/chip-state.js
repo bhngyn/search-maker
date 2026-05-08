@@ -222,6 +222,10 @@ export function createChipState({ ctx, segmentOrder = 100 }) {
  * @param {Array<{ id: string, type: string, props: object }>} chips
  * @param {import('./ctx.js').Ctx} ctx
  */
+function isOrKindConnector(chip) {
+  return chip && chip.type === 'or-connector' && (chip.props == null || chip.props.kind !== 'and');
+}
+
 function assembleChips(chips, ctx) {
   const parts = [];
   let i = 0;
@@ -231,11 +235,13 @@ function assembleChips(chips, ctx) {
       i++;
       continue;
     }
-    // Build an OR run starting at this chip.
+    // Build an OR run starting at this chip. AND-kind connectors break the
+    // run — they emit nothing (Google's implicit AND between rendered chunks
+    // already represents conjunction).
     const run = [chip];
     while (
       i + 2 < chips.length &&
-      chips[i + 1].type === 'or-connector' &&
+      isOrKindConnector(chips[i + 1]) &&
       chips[i + 2].type !== 'or-connector'
     ) {
       run.push(chips[i + 2]);
@@ -282,7 +288,7 @@ function assembleChipFragments(chips, ctx) {
     const run = [chip];
     while (
       i + 2 < chips.length &&
-      chips[i + 1].type === 'or-connector' &&
+      isOrKindConnector(chips[i + 1]) &&
       chips[i + 2].type !== 'or-connector'
     ) {
       run.push(chips[i + 2]);

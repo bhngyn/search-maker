@@ -1,24 +1,24 @@
-// Google search engine descriptor. Mirrors the original behaviour of the
-// app before the engine abstraction was introduced — strings, operator
-// catalogue, drawer order, and templates are all extracted verbatim from
-// the previous `src/chips/keyword.js`, `src/ui/composer.js`,
-// `src/ui/drawer.js`, and `src/ui/templates.js` so the Google experience
-// is byte-identical post-refactor.
+// Google search engine descriptor.
+//
+// String fields (subtitle, operator labels, drawer labels, template titles,
+// etc.) are i18n keys, NOT literal strings. Consumers resolve them via
+// `t(key)` from src/i18n/messages.js so the descriptor can serve both the
+// Arabic and English UI without duplicating structure per language.
 //
 // Engine descriptor shape is locked by `src/core/engine.js` — see the
 // docblock there before changing this file.
 
 const keywordOperators = {
   none: {
-    label: 'كلمة',
+    label: 'engine.google.op.none.label',
     opName: '',
-    dir: 'rtl',
+    dir: 'auto',
     normalizes: true,
     quotable: true,
     acceptsArabic: true,
   },
   site: {
-    label: 'موقع (site:)',
+    label: 'engine.google.op.site.label',
     opName: 'site',
     dir: 'ltr',
     normalizes: false,
@@ -26,31 +26,31 @@ const keywordOperators = {
     acceptsArabic: false,
   },
   intitle: {
-    label: 'في العنوان (intitle:)',
+    label: 'engine.google.op.intitle.label',
     opName: 'intitle',
-    dir: 'rtl',
+    dir: 'auto',
     normalizes: true,
     quotable: true,
     acceptsArabic: true,
   },
   intext: {
-    label: 'في النص (intext:)',
+    label: 'engine.google.op.intext.label',
     opName: 'intext',
-    dir: 'rtl',
+    dir: 'auto',
     normalizes: true,
     quotable: true,
     acceptsArabic: true,
   },
   inanchor: {
-    label: 'في نص الروابط (inanchor:)',
+    label: 'engine.google.op.inanchor.label',
     opName: 'inanchor',
-    dir: 'rtl',
+    dir: 'auto',
     normalizes: true,
     quotable: true,
     acceptsArabic: true,
   },
   inurl: {
-    label: 'في الرابط (inurl:)',
+    label: 'engine.google.op.inurl.label',
     opName: 'inurl',
     dir: 'ltr',
     normalizes: false,
@@ -60,31 +60,31 @@ const keywordOperators = {
 };
 
 const composerPills = [
-  { op: 'none',     label: 'كلمة عادية' },
-  { op: 'site',     label: 'في الموقع' },
-  { op: 'intitle',  label: 'في عنوان الصفحة' },
-  { op: 'inurl',    label: 'في رابط الصفحة' },
-  { op: 'intext',   label: 'في نص الصفحة' },
-  { op: 'inanchor', label: 'في الروابط الواردة' },
+  { op: 'none',     label: 'engine.google.pill.none' },
+  { op: 'site',     label: 'engine.google.pill.site' },
+  { op: 'intitle',  label: 'engine.google.pill.intitle' },
+  { op: 'inurl',    label: 'engine.google.pill.inurl' },
+  { op: 'intext',   label: 'engine.google.pill.intext' },
+  { op: 'inanchor', label: 'engine.google.pill.inanchor' },
 ];
 
 const drawerItems = {
-  site:           { kind: 'keyword', operator: 'site',     label: 'البحث في موقع محدد',      desc: 'يحصر النتائج بنطاق معين، مثل bbc.com',                    badge: 'site:' },
-  intitle:        { kind: 'keyword', operator: 'intitle',  label: 'البحث في عنوان الصفحة',   desc: 'كلمة يجب أن تظهر في عنوان النتيجة',                       badge: 'intitle:' },
-  inurl:          { kind: 'keyword', operator: 'inurl',    label: 'البحث في رابط الصفحة',    desc: 'كلمة يجب أن تظهر في رابط النتيجة',                        badge: 'inurl:' },
-  intext:         { kind: 'keyword', operator: 'intext',   label: 'البحث في نص الصفحة',      desc: 'كلمة يجب أن تظهر في محتوى النتيجة',                       badge: 'intext:' },
-  inanchor:       { kind: 'keyword', operator: 'inanchor', label: 'البحث في روابط واردة',    desc: 'كلمة من نص الروابط التي تشير للصفحة',                     badge: 'inanchor:' },
-  filetype:       { kind: 'special', type: 'filetype',     label: 'نوع الملف',                desc: 'حصر النتائج في PDF أو Word أو غيرها',                     badge: 'filetype:',         tier: 'beginner' },
-  'date-range':   { kind: 'special', type: 'date-range',   label: 'نطاق زمني',                desc: 'حصر النتائج بين تاريخين',                                  badge: 'before: / after:',  tier: 'beginner' },
-  proximity:      { kind: 'special', type: 'proximity',    label: 'كلمتان متقاربتان',         desc: 'كلمتان تظهران بقرب بعضهما، مفيد لربط شخصين',              badge: 'AROUND(N)',         tier: 'advanced' },
-  'number-range': { kind: 'special', type: 'number-range', label: 'نطاق عددي',                desc: 'أرقام بين قيمتين، مثل 100..500',                          badge: '..',                tier: 'advanced' },
+  site:           { kind: 'keyword', operator: 'site',     label: 'engine.google.drawer.site.label',        desc: 'engine.google.drawer.site.desc',        badge: 'site:' },
+  intitle:        { kind: 'keyword', operator: 'intitle',  label: 'engine.google.drawer.intitle.label',     desc: 'engine.google.drawer.intitle.desc',     badge: 'intitle:' },
+  inurl:          { kind: 'keyword', operator: 'inurl',    label: 'engine.google.drawer.inurl.label',       desc: 'engine.google.drawer.inurl.desc',       badge: 'inurl:' },
+  intext:         { kind: 'keyword', operator: 'intext',   label: 'engine.google.drawer.intext.label',      desc: 'engine.google.drawer.intext.desc',      badge: 'intext:' },
+  inanchor:       { kind: 'keyword', operator: 'inanchor', label: 'engine.google.drawer.inanchor.label',    desc: 'engine.google.drawer.inanchor.desc',    badge: 'inanchor:' },
+  filetype:       { kind: 'special', type: 'filetype',     label: 'engine.google.drawer.filetype.label',     desc: 'engine.google.drawer.filetype.desc',     badge: 'filetype:',         tier: 'beginner' },
+  'date-range':   { kind: 'special', type: 'date-range',   label: 'engine.google.drawer.dateRange.label',    desc: 'engine.google.drawer.dateRange.desc',    badge: 'before: / after:',  tier: 'beginner' },
+  proximity:      { kind: 'special', type: 'proximity',    label: 'engine.google.drawer.proximity.label',    desc: 'engine.google.drawer.proximity.desc',    badge: 'AROUND(N)',         tier: 'advanced' },
+  'number-range': { kind: 'special', type: 'number-range', label: 'engine.google.drawer.numberRange.label',  desc: 'engine.google.drawer.numberRange.desc',  badge: '..',                tier: 'advanced' },
 };
 
 const templates = [
   {
     id: 'site',
-    title: 'بحث في موقع محدد',
-    description: 'حصر النتائج بنطاق معين مثل bbc.com',
+    title: 'engine.google.tpl.site.title',
+    description: 'engine.google.tpl.site.desc',
     icon: '🌐',
     apply(chipState) {
       chipState.add('keyword', { operator: 'site', text: '' });
@@ -92,8 +92,8 @@ const templates = [
   },
   {
     id: 'docs',
-    title: 'بحث في الوثائق',
-    description: 'العثور على ملفات PDF أو Word',
+    title: 'engine.google.tpl.docs.title',
+    description: 'engine.google.tpl.docs.desc',
     icon: '📄',
     apply(chipState) {
       chipState.add('filetype', { value: 'pdf' });
@@ -101,8 +101,8 @@ const templates = [
   },
   {
     id: 'daterange',
-    title: 'بحث في نطاق زمني',
-    description: 'حصر النتائج بين تاريخين',
+    title: 'engine.google.tpl.daterange.title',
+    description: 'engine.google.tpl.daterange.desc',
     icon: '📅',
     apply(chipState) {
       const today = new Date();
@@ -117,9 +117,9 @@ export default {
   id: 'google',
   label: 'Google',
   labels: {
-    subtitle: 'ابنِ استعلامات بحث متقدمة في Google باللغة العربية، دون الحاجة إلى الكتابة بالإنجليزية أو تبديل لوحة المفاتيح.',
-    searchBtnLabel: 'البحث في Google',
-    emptyPreview: 'ابدأ بكتابة كلمات البحث',
+    subtitle: 'engine.google.subtitle',
+    searchBtnLabel: 'engine.google.searchBtn',
+    emptyPreview: 'engine.google.emptyPreview',
   },
   searchUrl: q => 'https://www.google.com/search?q=' + encodeURIComponent(q || ''),
   keywordOperators,

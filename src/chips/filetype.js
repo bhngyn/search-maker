@@ -5,11 +5,16 @@
 // Source spec (CLAUDE.md): pdf, doc, docx, xls, xlsx, ppt, pptx, txt, rtf
 // (csv and mp3 are deindexed by Google and intentionally omitted).
 
-export const type = 'filetype';
-export const label = 'نوع الملف';
+import { t } from '../i18n/messages.js';
 
+export const type = 'filetype';
+export const label = 'engine.google.drawer.filetype.label';
+
+// Extension labels are mostly script-neutral — only `none` and `txt` get
+// localized. Everything else (PDF, Word, Excel, …) reads identically in
+// both languages, so we keep a literal label there to keep this list compact.
 export const FILETYPES = [
-  { value: '',     label: 'بدون تحديد' },
+  { value: '',     labelKey: 'chip.filetype.opt.none' },
   { value: 'pdf',  label: 'PDF' },
   { value: 'doc',  label: 'Word (doc)' },
   { value: 'docx', label: 'Word (docx)' },
@@ -17,7 +22,7 @@ export const FILETYPES = [
   { value: 'xlsx', label: 'Excel (xlsx)' },
   { value: 'ppt',  label: 'PowerPoint (ppt)' },
   { value: 'pptx', label: 'PowerPoint (pptx)' },
-  { value: 'txt',  label: 'نص (txt)' },
+  { value: 'txt',  labelKey: 'chip.filetype.opt.txt' },
   { value: 'rtf',  label: 'RTF' },
 ];
 
@@ -38,7 +43,7 @@ export function render(chip, handlers) {
   const del = document.createElement('button');
   del.type = 'button';
   del.className = 'chip-delete-btn';
-  del.setAttribute('aria-label', 'حذف نوع الملف');
+  del.setAttribute('aria-label', t('chip.filetype.deleteAria'));
   del.textContent = '×';
   del.addEventListener('click', (e) => { e.stopPropagation(); handlers.onDelete(); });
 
@@ -49,11 +54,11 @@ export function render(chip, handlers) {
 
   const select = document.createElement('select');
   select.className = 'chip-wide-select';
-  select.setAttribute('aria-label', 'اختر نوع الملف');
-  FILETYPES.forEach(({ value, label }) => {
+  select.setAttribute('aria-label', t('chip.filetype.selectAria'));
+  FILETYPES.forEach(({ value, label, labelKey }) => {
     const opt = document.createElement('option');
     opt.value = value;
-    opt.textContent = label;
+    opt.textContent = labelKey ? t(labelKey) : label;
     if (value === chip.props.value) opt.selected = true;
     select.appendChild(opt);
   });

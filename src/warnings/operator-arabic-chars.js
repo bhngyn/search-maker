@@ -5,6 +5,7 @@
 
 import { getActiveEngine } from '../core/engine.js';
 import { getOperatorsForActive } from '../chips/keyword.js';
+import { t } from '../i18n/messages.js';
 
 const ARABIC_RE = /[؀-ۿ]/;
 
@@ -28,10 +29,9 @@ export function register(ctx, deps) {
     if (offending.length) {
       const labels = [...new Set(offending.map(c => {
         const op = ops[c.props.operator];
-        return op ? op.label : c.props.operator;
-      }))].join('، ');
-      ctx.addWarning('operator-arabic-chars',
-        '⚠️ تحتوي حقول (' + labels + ') على أحرف عربية. هذه الحقول تتوقع نصاً لاتينياً، ولن يتطابق محرك البحث مع النص العربي فيها.');
+        return op ? t(op.label) : c.props.operator;
+      }))].join(', ');
+      ctx.addWarning('operator-arabic-chars', t('warning.operatorArabicChars', { labels }));
     } else {
       ctx.removeWarning('operator-arabic-chars');
     }

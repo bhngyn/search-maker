@@ -1,25 +1,19 @@
-// X / Twitter search engine descriptor. v1 surface — covers the operators
-// an Arabic-speaking analyst would actually reach for day-to-day.
+// X / Twitter search engine descriptor.
 //
-// Source: CLAUDE-X.md (the locked spec) and Igor Brigadir's
-// twitter-advanced-search reference. Excluded by spec: lang:chr|iu|sk,
-// filter:vine|periscope|news|safe, card_name:*/card_domain:/card_url:,
-// source:twitter_ads, third-party-client cloudhopper-style sources.
-//
-// Engine descriptor shape is locked by `src/core/engine.js` — see the
-// docblock there before changing this file.
+// String fields are i18n keys, NOT literal strings — see src/i18n/messages.js
+// and the docblock in src/engines/google.js.
 
 const keywordOperators = {
   none: {
-    label: 'كلمة',
+    label: 'engine.x.op.none.label',
     opName: '',
-    dir: 'rtl',
+    dir: 'auto',
     normalizes: true,
     quotable: true,
     acceptsArabic: true,
   },
   from: {
-    label: 'من حساب (from:)',
+    label: 'engine.x.op.from.label',
     opName: 'from',
     dir: 'ltr',
     normalizes: false,
@@ -27,7 +21,7 @@ const keywordOperators = {
     acceptsArabic: false,
   },
   to: {
-    label: 'ردّاً على حساب (to:)',
+    label: 'engine.x.op.to.label',
     opName: 'to',
     dir: 'ltr',
     normalizes: false,
@@ -35,7 +29,7 @@ const keywordOperators = {
     acceptsArabic: false,
   },
   mention: {
-    label: 'ذِكر (@user)',
+    label: 'engine.x.op.mention.label',
     opName: 'mention',
     dir: 'ltr',
     normalizes: false,
@@ -45,9 +39,9 @@ const keywordOperators = {
     badge: '@',
   },
   hashtag: {
-    label: 'هاشتاج (#tag)',
+    label: 'engine.x.op.hashtag.label',
     opName: 'hashtag',
-    dir: 'rtl',
+    dir: 'auto',
     normalizes: true,
     quotable: false,
     acceptsArabic: true,
@@ -55,7 +49,7 @@ const keywordOperators = {
     badge: '#',
   },
   cashtag: {
-    label: 'رمز سهم ($TWTR)',
+    label: 'engine.x.op.cashtag.label',
     opName: 'cashtag',
     dir: 'ltr',
     normalizes: false,
@@ -65,7 +59,7 @@ const keywordOperators = {
     badge: '$',
   },
   url: {
-    label: 'رابط (url:)',
+    label: 'engine.x.op.url.label',
     opName: 'url',
     dir: 'ltr',
     normalizes: false,
@@ -73,7 +67,7 @@ const keywordOperators = {
     acceptsArabic: false,
   },
   list: {
-    label: 'قائمة (list:)',
+    label: 'engine.x.op.list.label',
     opName: 'list',
     dir: 'ltr',
     normalizes: false,
@@ -81,7 +75,7 @@ const keywordOperators = {
     acceptsArabic: false,
   },
   lang: {
-    label: 'لغة (lang:)',
+    label: 'engine.x.op.lang.label',
     opName: 'lang',
     dir: 'ltr',
     normalizes: false,
@@ -89,7 +83,7 @@ const keywordOperators = {
     acceptsArabic: false,
   },
   near: {
-    label: 'قرب (near:)',
+    label: 'engine.x.op.near.label',
     opName: 'near',
     dir: 'ltr',
     normalizes: false,
@@ -97,7 +91,7 @@ const keywordOperators = {
     acceptsArabic: false,
   },
   source: {
-    label: 'تطبيق المصدر (source:)',
+    label: 'engine.x.op.source.label',
     opName: 'source',
     dir: 'ltr',
     normalizes: false,
@@ -105,7 +99,7 @@ const keywordOperators = {
     acceptsArabic: false,
   },
   conversation_id: {
-    label: 'محادثة (conversation_id:)',
+    label: 'engine.x.op.conversation_id.label',
     opName: 'conversation_id',
     dir: 'ltr',
     normalizes: false,
@@ -113,7 +107,7 @@ const keywordOperators = {
     acceptsArabic: false,
   },
   quoted_tweet_id: {
-    label: 'اقتباس تغريدة (quoted_tweet_id:)',
+    label: 'engine.x.op.quoted_tweet_id.label',
     opName: 'quoted_tweet_id',
     dir: 'ltr',
     normalizes: false,
@@ -123,36 +117,36 @@ const keywordOperators = {
 };
 
 const composerPills = [
-  { op: 'none',    label: 'كلمة عادية' },
-  { op: 'from',    label: 'من حساب' },
-  { op: 'to',      label: 'ردّاً على' },
-  { op: 'mention', label: 'ذِكر (@)' },
-  { op: 'hashtag', label: 'هاشتاج (#)' },
+  { op: 'none',    label: 'engine.x.pill.none' },
+  { op: 'from',    label: 'engine.x.pill.from' },
+  { op: 'to',      label: 'engine.x.pill.to' },
+  { op: 'mention', label: 'engine.x.pill.mention' },
+  { op: 'hashtag', label: 'engine.x.pill.hashtag' },
 ];
 
 const drawerItems = {
-  from:            { kind: 'keyword', operator: 'from',            label: 'من حساب',                desc: 'حصر النتائج بتغريدات حساب معين',           badge: 'from:',     tier: 'beginner' },
-  to:              { kind: 'keyword', operator: 'to',              label: 'ردّاً على حساب',          desc: 'تغريدات موجَّهة لحساب معين',                badge: 'to:',       tier: 'beginner' },
-  mention:         { kind: 'keyword', operator: 'mention',         label: 'ذِكر حساب',               desc: 'تغريدات تذكر حساباً (@user)',              badge: '@',         tier: 'beginner' },
-  hashtag:         { kind: 'keyword', operator: 'hashtag',         label: 'هاشتاج',                  desc: 'تغريدات تحتوي وسماً معيناً',                badge: '#',         tier: 'beginner' },
-  cashtag:         { kind: 'keyword', operator: 'cashtag',         label: 'رمز سهم',                 desc: 'رموز الأسهم المالية مثل $TWTR',            badge: '$',         tier: 'beginner' },
-  list:            { kind: 'keyword', operator: 'list',            label: 'قائمة',                   desc: 'حصر النتائج بأعضاء قائمة معينة',           badge: 'list:',     tier: 'beginner' },
-  url:             { kind: 'keyword', operator: 'url',             label: 'رابط داخل التغريدة',       desc: 'تغريدات تشير لنطاق معين',                  badge: 'url:',      tier: 'beginner' },
-  lang:            { kind: 'keyword', operator: 'lang',            label: 'لغة التغريدة',             desc: 'مثل ar للعربية أو en للإنجليزية',           badge: 'lang:',     tier: 'beginner' },
-  near:            { kind: 'keyword', operator: 'near',            label: 'قرب موقع جغرافي',          desc: 'حصر النتائج قرب مدينة أو near:me',         badge: 'near:',     tier: 'beginner' },
-  source:          { kind: 'keyword', operator: 'source',          label: 'تطبيق المصدر',             desc: 'التطبيق الذي أُرسلت منه التغريدة',          badge: 'source:',   tier: 'beginner' },
-  conversation_id: { kind: 'keyword', operator: 'conversation_id', label: 'معرّف المحادثة',           desc: 'كل التغريدات في محادثة معينة',              badge: 'conv_id:',  tier: 'advanced' },
-  quoted_tweet_id: { kind: 'keyword', operator: 'quoted_tweet_id', label: 'معرّف تغريدة مقتبَسة',     desc: 'تغريدات تقتبس تغريدة معينة',               badge: 'quoted:',   tier: 'advanced' },
-  'date-range':    { kind: 'special', type: 'date-range',          label: 'نطاق زمني',                desc: 'حصر النتائج بين تاريخين',                   badge: 'since: / until:', tier: 'beginner' },
-  filter:          { kind: 'special', type: 'filter',              label: 'تصفية بنوع التغريدة',      desc: 'تغريدات بصور أو فيديو، ردود، تحقق…',        badge: 'filter:',   tier: 'beginner' },
-  engagement:      { kind: 'special', type: 'engagement',          label: 'حد أدنى/أقصى للتفاعل',     desc: 'إعجابات أو ردود أو إعادات تغريد',           badge: 'min_*:',    tier: 'beginner' },
+  from:            { kind: 'keyword', operator: 'from',            label: 'engine.x.drawer.from.label',            desc: 'engine.x.drawer.from.desc',            badge: 'from:',     tier: 'beginner' },
+  to:              { kind: 'keyword', operator: 'to',              label: 'engine.x.drawer.to.label',              desc: 'engine.x.drawer.to.desc',              badge: 'to:',       tier: 'beginner' },
+  mention:         { kind: 'keyword', operator: 'mention',         label: 'engine.x.drawer.mention.label',         desc: 'engine.x.drawer.mention.desc',         badge: '@',         tier: 'beginner' },
+  hashtag:         { kind: 'keyword', operator: 'hashtag',         label: 'engine.x.drawer.hashtag.label',         desc: 'engine.x.drawer.hashtag.desc',         badge: '#',         tier: 'beginner' },
+  cashtag:         { kind: 'keyword', operator: 'cashtag',         label: 'engine.x.drawer.cashtag.label',         desc: 'engine.x.drawer.cashtag.desc',         badge: '$',         tier: 'beginner' },
+  list:            { kind: 'keyword', operator: 'list',            label: 'engine.x.drawer.list.label',            desc: 'engine.x.drawer.list.desc',            badge: 'list:',     tier: 'beginner' },
+  url:             { kind: 'keyword', operator: 'url',             label: 'engine.x.drawer.url.label',             desc: 'engine.x.drawer.url.desc',             badge: 'url:',      tier: 'beginner' },
+  lang:            { kind: 'keyword', operator: 'lang',            label: 'engine.x.drawer.lang.label',            desc: 'engine.x.drawer.lang.desc',            badge: 'lang:',     tier: 'beginner' },
+  near:            { kind: 'keyword', operator: 'near',            label: 'engine.x.drawer.near.label',            desc: 'engine.x.drawer.near.desc',            badge: 'near:',     tier: 'beginner' },
+  source:          { kind: 'keyword', operator: 'source',          label: 'engine.x.drawer.source.label',          desc: 'engine.x.drawer.source.desc',          badge: 'source:',   tier: 'beginner' },
+  conversation_id: { kind: 'keyword', operator: 'conversation_id', label: 'engine.x.drawer.conversation_id.label', desc: 'engine.x.drawer.conversation_id.desc', badge: 'conv_id:',  tier: 'advanced' },
+  quoted_tweet_id: { kind: 'keyword', operator: 'quoted_tweet_id', label: 'engine.x.drawer.quoted_tweet_id.label', desc: 'engine.x.drawer.quoted_tweet_id.desc', badge: 'quoted:',   tier: 'advanced' },
+  'date-range':    { kind: 'special', type: 'date-range',          label: 'engine.x.drawer.dateRange.label',       desc: 'engine.x.drawer.dateRange.desc',       badge: 'since: / until:', tier: 'beginner' },
+  filter:          { kind: 'special', type: 'filter',              label: 'engine.x.drawer.filter.label',          desc: 'engine.x.drawer.filter.desc',          badge: 'filter:',   tier: 'beginner' },
+  engagement:      { kind: 'special', type: 'engagement',          label: 'engine.x.drawer.engagement.label',      desc: 'engine.x.drawer.engagement.desc',      badge: 'min_*:',    tier: 'beginner' },
 };
 
 const templates = [
   {
     id: 'account',
-    title: 'تغريدات من حساب',
-    description: 'حصر النتائج بحساب معين',
+    title: 'engine.x.tpl.account.title',
+    description: 'engine.x.tpl.account.desc',
     icon: '👤',
     apply(chipState) {
       chipState.add('keyword', { operator: 'from', text: '' });
@@ -160,8 +154,8 @@ const templates = [
   },
   {
     id: 'popular',
-    title: 'تغريدات شائعة',
-    description: 'تفاعل مرتفع: 1000 إعجاب أو أكثر',
+    title: 'engine.x.tpl.popular.title',
+    description: 'engine.x.tpl.popular.desc',
     icon: '🔥',
     apply(chipState) {
       chipState.add('engagement', { metric: 'min_faves', direction: 'min', value: 1000 });
@@ -169,8 +163,8 @@ const templates = [
   },
   {
     id: 'daterange',
-    title: 'بحث في فترة زمنية',
-    description: 'آخر 30 يوماً افتراضياً',
+    title: 'engine.x.tpl.daterange.title',
+    description: 'engine.x.tpl.daterange.desc',
     icon: '📅',
     apply(chipState) {
       const today = new Date();
@@ -183,11 +177,11 @@ const templates = [
 
 export default {
   id: 'x',
-  label: 'X / تويتر',
+  label: 'X / Twitter',
   labels: {
-    subtitle: 'ابنِ استعلامات بحث متقدمة في X / تويتر باللغة العربية، دون الحاجة إلى الكتابة بالإنجليزية أو تبديل لوحة المفاتيح.',
-    searchBtnLabel: 'البحث في X',
-    emptyPreview: 'ابدأ بكتابة كلمات البحث',
+    subtitle: 'engine.x.subtitle',
+    searchBtnLabel: 'engine.x.searchBtn',
+    emptyPreview: 'engine.x.emptyPreview',
   },
   searchUrl: q => 'https://x.com/search?q=' + encodeURIComponent(q || '') + '&src=typed_query',
   keywordOperators,

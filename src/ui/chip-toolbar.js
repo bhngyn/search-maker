@@ -1,4 +1,4 @@
-// Bulk-actions toolbar for multi-select (Advanced mode only).
+// Bulk-actions toolbar for multi-select.
 //
 // Subscribes to a selection observable + chip state. When selection is
 // non-empty, renders a toolbar with bulk actions:
@@ -6,24 +6,20 @@
 //   - "نفي" / "إلغاء النفي" toggle (only if all selected can be negated)
 //   - "حذف" — delete all selected
 //   - "إلغاء التحديد" — clear selection
-//
-// In Beginner mode the toolbar stays hidden.
 
 import { getOperatorsForActive, getOperatorKeysForActive } from '../chips/keyword.js';
+import { t } from '../i18n/messages.js';
 
 /**
  * @param {object} args
  * @param {HTMLElement} args.host
  * @param {{ getAll: () => any[], update: Function, remove: Function }} args.chipState
  * @param {{ get: () => Set<string>, subscribe: (cb: () => void) => void, clear: () => void }} args.selection
- * @param {{ get: () => 'beginner' | 'advanced', on?: (cb: () => void) => void }} [args.mode]
  */
-export function wireChipToolbar({ host, chipState, selection, mode }) {
+export function wireChipToolbar({ host, chipState, selection, lang }) {
   host.classList.add('chip-toolbar');
   host.setAttribute('role', 'toolbar');
-  host.setAttribute('aria-label', 'إجراءات على الكلمات المحددة');
-
-  function isAdvanced() { return !mode || !mode.get || mode.get() === 'advanced'; }
+  host.setAttribute('aria-label', t('ui.toolbar.ariaLabel'));
 
   function selectedChips() {
     const ids = selection.get();
@@ -38,7 +34,7 @@ export function wireChipToolbar({ host, chipState, selection, mode }) {
 
   function render() {
     const sel = selectedChips();
-    const showing = isAdvanced() && sel.length > 0;
+    const showing = sel.length > 0;
     if (!showing) {
       host.hidden = true;
       host.innerHTML = '';
@@ -55,23 +51,23 @@ export function wireChipToolbar({ host, chipState, selection, mode }) {
 
     const count = document.createElement('span');
     count.className = 'chip-toolbar-count';
-    count.textContent = sel.length + ' محدّدة';
+    count.textContent = t('ui.toolbar.count', { n: sel.length });
     host.appendChild(count);
 
     if (allKeyword) {
       const opLabel = document.createElement('label');
       opLabel.className = 'chip-toolbar-op-label';
-      opLabel.textContent = 'غيّر العامل:';
+      opLabel.textContent = t('ui.toolbar.opLabel');
       const select = document.createElement('select');
       select.className = 'chip-toolbar-select';
-      select.setAttribute('aria-label', 'تغيير العامل لكل المحدّد');
+      select.setAttribute('aria-label', t('ui.toolbar.opAria'));
       // Determine whether all selected share a single operator value;
-      // if so, default the dropdown to that. Otherwise show a "(متفرق)" option.
+      // if so, default the dropdown to that. Otherwise show a mixed marker.
       const ops = new Set(sel.map(c => c.props.operator || 'none'));
       if (ops.size > 1) {
         const opt = document.createElement('option');
         opt.value = '';
-        opt.textContent = '(متفرق)';
+        opt.textContent = t('ui.toolbar.opMixed');
         opt.disabled = true;
         opt.selected = true;
         select.appendChild(opt);
@@ -83,7 +79,7 @@ export function wireChipToolbar({ host, chipState, selection, mode }) {
         if (!o) return;
         const opt = document.createElement('option');
         opt.value = key;
-        opt.textContent = o.label;
+        opt.textContent = t(o.label);
         if (ops.size === 1 && Array.from(ops)[0] === key) opt.selected = true;
         select.appendChild(opt);
       });
@@ -100,7 +96,7 @@ export function wireChipToolbar({ host, chipState, selection, mode }) {
       const negBtn = document.createElement('button');
       negBtn.type = 'button';
       negBtn.className = 'chip-toolbar-btn';
-      negBtn.textContent = allNegated ? 'إلغاء النفي' : 'نفي (-)';
+      negBtn.textContent = allNegated ? t('ui.toolbar.unnegate') : t('ui.toolbar.negate');
       negBtn.setAttribute('aria-pressed', allNegated ? 'true' : 'false');
       negBtn.addEventListener('click', () => {
         const next = !allNegated;
@@ -112,7 +108,7 @@ export function wireChipToolbar({ host, chipState, selection, mode }) {
     const delBtn = document.createElement('button');
     delBtn.type = 'button';
     delBtn.className = 'chip-toolbar-btn chip-toolbar-btn-danger';
-    delBtn.textContent = 'حذف';
+    delBtn.textContent = t('ui.toolbar.delete');
     delBtn.addEventListener('click', () => {
       sel.forEach(c => chipState.remove(c.id));
       selection.clear();
@@ -122,13 +118,16 @@ export function wireChipToolbar({ host, chipState, selection, mode }) {
     const clearBtn = document.createElement('button');
     clearBtn.type = 'button';
     clearBtn.className = 'chip-toolbar-btn';
-    clearBtn.textContent = 'إلغاء التحديد';
+    clearBtn.textContent = t('ui.toolbar.clearSelection');
     clearBtn.addEventListener('click', () => selection.clear());
     host.appendChild(clearBtn);
   }
 
   selection.subscribe(render);
   chipState.subscribe(render);
-  if (mode && mode.on) mode.on(render);
+  if (lang && lang.on) lang.on(() => {
+    host.setAttribute('aria-label', t('ui.toolbar.ariaLabel'));
+    render();
+  });
   render();
 }

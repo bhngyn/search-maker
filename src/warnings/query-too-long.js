@@ -1,3 +1,5 @@
+import { t } from '../i18n/messages.js';
+
 // Warns when the assembled query exceeds 32 words (Google's effective length limit).
 
 /**
@@ -13,8 +15,7 @@ export function register(ctx, deps) {
       ? q.split(/\s+/).filter(Boolean).length
       : 0;
     if (wordCount > 32) {
-      ctx.addWarning('query-too-long',
-        '⚠️ الاستعلام طويل (' + wordCount + ' كلمة). جوجل قد يُعيد نتائج قليلة أو لا شيء عند تجاوز نحو 32 كلمة. حاول تبسيط البحث.');
+      ctx.addWarning('query-too-long', t('warning.queryTooLong', { count: wordCount }));
     } else {
       ctx.removeWarning('query-too-long');
     }

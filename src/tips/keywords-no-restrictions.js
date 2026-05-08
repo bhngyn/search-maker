@@ -1,3 +1,5 @@
+import { t } from '../i18n/messages.js';
+
 // Tip surfaced when the user has only plain keyword chips and no operator
 // or special chips — broad keyword searches return too many results to
 // review effectively.
@@ -22,7 +24,7 @@ export function register(ctx, deps) {
     if (allPlain && chips.length >= 1) {
       ctx.addTip('keywords-no-restrictions', {
         priority: 20,
-        messageHtml: '💡 تلميح: الكلمات الرئيسية وحدها قد تُعيد نتائج كثيرة جداً. فكّر في إضافة قيد للموقع أو نطاق زمني (زرّ «إضافة») لتضييق النتائج.',
+        messageHtml: t('tip.keywordsNoRestrictions'),
       });
     } else {
       ctx.removeTip('keywords-no-restrictions');

@@ -1,3 +1,5 @@
+import { t } from '../i18n/messages.js';
+
 // Tip surfaced when the user has a filled proximity chip — points out
 // the OSINT use case (finding two entities mentioned together) and gives
 // distance-tuning guidance.
@@ -19,7 +21,7 @@ export function register(ctx, deps) {
     if (trigger) {
       ctx.addTip('proximity-usage', {
         priority: 60,
-        messageHtml: '💡 تلميح: بحث القرب من أقوى أدوات OSINT لإيجاد شخصين أو كيانين يُذكران معاً. المسافات الصغيرة (3–5) تجد الذكر المباشر، بينما المسافات الأكبر (10–20) تجد أي علاقة سياقية.',
+        messageHtml: t('tip.proximityUsage'),
       });
     } else {
       ctx.removeTip('proximity-usage');

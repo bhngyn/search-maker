@@ -3,8 +3,10 @@
 // terms with spaces require quoting for proximity to behave correctly).
 // Distance defaults to 5; clamped to [1, 50].
 
+import { t } from '../i18n/messages.js';
+
 export const type = 'proximity';
-export const label = 'بحث بالقرب من';
+export const label = 'engine.google.drawer.proximity.label';
 
 export function defaultProps() {
   return { term1: '', distance: 5, term2: '' };
@@ -30,7 +32,7 @@ export function render(chip, handlers) {
   const del = document.createElement('button');
   del.type = 'button';
   del.className = 'chip-delete-btn';
-  del.setAttribute('aria-label', 'حذف بحث القرب');
+  del.setAttribute('aria-label', t('chip.proximity.deleteAria'));
   del.textContent = '×';
   del.addEventListener('click', (e) => { e.stopPropagation(); handlers.onDelete(); });
 
@@ -45,10 +47,10 @@ export function render(chip, handlers) {
   const t1 = document.createElement('input');
   t1.type = 'text';
   t1.className = 'chip-wide-input chip-wide-input-term';
-  t1.dir = 'rtl';
-  t1.placeholder = 'الكلمة الأولى';
+  t1.dir = 'auto';
+  t1.placeholder = t('chip.proximity.term1Placeholder');
   t1.value = chip.props.term1 || '';
-  t1.setAttribute('aria-label', 'الكلمة الأولى');
+  t1.setAttribute('aria-label', t('chip.proximity.term1Aria'));
   t1.addEventListener('input', () => {
     if (handlers.onChangeProps) handlers.onChangeProps({ term1: t1.value });
   });
@@ -56,7 +58,7 @@ export function render(chip, handlers) {
 
   const distLabel = document.createElement('span');
   distLabel.className = 'chip-wide-input-label';
-  distLabel.textContent = 'بمسافة';
+  distLabel.textContent = t('chip.proximity.distLabel');
 
   const dist = document.createElement('input');
   dist.type = 'number';
@@ -65,7 +67,7 @@ export function render(chip, handlers) {
   dist.dir = 'ltr';
   dist.className = 'chip-wide-input chip-wide-input-distance';
   dist.value = String(chip.props.distance || 5);
-  dist.setAttribute('aria-label', 'عدد الكلمات بين المصطلحين');
+  dist.setAttribute('aria-label', t('chip.proximity.distAria'));
   dist.addEventListener('input', () => {
     const n = parseInt(dist.value, 10);
     if (handlers.onChangeProps) handlers.onChangeProps({ distance: isNaN(n) ? 5 : n });
@@ -74,15 +76,15 @@ export function render(chip, handlers) {
 
   const distSuffix = document.createElement('span');
   distSuffix.className = 'chip-wide-input-label';
-  distSuffix.textContent = 'كلمة من';
+  distSuffix.textContent = t('chip.proximity.distSuffix');
 
   const t2 = document.createElement('input');
   t2.type = 'text';
   t2.className = 'chip-wide-input chip-wide-input-term';
-  t2.dir = 'rtl';
-  t2.placeholder = 'الكلمة الثانية';
+  t2.dir = 'auto';
+  t2.placeholder = t('chip.proximity.term2Placeholder');
   t2.value = chip.props.term2 || '';
-  t2.setAttribute('aria-label', 'الكلمة الثانية');
+  t2.setAttribute('aria-label', t('chip.proximity.term2Aria'));
   t2.addEventListener('input', () => {
     if (handlers.onChangeProps) handlers.onChangeProps({ term2: t2.value });
   });

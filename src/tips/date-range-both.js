@@ -1,3 +1,5 @@
+import { t } from '../i18n/messages.js';
+
 // Tip surfaced when a date-range chip has BOTH `after` and `before` set —
 // narrow date ranges combined with site restrictions are extremely
 // effective for finding event-specific coverage.
@@ -17,7 +19,7 @@ export function register(ctx, deps) {
     if (trigger) {
       ctx.addTip('date-range-both', {
         priority: 60,
-        messageHtml: '💡 النطاقات الزمنية الضيقة مع قيود الموقع فعّالة جداً للعثور على تغطية أحداث بعينها. جرّب دمج هذا النطاق مع حقل «في عنوان الصفحة» (intitle:) للعثور على مقالات تتعلق بحدث محدد.',
+        messageHtml: t('tip.dateRangeBoth'),
       });
     } else {
       ctx.removeTip('date-range-both');

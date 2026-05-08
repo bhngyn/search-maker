@@ -1,5 +1,9 @@
 // Facebook search engine descriptor.
 //
+// String fields (subtitle, category labels/hints, section legends/options,
+// id-field placeholders/hints, toggle labels) are i18n keys, NOT literal
+// strings. Consumers resolve via `t(key)` from src/i18n/messages.js.
+//
 // Facebook search is fundamentally form-based, not query-string-based:
 //   - The user picks a category (top, posts, people, photos, videos, pages).
 //   - A required free-text keyword is sent as `q=`.
@@ -19,12 +23,12 @@
 // Source: whopostedwhat.com filter reference. Operator definitions verbatim.
 
 const CATEGORIES = [
-  { value: 'top',    label: 'الأعلى',     hint: 'البحث الموحَّد (الأكثر صلة)' },
-  { value: 'posts',  label: 'المنشورات',  hint: 'منشورات نصية فقط' },
-  { value: 'people', label: 'الأشخاص',     hint: 'بحث عن أشخاص حسب المدينة أو التعليم أو العمل' },
-  { value: 'photos', label: 'الصور',       hint: 'منشورات تحتوي صوراً' },
-  { value: 'videos', label: 'الفيديو',     hint: 'منشورات تحتوي فيديو' },
-  { value: 'pages',  label: 'الصفحات',     hint: 'بحث عن صفحات Facebook' },
+  { value: 'top',    label: 'engine.facebook.cat.top.label',    hint: 'engine.facebook.cat.top.hint' },
+  { value: 'posts',  label: 'engine.facebook.cat.posts.label',  hint: 'engine.facebook.cat.posts.hint' },
+  { value: 'people', label: 'engine.facebook.cat.people.label', hint: 'engine.facebook.cat.people.hint' },
+  { value: 'photos', label: 'engine.facebook.cat.photos.label', hint: 'engine.facebook.cat.photos.hint' },
+  { value: 'videos', label: 'engine.facebook.cat.videos.label', hint: 'engine.facebook.cat.videos.hint' },
+  { value: 'pages',  label: 'engine.facebook.cat.pages.label',  hint: 'engine.facebook.cat.pages.hint' },
 ];
 
 // Each section is a mutually-exclusive group of options. Picking an option
@@ -41,71 +45,71 @@ const CATEGORIES = [
 
 const POSTS_FROM = {
   id: 'postsFrom',
-  legend: 'كاتب المنشور',
+  legend: 'engine.facebook.sec.postsFrom.legend',
   options: [
-    { id: 'none',         label: 'بدون تحديد' },
-    { id: 'author_me',    label: 'منشوراتي',                  outerKey: 'rp_author', name: 'author_me' },
-    { id: 'author_friends', label: 'منشورات أصدقائي',         outerKey: 'rp_author', name: 'author_friends_feed' },
-    { id: 'author_groups',  label: 'منشورات مجموعاتي وصفحاتي', outerKey: 'rp_author', name: 'my_groups_and_pages_posts' },
-    { id: 'author_public',  label: 'منشورات عامة',            outerKey: 'rp_author', name: 'merged_public_posts' },
-    { id: 'author_page',    label: 'منشورات من صفحة',         outerKey: 'rp_author', name: 'author', idField: { placeholder: 'معرّف الصفحة (أرقام)', hint: 'مثال: 119375054750638', dir: 'ltr' } },
+    { id: 'none',           label: 'engine.facebook.sec.postsFrom.opt.none' },
+    { id: 'author_me',      label: 'engine.facebook.sec.postsFrom.opt.author_me',      outerKey: 'rp_author', name: 'author_me' },
+    { id: 'author_friends', label: 'engine.facebook.sec.postsFrom.opt.author_friends', outerKey: 'rp_author', name: 'author_friends_feed' },
+    { id: 'author_groups',  label: 'engine.facebook.sec.postsFrom.opt.author_groups',  outerKey: 'rp_author', name: 'my_groups_and_pages_posts' },
+    { id: 'author_public',  label: 'engine.facebook.sec.postsFrom.opt.author_public',  outerKey: 'rp_author', name: 'merged_public_posts' },
+    { id: 'author_page',    label: 'engine.facebook.sec.postsFrom.opt.author_page',    outerKey: 'rp_author', name: 'author', idField: { placeholder: 'engine.facebook.sec.postsFrom.idPlaceholder', hint: 'engine.facebook.sec.postsFrom.idHint', dir: 'ltr' } },
   ],
 };
 
 const POST_TYPE = {
   id: 'postType',
-  legend: 'نوع المنشور',
+  legend: 'engine.facebook.sec.postType.legend',
   options: [
-    { id: 'none',           label: 'بدون تحديد' },
-    { id: 'interacted',     label: 'منشورات شاهدتُها', outerKey: 'interacted_posts', name: 'interacted_posts' },
+    { id: 'none',           label: 'engine.facebook.sec.postType.opt.none' },
+    { id: 'interacted',     label: 'engine.facebook.sec.postType.opt.interacted', outerKey: 'interacted_posts', name: 'interacted_posts' },
   ],
 };
 
 const POSTED_IN_GROUP = {
   id: 'postedInGroup',
-  legend: 'ضمن مجموعة',
+  legend: 'engine.facebook.sec.postedInGroup.legend',
   options: [
-    { id: 'none',          label: 'بدون تحديد' },
-    { id: 'my_groups',     label: 'مجموعاتي',         outerKey: 'rp_group', name: 'my_groups_posts' },
-    { id: 'group',         label: 'مجموعة محددة',      outerKey: 'rp_group', name: 'group_posts', idField: { placeholder: 'معرّف المجموعة (أرقام)', hint: 'مثال: 574981909329531', dir: 'ltr' } },
+    { id: 'none',          label: 'engine.facebook.sec.postedInGroup.opt.none' },
+    { id: 'my_groups',     label: 'engine.facebook.sec.postedInGroup.opt.my_groups', outerKey: 'rp_group', name: 'my_groups_posts' },
+    { id: 'group',         label: 'engine.facebook.sec.postedInGroup.opt.group',     outerKey: 'rp_group', name: 'group_posts', idField: { placeholder: 'engine.facebook.sec.postedInGroup.idPlaceholder', hint: 'engine.facebook.sec.postedInGroup.idHint', dir: 'ltr' } },
   ],
 };
 
 const TAGGED_LOCATION = {
   id: 'taggedLocation',
-  legend: 'في موقع',
+  legend: 'engine.facebook.sec.taggedLocation.legend',
   options: [
-    { id: 'none',     label: 'بدون تحديد' },
-    { id: 'location', label: 'موقع محدد', outerKey: 'rp_location', name: 'location', idField: { placeholder: 'معرّف الموقع (أرقام)', hint: 'مثال: 115028691842393', dir: 'ltr' } },
+    { id: 'none',     label: 'engine.facebook.sec.taggedLocation.opt.none' },
+    { id: 'location', label: 'engine.facebook.sec.taggedLocation.opt.location', outerKey: 'rp_location', name: 'location', idField: { placeholder: 'engine.facebook.sec.taggedLocation.idPlaceholder', hint: 'engine.facebook.sec.taggedLocation.idHint', dir: 'ltr' } },
   ],
 };
 
 const SORT_BY = {
   id: 'sortBy',
-  legend: 'الترتيب',
+  legend: 'engine.facebook.sec.sortBy.legend',
   options: [
-    { id: 'none',   label: 'الأكثر صلة (افتراضي)' },
-    { id: 'recent', label: 'الأحدث',                 outerKey: 'rp_chrono_sort', name: 'chronosort' },
+    { id: 'none',   label: 'engine.facebook.sec.sortBy.opt.none' },
+    { id: 'recent', label: 'engine.facebook.sec.sortBy.opt.recent', outerKey: 'rp_chrono_sort', name: 'chronosort' },
   ],
 };
 
 const PHOTO_TYPE = {
   id: 'photoType',
-  legend: 'نوع الصور',
+  legend: 'engine.facebook.sec.photoType.legend',
   options: [
-    { id: 'none',       label: 'بدون تحديد' },
-    { id: 'interacted', label: 'صور شاهدتُها', outerKey: 'interacted_photos', name: 'interacted_photos' },
+    { id: 'none',       label: 'engine.facebook.sec.photoType.opt.none' },
+    { id: 'interacted', label: 'engine.facebook.sec.photoType.opt.interacted', outerKey: 'interacted_photos', name: 'interacted_photos' },
   ],
 };
 
 const VIDEO_SOURCE = {
   id: 'videoSource',
-  legend: 'مصدر الفيديو',
+  legend: 'engine.facebook.sec.videoSource.legend',
   options: [
-    { id: 'none',     label: 'بدون تحديد' },
-    { id: 'live',     label: 'بث مباشر',                outerKey: 'videos_source', name: 'videos_live' },
-    { id: 'episode',  label: 'حلقات',                    outerKey: 'videos_source', name: 'videos_episode' },
-    { id: 'feed',     label: 'من الأصدقاء والمجموعات',   outerKey: 'videos_source', name: 'videos_feed' },
+    { id: 'none',     label: 'engine.facebook.sec.videoSource.opt.none' },
+    { id: 'live',     label: 'engine.facebook.sec.videoSource.opt.live',    outerKey: 'videos_source', name: 'videos_live' },
+    { id: 'episode',  label: 'engine.facebook.sec.videoSource.opt.episode', outerKey: 'videos_source', name: 'videos_episode' },
+    { id: 'feed',     label: 'engine.facebook.sec.videoSource.opt.feed',    outerKey: 'videos_source', name: 'videos_feed' },
   ],
 };
 
@@ -113,60 +117,60 @@ const VIDEO_SOURCE = {
 // City/Education/Work each take a single ID input (no enum options).
 const PEOPLE_CITY = {
   id: 'peopleCity',
-  legend: 'المدينة',
+  legend: 'engine.facebook.sec.peopleCity.legend',
   kind: 'idOnly',
   outerKey: 'city',
   name: 'users_location',
-  idField: { placeholder: 'معرّف المدينة (أرقام)', hint: 'مثال: 115028691842393', dir: 'ltr' },
+  idField: { placeholder: 'engine.facebook.sec.peopleCity.idPlaceholder', hint: 'engine.facebook.sec.peopleCity.idHint', dir: 'ltr' },
 };
 const PEOPLE_EDUCATION = {
   id: 'peopleEducation',
-  legend: 'التعليم',
+  legend: 'engine.facebook.sec.peopleEducation.legend',
   kind: 'idOnly',
   outerKey: 'school',
   name: 'users_school',
-  idField: { placeholder: 'معرّف المؤسسة التعليمية', hint: 'مثال: 751335894893898', dir: 'ltr' },
+  idField: { placeholder: 'engine.facebook.sec.peopleEducation.idPlaceholder', hint: 'engine.facebook.sec.peopleEducation.idHint', dir: 'ltr' },
 };
 const PEOPLE_WORK = {
   id: 'peopleWork',
-  legend: 'العمل',
+  legend: 'engine.facebook.sec.peopleWork.legend',
   kind: 'idOnly',
   outerKey: 'employer',
   name: 'users_employer',
-  idField: { placeholder: 'معرّف جهة العمل', hint: 'مثال: 20531316728', dir: 'ltr' },
+  idField: { placeholder: 'engine.facebook.sec.peopleWork.idPlaceholder', hint: 'engine.facebook.sec.peopleWork.idHint', dir: 'ltr' },
 };
 const PEOPLE_MUTUAL = {
   id: 'peopleMutual',
-  legend: 'أصدقاء مشتركون',
+  legend: 'engine.facebook.sec.peopleMutual.legend',
   options: [
-    { id: 'none',          label: 'بدون تحديد' },
-    { id: 'my_friends',    label: 'أصدقائي',                  outerKey: 'friends', name: 'users_friends' },
-    { id: 'friends_of_friends', label: 'أصدقاء أصدقائي',       outerKey: 'friends', name: 'users_friends_of_friends' },
-    { id: 'friends_of',    label: 'أصدقاء شخص محدد',          outerKey: 'friends', name: 'users_friends_of_people', idField: { placeholder: 'معرّف الشخص (أرقام)', hint: 'مثال: 100000154813605', dir: 'ltr' } },
+    { id: 'none',               label: 'engine.facebook.sec.peopleMutual.opt.none' },
+    { id: 'my_friends',         label: 'engine.facebook.sec.peopleMutual.opt.my_friends',         outerKey: 'friends', name: 'users_friends' },
+    { id: 'friends_of_friends', label: 'engine.facebook.sec.peopleMutual.opt.friends_of_friends', outerKey: 'friends', name: 'users_friends_of_friends' },
+    { id: 'friends_of',         label: 'engine.facebook.sec.peopleMutual.opt.friends_of',         outerKey: 'friends', name: 'users_friends_of_people', idField: { placeholder: 'engine.facebook.sec.peopleMutual.idPlaceholder', hint: 'engine.facebook.sec.peopleMutual.idHint', dir: 'ltr' } },
   ],
 };
 
 // Pages-search filter sections.
 const PAGES_VERIFIED = {
   id: 'pagesVerified',
-  legend: 'الحساب الموثّق',
+  legend: 'engine.facebook.sec.pagesVerified.legend',
   kind: 'toggle',
   outerKey: 'verified',
   name: 'pages_verified',
-  toggleLabel: 'صفحات موثَّقة فقط',
+  toggleLabel: 'engine.facebook.sec.pagesVerified.toggleLabel',
 };
 
 const PAGES_CATEGORY = {
   id: 'pagesCategory',
-  legend: 'فئة الصفحة',
+  legend: 'engine.facebook.sec.pagesCategory.legend',
   options: [
-    { id: 'none',       label: 'بدون تحديد' },
-    { id: 'local',      label: 'محل أو مكان محلي',                 outerKey: 'category', name: 'pages_category', argsValue: '1006' },
-    { id: 'company',    label: 'شركة أو منظمة أو مؤسسة',           outerKey: 'category', name: 'pages_category', argsValue: '1013' },
-    { id: 'brand',      label: 'علامة تجارية أو منتج',              outerKey: 'category', name: 'pages_category', argsValue: '1009' },
-    { id: 'artist',     label: 'فنان أو فرقة أو شخصية عامة',         outerKey: 'category', name: 'pages_category', argsValue: '1007,180164648685982' },
-    { id: 'entertain',  label: 'ترفيه',                              outerKey: 'category', name: 'pages_category', argsValue: '1019' },
-    { id: 'cause',      label: 'قضية أو مجتمع',                       outerKey: 'category', name: 'pages_category', argsValue: '2612' },
+    { id: 'none',       label: 'engine.facebook.sec.pagesCategory.opt.none' },
+    { id: 'local',      label: 'engine.facebook.sec.pagesCategory.opt.local',     outerKey: 'category', name: 'pages_category', argsValue: '1006' },
+    { id: 'company',    label: 'engine.facebook.sec.pagesCategory.opt.company',   outerKey: 'category', name: 'pages_category', argsValue: '1013' },
+    { id: 'brand',      label: 'engine.facebook.sec.pagesCategory.opt.brand',     outerKey: 'category', name: 'pages_category', argsValue: '1009' },
+    { id: 'artist',     label: 'engine.facebook.sec.pagesCategory.opt.artist',    outerKey: 'category', name: 'pages_category', argsValue: '1007,180164648685982' },
+    { id: 'entertain',  label: 'engine.facebook.sec.pagesCategory.opt.entertain', outerKey: 'category', name: 'pages_category', argsValue: '1019' },
+    { id: 'cause',      label: 'engine.facebook.sec.pagesCategory.opt.cause',     outerKey: 'category', name: 'pages_category', argsValue: '2612' },
   ],
 };
 
@@ -174,7 +178,7 @@ const PAGES_CATEGORY = {
 // year picker with an optional "advanced" range mode (start_day/end_day).
 const DATE_POSTED = {
   id: 'datePosted',
-  legend: 'تاريخ النشر',
+  legend: 'engine.facebook.sec.datePosted.legend',
   kind: 'date',
   outerKey: 'rp_creation_time',
   name: 'creation_time',
@@ -294,9 +298,9 @@ export default {
   label: 'Facebook',
   formBased: true,
   labels: {
-    subtitle: 'ابنِ روابط بحث متقدم في Facebook، مع تحديد الفئة والمرشحات بصيغة نموذج. الأداة تُولّد رابط البحث الذي تستخدمه أداة WhoPostedWhat.',
-    searchBtnLabel: 'البحث في Facebook',
-    emptyPreview: 'اكتب كلمة البحث أو اختر مرشحاً لبناء رابط Facebook.',
+    subtitle: 'engine.facebook.subtitle',
+    searchBtnLabel: 'engine.facebook.searchBtn',
+    emptyPreview: 'engine.facebook.emptyPreview',
   },
   // Identity passthrough — the form already produces the full URL, so the
   // preview's `q` is the URL. The search button opens `q` as-is.
@@ -308,9 +312,9 @@ export default {
   // active because main.js hides the chip surface, but the engine controller
   // / chip modules import from this descriptor at boot, so the keys must
   // exist with safe defaults.
-  keywordOperators: { none: { label: 'كلمة', opName: '', dir: 'rtl', normalizes: false, quotable: false, acceptsArabic: true } },
+  keywordOperators: { none: { label: 'engine.google.op.none.label', opName: '', dir: 'auto', normalizes: false, quotable: false, acceptsArabic: true } },
   keywordOperatorOrder: ['none'],
-  composerPills: [{ op: 'none', label: 'كلمة' }],
+  composerPills: [{ op: 'none', label: 'engine.google.op.none.label' }],
   drawer: { items: {}, beginnerOrder: [], beginnerMore: [], advancedKeywords: [], advancedSpecials: [] },
   templates: [],
   dateRangeOps: { after: 'after', before: 'before' },

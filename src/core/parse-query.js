@@ -93,10 +93,12 @@ function hasStructure(text) {
   // Leading minus, or a mid-string " -" (negate prefix on a later token).
   if (text.trimStart().startsWith('-')) return true;
   if (/\s-\S/.test(text)) return true;
-  // Engine-specific prefix operators (X: @, #, $).
+  // Engine-specific prefix operators (X: @, #, $). Case-sensitive by design —
+  // Twitter prefix ops are literal characters, not Latin keywords, so no
+  // case-insensitive flag is needed.
   const prefixChars = Object.keys(getParserSpec().prefixOperators || {});
   if (prefixChars.length > 0) {
-    const prefixRe = new RegExp('(^|\\s)[' + prefixChars.map(c => '\\' + c).join('') + ']\\S', '');
+    const prefixRe = new RegExp('(^|\\s)[' + prefixChars.map(c => '\\' + c).join('') + ']\\S');
     if (prefixRe.test(text)) return true;
   }
   return false;

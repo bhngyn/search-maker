@@ -3,70 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>أداة بناء استعلامات البحث</title>
+<title id="app-title-meta">أداة بناء استعلامات البحث</title>
 <script type="module" src="./main.js"></script>
 </head>
-<body class="mode-beginner">
+<body class="lang-ar">
 <div class="app">
 
   <header class="app-header">
     <div>
-      <h1 class="app-title">أداة بناء استعلامات البحث</h1>
-      <p class="app-subtitle" id="app-subtitle">ابنِ استعلامات بحث متقدمة في Google باللغة العربية، دون الحاجة إلى الكتابة بالإنجليزية أو تبديل لوحة المفاتيح.</p>
+      <h1 class="app-title" id="app-title"></h1>
+      <p class="app-subtitle" id="app-subtitle"></p>
     </div>
     <div class="header-controls">
-      <div class="engine-toggle" role="group" aria-label="محرك البحث">
+      <div class="engine-toggle" role="group" id="engine-toggle-group" aria-label="">
         <button id="engine-btn-google" type="button" aria-pressed="true">Google</button>
-        <button id="engine-btn-x" type="button" aria-pressed="false">X / تويتر</button>
+        <button id="engine-btn-x" type="button" aria-pressed="false"></button>
         <button id="engine-btn-facebook" type="button" aria-pressed="false">Facebook</button>
       </div>
-      <div class="mode-toggle" role="group" aria-label="وضع الواجهة">
-        <button id="mode-btn-beginner" type="button" aria-pressed="true">وضع المبتدئ</button>
-        <button id="mode-btn-advanced" type="button" aria-pressed="false">وضع المتقدم</button>
+      <div class="header-controls-secondary">
+        <div class="lang-toggle" role="group" id="lang-toggle-group" aria-label="">
+          <button id="lang-btn-ar" type="button" aria-pressed="true"></button>
+          <button id="lang-btn-en" type="button" aria-pressed="false"></button>
+        </div>
+        <div class="normalize-toggle">
+          <label>
+            <input type="checkbox" id="normalize-toggle-input">
+            <span id="normalize-label-text"></span>
+          </label>
+          <button type="button" id="normalize-info-btn" class="normalize-info-btn" aria-expanded="false" aria-controls="normalize-info-panel" title="">i</button>
+        </div>
       </div>
-      <div class="normalize-toggle">
-        <label>
-          <input type="checkbox" id="normalize-toggle-input">
-          توحيد الأحرف العربية
-        </label>
-        <button type="button" id="normalize-info-btn" class="normalize-info-btn" aria-expanded="false" aria-controls="normalize-info-panel" title="ما هذا؟">i</button>
-      </div>
-      <div id="normalize-info-panel" class="normalize-info-panel" hidden>
-        عند تفعيل هذا الخيار، يقوم البرنامج بتوحيد بعض الأحرف العربية المتشابهة (مثل أ، إ، آ تصبح ا) قبل البحث، مما يساعد على الحصول على نتائج أوسع. لا يغيّر هذا الخيار ما تكتبه — يظهر التحويل في معاينة الاستعلام أدناه.
-      </div>
+      <div id="normalize-info-panel" class="normalize-info-panel" hidden></div>
     </div>
   </header>
 
   <main>
     <section id="welcome-panel" class="welcome-panel" aria-labelledby="welcome-heading">
       <p id="welcome-heading">
-        ابنِ استعلامات بحث Google بالعربية: اكتب كلمة، اضغط <kbd>Enter</kbd> لتصبح قطعة، ثم انسخ الاستعلام أو ابحث به مباشرةً.
-        <button type="button" class="welcome-close-btn" id="welcome-close-btn" aria-label="إخفاء لوحة الترحيب">إخفاء</button>
+        <span id="welcome-blurb"></span>
+        <button type="button" class="welcome-close-btn" id="welcome-close-btn" aria-label=""></button>
       </p>
     </section>
-    <button id="welcome-reopen-btn" type="button" class="welcome-reopen" hidden>↩ إظهار الترحيب</button>
+    <button id="welcome-reopen-btn" type="button" class="welcome-reopen" hidden></button>
 
     <section class="chip-section" aria-labelledby="chip-section-heading">
-      <h2 id="chip-section-heading">ابنِ بحثك بإضافة كلمات</h2>
+      <h2 id="chip-section-heading"></h2>
       <div id="chip-area"></div>
       <aside id="chip-toolbar" hidden></aside>
       <div id="composer"></div>
     </section>
 
     <section id="facebook-form" aria-labelledby="facebook-form-heading">
-      <h2 id="facebook-form-heading" class="sr-only">نموذج بحث Facebook</h2>
+      <h2 id="facebook-form-heading" class="sr-only"></h2>
     </section>
 
     <div id="warnings-region" class="warnings-region" aria-live="polite"></div>
     <div id="tips-region" class="tips-region" aria-live="polite"></div>
 
     <section class="preview-section preview-section-sticky">
-      <h2 class="preview-heading">استعلامك جاهز</h2>
-      <div id="preview-box" class="preview-box empty" dir="ltr" aria-live="polite">ابدأ بكتابة كلمات البحث</div>
+      <h2 class="preview-heading" id="preview-heading"></h2>
+      <div id="preview-box" class="preview-box empty" dir="ltr" aria-live="polite"></div>
       <div class="action-row">
-        <button id="copy-btn" class="btn-primary" type="button" disabled>نسخ</button>
-        <button id="search-btn" class="btn-primary" type="button" disabled>البحث في Google</button>
-        <button id="reset-btn" class="btn-secondary" type="button">مسح الكل</button>
+        <button id="copy-btn" class="btn-primary" type="button" disabled></button>
+        <button id="search-btn" class="btn-primary" type="button" disabled></button>
+        <button id="reset-btn" class="btn-secondary" type="button"></button>
       </div>
     </section>
   </main>
