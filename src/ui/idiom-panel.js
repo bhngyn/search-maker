@@ -455,6 +455,13 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx, lang }) {
       h6how.className = 'idiom-inspector-section';
       h6how.textContent = t('idiom.section.howto');
       insp.appendChild(h6how);
+      // One-line convention note: explain that the «...» markers around
+      // example text in the steps below are visual delimiters, not
+      // characters the user types.
+      const note = document.createElement('p');
+      note.className = 'idiom-inspector-note';
+      note.textContent = t('idiom.howto.note');
+      insp.appendChild(note);
       const ol = document.createElement('ol');
       ol.className = 'idiom-inspector-howto';
       for (const step of steps) ol.appendChild(renderHowtoLi(step));

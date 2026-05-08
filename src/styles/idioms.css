@@ -645,6 +645,21 @@
 
 /* ─── HOW-TO LIST ─────────────────────────────────────────────────────── */
 
+/* One-line convention note rendered just under the "Build it manually"
+ * heading: clarifies that text inside «...» is what the user types into
+ * the keyword field — not the marks themselves. Subdued so it reads as
+ * meta-instruction, not a numbered step. */
+.idiom-inspector-note {
+  margin: 0 0 6px;
+  padding: 6px 10px;
+  border-inline-start: 2px solid var(--accent-muted, var(--accent));
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--fg-muted);
+}
+
 .idiom-inspector-howto {
   margin: 0;
   padding-inline-start: 1.4em; /* numbered list indent */

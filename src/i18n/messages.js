@@ -537,35 +537,70 @@ export const MESSAGES = {
   // Strings use [[...]] markers around control names; the renderer replaces
   // them with `.idiom-control-mention` styled spans.
   //
+  // One-time convention note at the top of the "Build it manually" section.
+  // Tells the user that whatever appears between «...» / "..." is what they
+  // type into the keyword field — the marks themselves are not typed.
+  'idiom.howto.note': {
+    ar: 'ℹ︎ ما يظهر بين علامتَي «» هو ما تكتبه داخل خانة الكلمة (لا تكتب العلامتين أنفسهما).',
+    en: 'ℹ︎ Whatever appears between the « » marks is what you type into the keyword field (don\'t type the marks themselves).',
+  },
   // keyword chip — plain word, no operator
   'idiom.howto.keyword.plain': {
-    ar: (v) => v.text ? 'اكتب «' + v.text + '»، ثم اضغط Enter.' : 'اكتب كلمتك، ثم اضغط Enter.',
-    en: (v) => v.text ? 'Type "' + v.text + '", then press Enter.' : 'Type your term, then press Enter.',
+    ar: (v) => v.text
+      ? 'اكتب «' + v.text + '» داخل خانة الكلمة، ثم اضغط Enter.'
+      : 'اكتب كلمتك داخل خانة الكلمة بين العلامتَين «» (مثلاً: «انتخابات»)، ثم اضغط Enter.',
+    en: (v) => v.text
+      ? 'Type «' + v.text + '» into the keyword field, then press Enter.'
+      : 'Type your keyword between the « » marks (e.g., «election»), then press Enter.',
   },
   // keyword chip — with content operator (site:, intitle:, etc.)
   'idiom.howto.keyword.withOp': {
-    ar: (v) => (v.text ? 'اكتب «' + v.text + '»' : 'اكتب الكلمة المرغوبة') + '، اضغط [[' + v.opLabel + ']] من شريط المؤشرات، ثم Enter.',
-    en: (v) => (v.text ? 'Type "' + v.text + '"' : 'Type your term') + ', click [[' + v.opLabel + ']] in the operator row, then Enter.',
+    ar: (v) => v.text
+      ? 'اكتب «' + v.text + '» داخل خانة الكلمة، اضغط [[' + v.opLabel + ']] من شريط المؤشرات، ثم Enter.'
+      : 'اكتب كلمتك بين العلامتَين «» (مثلاً: «.gov» مع site: أو «صحفي» مع intitle:)، اضغط [[' + v.opLabel + ']]، ثم Enter.',
+    en: (v) => v.text
+      ? 'Type «' + v.text + '» into the keyword field, click [[' + v.opLabel + ']] in the operator row, then press Enter.'
+      : 'Type your term between the « » marks (e.g., «.gov» with site: or «journalist» with intitle:), click [[' + v.opLabel + ']], then Enter.',
   },
   // keyword chip — quoted (literal phrase)
   'idiom.howto.keyword.quoted': {
-    ar: (v) => (v.text ? 'اكتب «' + v.text + '»' : 'اكتب العبارة الحرفية') + (v.opLabel ? '، اضغط [[' + v.opLabel + ']]، ' : '، ') + 'فعّل [[اقتباس حرفي]]، ثم Enter.',
-    en: (v) => (v.text ? 'Type "' + v.text + '"' : 'Type the literal phrase') + (v.opLabel ? ', click [[' + v.opLabel + ']], ' : ', ') + 'enable [[Literal quote]], then Enter.',
+    ar: (v) => {
+      const head = v.text
+        ? 'اكتب «' + v.text + '» داخل خانة الكلمة كعبارة حرفية واحدة'
+        : 'اكتب عبارتك الحرفية بين العلامتَين «» (مثلاً: «جامعة الملك سعود»)';
+      const op = v.opLabel ? '، اضغط [[' + v.opLabel + ']]' : '';
+      return head + op + '، فعّل [[اقتباس حرفي]]، ثم اضغط Enter.';
+    },
+    en: (v) => {
+      const head = v.text
+        ? 'Type «' + v.text + '» into the keyword field as a single literal phrase'
+        : 'Type your literal phrase between the « » marks (e.g., «John F Smith»)';
+      const op = v.opLabel ? ', click [[' + v.opLabel + ']]' : '';
+      return head + op + ', enable [[Literal quote]], then press Enter.';
+    },
   },
   // keyword chip — negate (excluded word, no operator)
   'idiom.howto.keyword.negate': {
-    ar: (v) => (v.text ? 'اكتب «' + v.text + '»' : 'اكتب الكلمة المراد استبعادها') + '، اضغط [[− NOT]] قبل Enter (أو ابدأ بـ "-").',
-    en: (v) => (v.text ? 'Type "' + v.text + '"' : 'Type the word to exclude') + ', press [[− NOT]] before Enter (or start with "-").',
+    ar: (v) => v.text
+      ? 'اكتب «' + v.text + '» داخل خانة الكلمة لاستبعادها، اضغط [[− NOT]] قبل Enter (أو ابدأ بـ "-").'
+      : 'اكتب الكلمة التي تريد استبعادها بين العلامتَين «» (مثلاً: «إعلان»)، اضغط [[− NOT]] قبل Enter (أو ابدأ بـ "-").',
+    en: (v) => v.text
+      ? 'Type «' + v.text + '» into the keyword field to exclude it, press [[− NOT]] before Enter (or start with "-").'
+      : 'Type the word to exclude between the « » marks (e.g., «advertisement»), press [[− NOT]] before Enter (or start with "-").',
   },
   // keyword chip — negate + operator
   'idiom.howto.keyword.negateOp': {
-    ar: (v) => (v.text ? 'اكتب «' + v.text + '»' : 'اكتب الكلمة المراد استبعادها') + '، اضغط [[' + v.opLabel + ']]، ثم [[− NOT]] قبل Enter.',
-    en: (v) => (v.text ? 'Type "' + v.text + '"' : 'Type the word to exclude') + ', click [[' + v.opLabel + ']], then [[− NOT]] before Enter.',
+    ar: (v) => v.text
+      ? 'اكتب «' + v.text + '» داخل خانة الكلمة، اضغط [[' + v.opLabel + ']]، ثم [[− NOT]] قبل Enter.'
+      : 'اكتب الكلمة التي تريد استبعادها بين العلامتَين «» (مثلاً: «دعاية»)، اضغط [[' + v.opLabel + ']]، ثم [[− NOT]] قبل Enter.',
+    en: (v) => v.text
+      ? 'Type «' + v.text + '» into the keyword field, click [[' + v.opLabel + ']], then [[− NOT]] before Enter.'
+      : 'Type the word to exclude between the « » marks (e.g., «propaganda»), click [[' + v.opLabel + ']], then [[− NOT]] before Enter.',
   },
   // or-connector chip
   'idiom.howto.or': {
-    ar: 'اضغط [[+أو]] على آخر كلمة، ثم اكتب البديل في الكلمة الجديدة.',
-    en: 'Click [[+Or]] on the previous chip, then type the alternative in the new chip.',
+    ar: 'اضغط [[+أو]] على آخر كلمة، ثم اكتب البديل في خانة الكلمة الجديدة (نفس قاعدة العلامتَين «»).',
+    en: 'Click [[+Or]] on the previous chip, then type the alternative in the new keyword field (same « » convention).',
   },
   // special chip — date-range
   'idiom.howto.special.dateRange': {
@@ -601,8 +636,16 @@ export const MESSAGES = {
   },
   // special chip — proximity
   'idiom.howto.special.proximity': {
-    ar: (v) => 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]، أدخل «' + (v.term1 || '_') + '» و«' + (v.term2 || '_') + '» بمسافة ' + v.distance + '.',
-    en: (v) => 'Click [[+ Add]], pick [[' + v.itemLabel + ']], enter "' + (v.term1 || '_') + '" and "' + (v.term2 || '_') + '" with distance ' + v.distance + '.',
+    ar: (v) => {
+      const t1 = v.term1 ? '«' + v.term1 + '»' : 'الكلمة الأولى بين «» (مثلاً: «انفجار»)';
+      const t2 = v.term2 ? '«' + v.term2 + '»' : 'الكلمة الثانية بين «» (مثلاً: «بيروت»)';
+      return 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]، أدخل ' + t1 + ' و' + t2 + ' بمسافة ' + v.distance + '.';
+    },
+    en: (v) => {
+      const t1 = v.term1 ? '«' + v.term1 + '»' : 'first term between « » (e.g., «explosion»)';
+      const t2 = v.term2 ? '«' + v.term2 + '»' : 'second term between « » (e.g., «Beirut»)';
+      return 'Click [[+ Add]], pick [[' + v.itemLabel + ']], enter ' + t1 + ' and ' + t2 + ' with distance ' + v.distance + '.';
+    },
   },
   // special chip — number-range
   'idiom.howto.special.numberRange': {
