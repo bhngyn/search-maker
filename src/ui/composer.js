@@ -14,6 +14,16 @@
 //                            (has operators, quotes, OR, etc.), parse it
 //                            into chips. Plain-text pastes fall through.
 
+// Flow-state ergonomics (Phase 6):
+//   - Ghost-chip preview that mirrors what would commit on Enter, sitting
+//     below the input. Crucial for low-literacy users — makes the chip
+//     metaphor concrete the first time they type.
+//   - Backspace on an empty input removes the most recent chip (with no
+//     undo, intentionally — fast typists expect this and the chip itself
+//     remains in DOM until they Backspace again).
+//   - Space alone never auto-commits (Arabic phrases contain spaces).
+//   - Empty Enter is a no-op. Buttons disable when the input is empty.
+
 import { parseQuery } from '../core/parse-query.js';
 import { OPERATORS } from '../chips/keyword.js';
 
@@ -31,21 +41,11 @@ const OPERATOR_PILLS = [
   { op: 'intext',   label: 'في نص الصفحة' },
   { op: 'inanchor', label: 'في الروابط الواردة' },
 ];
-//
-// Flow-state ergonomics (Phase 6):
-//   - Ghost-chip preview that mirrors what would commit on Enter, sitting
-//     below the input. Crucial for low-literacy users — makes the chip
-//     metaphor concrete the first time they type.
-//   - Backspace on an empty input removes the most recent chip (with no
-//     undo, intentionally — fast typists expect this and the chip itself
-//     remains in DOM until they Backspace again).
-//   - Space alone never auto-commits (Arabic phrases contain spaces).
-//   - Empty Enter is a no-op. Buttons disable when the input is empty.
 
 /**
  * @param {object} args
  * @param {HTMLElement} args.host
- * @param {{ add: Function, last: Function, remove: Function, getAll: Function }} args.chipState
+ * @param {{ add: Function, last: Function, remove: Function, removeMany: Function, getAll: Function }} args.chipState
  */
 export function wireComposer({ host, chipState }) {
   host.classList.add('composer');
@@ -68,6 +68,7 @@ export function wireComposer({ host, chipState }) {
         <span class="composer-ghost-chip" id="composer-ghost-chip"></span>
       </div>
       <div class="composer-op-pills" id="composer-op-pills" role="group" aria-label="نوع الإضافة"></div>
+      <p class="composer-ghost-paste-hint" id="composer-ghost-paste-hint" aria-live="polite">سيُضاف ككلمة واحدة. اضغط Enter لتأكيد، أو الصق نصاً مع علامات اقتباس للحصول على شظايا منفصلة.</p>
     </div>
     <div class="composer-commit-row" role="group" aria-label="إضافة الكلمة">
       <button type="button" class="composer-btn composer-btn-and" id="composer-btn-and" disabled>
@@ -193,25 +194,89 @@ export function wireComposer({ host, chipState }) {
     ghostPreview();
   }
 
+  // Shared toast element (the same #toast used by the copy-confirmation in
+  // core/preview.js). We construct DOM directly because the toast carries
+  // an interactive button — preview.showToast only handles plain text.
+  const toastEl = document.getElementById('toast');
+  let toastTimer = null;
+
+  function clearToast() {
+    if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
+    if (!toastEl) return;
+    toastEl.classList.remove('visible');
+    toastEl.classList.remove('toast-with-action');
+    toastEl.innerHTML = '';
+  }
+
+  function showPasteUndoToast(addedIds) {
+    if (!toastEl) return;
+    clearToast();
+    toastEl.classList.add('toast-with-action');
+    const msg = document.createElement('span');
+    msg.textContent = 'أُضيفت ' + addedIds.length + ' كلمة من اللصق — ';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'toast-undo-btn';
+    btn.textContent = 'تراجع';
+    btn.addEventListener('click', () => {
+      chipState.removeMany(addedIds);
+      clearToast();
+    });
+    toastEl.appendChild(msg);
+    toastEl.appendChild(btn);
+    toastEl.classList.add('visible');
+    toastTimer = setTimeout(clearToast, 1500);
+  }
+
+  // Plain-paste hint sits inside the ghost-row so the existing
+  // mode-advanced display:none rule already keeps it Beginner-only. Auto-
+  // fades after 4 seconds via class transitions.
+  let pasteHintTimer = null;
+  let pasteHintFadeTimer = null;
+  function showPasteHint() {
+    clearTimeout(pasteHintTimer);
+    clearTimeout(pasteHintFadeTimer);
+    ghostRow.classList.add('composer-ghost-row-paste-hint');
+    ghostRow.classList.remove('composer-ghost-row-paste-hint-fading');
+    // The ghost-row collapses to height:0 when input is empty; nudge it
+    // visible so the hint is actually shown until the input is filled by
+    // the default paste handler.
+    ghostRow.classList.add('visible');
+    pasteHintTimer = setTimeout(() => {
+      ghostRow.classList.add('composer-ghost-row-paste-hint-fading');
+      pasteHintFadeTimer = setTimeout(() => {
+        ghostRow.classList.remove('composer-ghost-row-paste-hint');
+        ghostRow.classList.remove('composer-ghost-row-paste-hint-fading');
+      }, 350);
+    }, 4000);
+  }
+
   input.addEventListener('input', refresh);
   input.addEventListener('paste', (e) => {
     // Try to parse the pasted text as a Google-style query. If it parses
     // into one or more chip descriptors, insert them and clear the input.
-    // If parseQuery returns null (the paste looks like plain text), let the
-    // browser's default paste behavior fill the input as usual.
+    // If parseQuery returns null (the paste looks like plain text), fall
+    // through to the browser's default paste, but show a one-shot hint so
+    // the user knows their paste became a single chip on purpose.
     const cd = e.clipboardData || window.clipboardData;
     if (!cd) return;
     const pasted = cd.getData('text');
     if (!pasted) return;
     const descriptors = parseQuery(pasted);
-    if (descriptors == null) return; // plain text → default paste
+    if (descriptors == null) {
+      showPasteHint();
+      return;
+    }
     e.preventDefault();
     if (descriptors.length === 0) return; // empty / whitespace → no-op
+    const addedIds = [];
     for (const d of descriptors) {
-      chipState.add(d.type, d.props);
+      const id = chipState.add(d.type, d.props);
+      if (id) addedIds.push(id);
     }
     input.value = '';
     refresh();
+    if (addedIds.length > 0) showPasteUndoToast(addedIds);
   });
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {

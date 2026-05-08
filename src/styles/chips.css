@@ -728,3 +728,47 @@ body.mode-advanced .chip-area .chip:hover:not(.chip-selected) {
   opacity: 0.75;
 }
 .composer-op-pill[aria-pressed="true"] .composer-op-pill-badge { opacity: 0.85; }
+
+/* === Composer paste-undo (B7) ===
+   The base .toast rule has pointer-events: none so the copy-confirmation
+   doesn't block anything underneath. The undo toast contains an interactive
+   button so re-enable pointer events when the variant class is present, and
+   tighten the layout so the inline button doesn't wrap awkwardly. */
+.toast.toast-with-action {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.toast-undo-btn {
+  background: transparent;
+  color: var(--bg);
+  border: 1px solid var(--bg);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  min-height: 32px;
+}
+.toast-undo-btn:hover { background: var(--bg); color: var(--fg); }
+.toast-undo-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Plain-paste hint sits inside the ghost row so the existing
+   mode-advanced display:none on .composer-ghost-row already keeps it out of
+   Advanced. Hidden by default; the JS adds .composer-ghost-row-paste-hint
+   to reveal it for 4s then .composer-ghost-row-paste-hint-fading to fade. */
+.composer-ghost-paste-hint {
+  display: none;
+  margin: 0;
+  font-size: 12px;
+  color: var(--fg-muted);
+  padding: 6px 10px;
+  background: var(--bg-subtle);
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  line-height: 1.4;
+  transition: opacity 300ms;
+}
+.composer-ghost-row-paste-hint .composer-ghost-paste-hint { display: block; }
+.composer-ghost-row-paste-hint-fading .composer-ghost-paste-hint { opacity: 0; }
