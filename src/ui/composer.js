@@ -64,8 +64,8 @@ export function wireComposer({ host, chipState, engine, lang }) {
         <span class="composer-ghost-label" id="composer-ghost-label-text"></span>
         <span class="composer-ghost-chip" id="composer-ghost-chip"></span>
       </div>
-      <div class="composer-op-pills" id="composer-op-pills" role="group"></div>
-      <div class="composer-quote-row" id="composer-quote-row">
+      <div class="composer-op-row">
+        <div class="composer-op-pills" id="composer-op-pills" role="group"></div>
         <button
           type="button"
           class="composer-quote-toggle"
@@ -75,8 +75,8 @@ export function wireComposer({ host, chipState, engine, lang }) {
           <span class="composer-quote-toggle-glyph" dir="ltr">"&nbsp;"</span>
           <span class="composer-quote-toggle-label" id="composer-quote-toggle-label-text"></span>
         </button>
-        <p class="composer-quote-hint" id="composer-quote-hint-text"></p>
       </div>
+      <p class="composer-quote-hint" id="composer-quote-hint-text"></p>
       <p class="composer-ghost-paste-hint" id="composer-ghost-paste-hint" aria-live="polite"></p>
     </div>
     <div class="composer-commit-row" role="group" id="composer-commit-row">

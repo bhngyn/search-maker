@@ -1,9 +1,12 @@
 /* Chip-based composer + chip area + sticky visualizer.
    Phase 4: lives ABOVE the existing form. Phase 5 will absorb the form. */
 
-/* ===== Section frame ===== */
+/* ===== Section frame =====
+   Lifted one surface tier (--bg-elevated) so the active workspace pops
+   above the page background and the recessed sticky-preview below reads
+   as a different region by contrast. */
 .chip-section {
-  background: var(--bg-subtle);
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 14px;
@@ -820,6 +823,15 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+/* Operator pills + quote toggle share one wrapping row so the literal-match
+   modifier sits next to the operator choice instead of on a row of its own. */
+.composer-op-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
 .composer-op-pill {
   display: inline-flex;

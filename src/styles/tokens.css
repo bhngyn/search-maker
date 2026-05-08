@@ -3,8 +3,10 @@
 :root {
   --accent: #2563eb;
   --accent-fg: #ffffff;
+  --accent-soft: rgba(37, 99, 235, 0.18);
   --bg: #0f172a;
   --bg-subtle: #1e293b;
+  --bg-elevated: #243246;
   --fg: #f1f5f9;
   --fg-muted: #94a3b8;
   --border: #334155;

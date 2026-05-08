@@ -59,13 +59,12 @@ const keywordOperators = {
   },
 };
 
+// Composer-pill row keeps only the two highest-frequency operators —
+// plain word and site:. The remaining four (intitle, inurl, intext,
+// inanchor) are still reachable via the "+ Search Operators" drawer.
 const composerPills = [
-  { op: 'none',     label: 'engine.google.pill.none' },
-  { op: 'site',     label: 'engine.google.pill.site' },
-  { op: 'intitle',  label: 'engine.google.pill.intitle' },
-  { op: 'inurl',    label: 'engine.google.pill.inurl' },
-  { op: 'intext',   label: 'engine.google.pill.intext' },
-  { op: 'inanchor', label: 'engine.google.pill.inanchor' },
+  { op: 'none', label: 'engine.google.pill.none' },
+  { op: 'site', label: 'engine.google.pill.site' },
 ];
 
 const drawerItems = {
