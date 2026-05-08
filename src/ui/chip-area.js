@@ -9,7 +9,6 @@
 // reading right-to-left).
 
 import { chipTypes } from '../chips/_registry.js';
-import { getTemplates, applyTemplate } from './templates.js';
 import { t } from '../i18n/messages.js';
 
 /**
@@ -171,57 +170,15 @@ export function wireChipArea({ host, chipState, selection, focusComposer, onChip
   }
 
   /**
-   * Render the empty-state DOM: templates picker (heading + 3 cards + hint).
+   * Render the empty-state DOM: a single muted hint line.
    */
   function renderEmptyState() {
     host.innerHTML = '';
     host.classList.add('chip-area-is-empty');
-    const wrap = document.createElement('div');
-    wrap.className = 'chip-area-empty-state';
-
-    const heading = document.createElement('h3');
-    heading.className = 'chip-area-empty-heading';
-    heading.textContent = t('ui.chipArea.emptyHeading');
-    wrap.appendChild(heading);
-
-    const grid = document.createElement('div');
-    grid.className = 'chip-area-empty-grid';
-    getTemplates().forEach(tpl => {
-      const card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'chip-area-empty-card';
-      card.dataset.templateId = tpl.id;
-
-      const titleLine = document.createElement('span');
-      titleLine.className = 'chip-area-empty-card-title';
-      const icon = document.createElement('span');
-      icon.className = 'chip-area-empty-card-icon';
-      icon.setAttribute('aria-hidden', 'true');
-      icon.textContent = tpl.icon;
-      const titleText = document.createElement('span');
-      titleText.textContent = t(tpl.title);
-      titleLine.appendChild(icon);
-      titleLine.appendChild(titleText);
-
-      const desc = document.createElement('span');
-      desc.className = 'chip-area-empty-card-desc';
-      desc.textContent = t(tpl.description);
-
-      card.appendChild(titleLine);
-      card.appendChild(desc);
-      card.addEventListener('click', () => {
-        applyTemplate(tpl.id, { chipState, focusComposer });
-      });
-      grid.appendChild(card);
-    });
-    wrap.appendChild(grid);
-
     const hint = document.createElement('p');
     hint.className = 'chip-area-empty-hint';
     hint.textContent = t('ui.chipArea.emptyHint');
-    wrap.appendChild(hint);
-
-    host.appendChild(wrap);
+    host.appendChild(hint);
   }
 
   /**
