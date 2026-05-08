@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>أداة بناء استعلامات البحث</title>
+<style>
+  :root {
+    --accent: #2563eb;
+    --accent-fg: #ffffff;
+    --bg: #ffffff;
+    --bg-subtle: #f5f7fa;
+    --fg: #1a1a1a;
+    --fg-muted: #6b7280;
+    --border: #d1d5db;
+    --warning: #b45309;
+    --warning-bg: #fef3c7;
+    --tip: #0369a1;
+    --tip-bg: #e0f2fe;
+    --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --gap: 24px;
+    --gap-tight: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a;
+      --bg-subtle: #1e293b;
+      --fg: #f1f5f9;
+      --fg-muted: #94a3b8;
+      --border: #334155;
+      --warning: #fbbf24;
+      --warning-bg: #422006;
+      --tip: #38bdf8;
+      --tip-bg: #082f49;
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", Tahoma, "Geeza Pro", "Arabic Typesetting", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  .app { max-width: 720px; margin: 0 auto; padding: 24px; }
+  body.mode-advanced .app { max-width: 1080px; }
+
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .app-title { margin: 0 0 4px 0; font-size: 24px; }
+  .app-subtitle { margin: 0; color: var(--fg-muted); font-size: 14px; }
+
+  .header-controls { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+
+  .mode-toggle { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .mode-toggle button {
+    background: transparent; color: var(--fg-muted); border: 0;
+    padding: 8px 14px; font: inherit; cursor: pointer;
+    min-height: 40px;
+  }
+  .mode-toggle button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+  .mode-toggle button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  .normalize-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+  .normalize-toggle input { accent-color: var(--accent); }
+  .normalize-info-btn {
+    background: transparent; border: 1px solid var(--border); color: var(--fg-muted);
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+    font-size: 12px; line-height: 1; padding: 0;
+    min-width: 28px; min-height: 28px;
+  }
+  .normalize-info-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .normalize-info-panel {
+    background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px; margin-top: 8px; font-size: 13px; color: var(--fg-muted);
+    max-width: 360px;
+  }
+  .normalize-info-panel[hidden] { display: none; }
+
+  .fields-container { display: flex; flex-direction: column; gap: var(--gap); }
+  body.mode-advanced .fields-container {
+    display: grid; grid-template-columns: 1fr; gap: var(--gap-tight);
+  }
+  @media (min-width: 720px) {
+    body.mode-advanced .fields-container { grid-template-columns: 1fr 1fr; gap: 16px 24px; }
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .field input[type="text"], .field input[type="number"], .field input[type="date"], .field select, .field textarea {
+    width: 100%; padding: 10px 12px;
+    font: inherit; font-size: 15px;
+    background: var(--bg); color: var(--fg);
+    border: 1px solid var(--border); border-radius: 6px;
+  }
+  .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent);
+  }
+  .field-help { margin: 0; color: var(--fg-muted); font-size: 13px; }
+  body.mode-advanced .field { gap: 4px; }
+  body.mode-advanced .field label { font-size: 13px; }
+  body.mode-advanced .field-help { display: none; }
+
+  .op-badge {
+    font-family: var(--mono); font-size: 11px;
+    background: var(--bg-subtle); color: var(--fg-muted);
+    padding: 2px 6px; border-radius: 4px;
+    direction: ltr; unicode-bidi: isolate;
+  }
+
+  .quote-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+  .quote-toggle input { accent-color: var(--accent); }
+
+  .field-clear-btn {
+    background: transparent; border: 0; color: var(--fg-muted);
+    cursor: pointer; font-size: 18px; line-height: 1; padding: 6px 10px;
+    align-self: flex-start; min-width: 36px; min-height: 36px;
+  }
+  .field-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .field-clear-btn[hidden] { display: none; }
+
+  .preview-section { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .preview-heading { margin: 0 0 8px 0; font-size: 14px; color: var(--fg-muted); }
+  body.mode-advanced .preview-heading { display: none; }
+  .preview-box {
+    direction: ltr; unicode-bidi: isolate;
+    font-family: var(--mono); font-size: 15px;
+    background: var(--bg-subtle); color: var(--fg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px; min-height: 64px;
+    white-space: pre-wrap; word-break: break-word;
+    text-align: left;
+  }
+  body.mode-advanced .preview-box { font-size: 16px; min-height: 96px; }
+  .preview-box.empty { color: var(--fg-muted); }
+
+  .action-row { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--accent); color: var(--accent-fg);
+    border: 0; padding: 12px 20px; font: inherit; font-size: 15px;
+    border-radius: 8px; cursor: pointer;
+    min-height: 44px; min-width: 140px;
+  }
+  .btn-primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn-primary:disabled { background: var(--border); color: var(--fg-muted); cursor: not-allowed; }
+  .btn-secondary {
+    background: transparent; color: var(--fg);
+    border: 1px solid var(--border); padding: 12px 20px; font: inherit; font-size: 14px;
+    border-radius: 8px; cursor: pointer;
+    min-height: 44px;
+  }
+  .btn-secondary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--fg); color: var(--bg);
+    padding: 10px 18px; border-radius: 8px; font-size: 14px;
+    pointer-events: none; opacity: 0; transition: opacity 200ms;
+  }
+  .toast.visible { opacity: 1; }
+
+  .warnings-region, .tips-region { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .warning, .tip {
+    display: flex; gap: 8px; align-items: flex-start;
+    padding: 10px 12px; border-radius: 6px; font-size: 13px;
+  }
+  .warning { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning); }
+  .tip { background: var(--tip-bg); color: var(--tip); border: 1px solid var(--tip); }
+  body.mode-advanced .tips-region { display: none; }
+
+  .field-keywords .field-keywords-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-keywords .field-keywords-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-keywords .quote-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+.field-keywords .quote-toggle input { accent-color: var(--accent); width: 15px; height: 15px; }
+.field-keywords input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-exact-phrase .field-exact-phrase-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-exact-phrase .field-exact-phrase-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-exact-phrase input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-excluded .field-excluded-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-excluded .field-excluded-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-excluded input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-site .field-site-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-site .field-site-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-site input[type="text"] { text-align: left; }
+.field-site input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-intitle .field-intitle-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-intitle .field-intitle-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-intitle .quote-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+.field-intitle .quote-toggle input { accent-color: var(--accent); width: 15px; height: 15px; }
+.field-intitle input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-inurl .field-inurl-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-inurl .field-inurl-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-inurl input[type="text"] { text-align: left; }
+.field-inurl input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-intext .field-intext-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-intext .field-intext-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-intext .field-intext-quote-row { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+.field-intext .field-intext-quote-row input { accent-color: var(--accent); width: 15px; height: 15px; }
+.field-intext input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-inanchor .field-inanchor-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-inanchor .field-inanchor-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-inanchor .field-inanchor-quote-row { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+.field-inanchor .field-inanchor-quote-row input { accent-color: var(--accent); width: 15px; height: 15px; }
+.field-inanchor input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-filetype { display: flex; flex-direction: column; gap: var(--gap-tight); }
+.field-filetype .field-filetype-header { display: flex; align-items: center; gap: var(--gap-tight); }
+.field-filetype .field-filetype-header label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.field-filetype .field-filetype-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 4px 9px; color: var(--fg-muted); min-width: 36px; min-height: 36px; transition: background 150ms; }
+.field-filetype .field-filetype-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
+.field-filetype .field-filetype-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.field-filetype select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--fg); cursor: pointer; min-height: 44px; }
+.field-filetype select:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-filetype .field-help { margin: 0; font-size: 0.85rem; color: var(--fg-muted); line-height: 1.5; }
+
+  .field-date-range { display: flex; flex-direction: column; gap: var(--gap-tight); }
+.field-date-range .field-date-range-header { display: flex; align-items: center; gap: var(--gap-tight); }
+.field-date-range .field-date-range-outer-label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.field-date-range .field-date-range-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 4px 9px; color: var(--fg-muted); min-width: 36px; min-height: 36px; transition: background 150ms; }
+.field-date-range .field-date-range-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
+.field-date-range .field-date-range-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.field-date-range .field-date-range-inputs { display: flex; flex-wrap: wrap; gap: var(--gap); }
+.field-date-range .field-date-range-input-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+.field-date-range .field-date-range-inner-label { font-size: 0.875rem; color: var(--fg-muted); font-weight: 500; }
+.field-date-range input[type="date"] { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--fg); min-height: 44px; }
+.field-date-range input[type="date"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-date-range .field-help { margin: 0; font-size: 0.85rem; color: var(--fg-muted); line-height: 1.5; }
+
+  .field-proximity .field-proximity-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-proximity .field-proximity-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-proximity .field-proximity-row { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
+.field-proximity .field-proximity-term-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 100px; }
+.field-proximity .field-proximity-sublabel { font-size: 12px; color: var(--fg-muted); }
+.field-proximity .field-proximity-term-group input[type="text"] { width: 100%; padding: 10px 12px; font: inherit; font-size: 15px; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; }
+.field-proximity .field-proximity-term-group input[type="text"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.field-proximity .field-proximity-sep { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
+.field-proximity .field-proximity-sep-text { font-size: 13px; color: var(--fg-muted); white-space: nowrap; }
+.field-proximity .field-proximity-sep input[type="number"] { width: 80px; padding: 10px 8px; font: inherit; font-size: 15px; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; text-align: center; }
+.field-proximity .field-proximity-sep input[type="number"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+@media (max-width: 500px) { .field-proximity .field-proximity-row { flex-direction: column; } .field-proximity .field-proximity-sep { flex-direction: row; align-items: center; gap: 6px; } }
+
+  .field-wildcard .field-wildcard-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-wildcard .field-wildcard-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-wildcard input[type="text"]:focus-visible { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-number-range { display: flex; flex-direction: column; gap: var(--gap-tight); }
+.field-number-range .field-number-range-header { display: flex; align-items: center; gap: var(--gap-tight); }
+.field-number-range .field-number-range-header > label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.field-number-range .field-number-range-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 4px 9px; color: var(--fg-muted); min-width: 36px; min-height: 36px; transition: background 150ms; }
+.field-number-range .field-number-range-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
+.field-number-range .field-number-range-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.field-number-range .field-number-range-inputs { display: flex; flex-direction: row; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
+.field-number-range .field-number-range-input-group { display: flex; flex-direction: column; gap: 3px; }
+.field-number-range .field-number-range-sub-label { font-size: 0.78rem; color: var(--fg-muted); font-weight: 500; }
+.field-number-range .field-number-range-sep { font-size: 1.2rem; font-weight: 700; color: var(--fg-muted); padding-bottom: 8px; font-family: var(--mono); }
+.field-number-range .field-number-range-input-group input[type="number"] { width: 90px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: var(--mono); font-size: 1rem; background: var(--bg); color: var(--fg); min-height: 44px; }
+.field-number-range .field-number-range-input-group input[type="number"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-number-range .field-number-range-prefix-group input[type="text"] { width: 56px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: var(--mono); font-size: 1rem; background: var(--bg); color: var(--fg); min-height: 44px; }
+.field-number-range .field-number-range-prefix-group input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-number-range .field-help { margin: 0; font-size: 0.85rem; color: var(--fg-muted); line-height: 1.5; }
+.field-number-range .field-help code { font-family: var(--mono); background: var(--bg-subtle); padding: 1px 4px; border-radius: 3px; }
+
+  .field-or-groups { display: flex; flex-direction: column; gap: var(--gap-tight); }
+.field-or-groups .field-or-groups-header { display: flex; align-items: center; gap: var(--gap-tight); }
+.field-or-groups .field-or-groups-header label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.field-or-groups .field-or-groups-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 4px 9px; color: var(--fg-muted); min-width: 36px; min-height: 36px; transition: background 150ms; }
+.field-or-groups .field-or-groups-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
+.field-or-groups .field-or-groups-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.field-or-groups #field-or-groups-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--fg); min-height: 44px; box-sizing: border-box; }
+.field-or-groups #field-or-groups-input:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-or-groups .field-help { margin: 0; font-size: 0.85rem; color: var(--fg-muted); line-height: 1.5; }
+
+  /* === STYLES_INSERT === */
+
+  /* ===== Welcome panel (Beginner only) ===== */
+  .welcome-panel {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 22px; margin-bottom: 24px;
+    position: relative;
+  }
+  .welcome-panel h2 { margin: 0 0 12px 0; font-size: 18px; }
+  .welcome-panel p { margin: 0 0 8px 0; font-size: 14px; line-height: 1.6; color: var(--fg); }
+  .welcome-panel p:last-of-type { margin-bottom: 0; }
+  .welcome-close-btn {
+    position: absolute; top: 12px; left: 12px;
+    background: transparent; border: 0; color: var(--fg-muted);
+    cursor: pointer; font-size: 13px; padding: 6px 10px; border-radius: 4px;
+    min-height: 36px;
+  }
+  .welcome-close-btn:hover { background: var(--bg); color: var(--fg); }
+  .welcome-close-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  body.mode-advanced .welcome-panel { display: none; }
+  body.welcome-collapsed .welcome-panel { display: none; }
+
+  /* ===== Templates row (Beginner only) ===== */
+  .templates-row {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 12px; margin-bottom: 24px;
+  }
+  @media (max-width: 600px) { .templates-row { grid-template-columns: 1fr; } }
+  body.mode-advanced .templates-row { display: none; }
+  .template-btn {
+    background: var(--bg); color: var(--fg);
+    border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 14px; text-align: start; cursor: pointer;
+    font: inherit; min-height: 88px;
+    display: flex; flex-direction: column; gap: 6px;
+    transition: border-color 150ms, background 150ms;
+  }
+  .template-btn:hover { border-color: var(--accent); background: var(--bg-subtle); }
+  .template-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .template-btn-title { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .template-btn-icon { font-size: 18px; line-height: 1; }
+  .template-btn-subtitle { color: var(--fg-muted); font-size: 12px; line-height: 1.5; }
+
+  /* ===== More-options disclosure (Beginner only) ===== */
+  body.mode-beginner #fields-container > .field:nth-child(n+5) { display: none; }
+  body.mode-beginner.advanced-revealed #fields-container > .field:nth-child(n+5) { display: flex; }
+  .more-options-toggle {
+    display: none;
+    width: 100%; margin-top: var(--gap);
+    background: var(--bg-subtle); color: var(--fg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 18px; font: inherit; font-size: 15px;
+    cursor: pointer; min-height: 44px;
+  }
+  .more-options-toggle:hover { border-color: var(--accent); }
+  .more-options-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .more-options-toggle .chevron { display: inline-block; transition: transform 200ms; }
+  body.advanced-revealed .more-options-toggle .chevron { transform: rotate(90deg); }
+  body.mode-beginner .more-options-toggle { display: flex; align-items: center; justify-content: space-between; }
+  body.mode-advanced .more-options-toggle { display: none; }
+
+</style>
+</head>
+<body class="mode-beginner">
+<div class="app">
+
+  <header class="app-header">
+    <div>
+      <h1 class="app-title">أداة بناء استعلامات البحث</h1>
+      <p class="app-subtitle">ابنِ استعلامات بحث متقدمة في Google باللغة العربية، دون الحاجة إلى الكتابة بالإنجليزية أو تبديل لوحة المفاتيح.</p>
+    </div>
+    <div class="header-controls">
+      <div class="mode-toggle" role="group" aria-label="وضع الواجهة">
+        <button id="mode-btn-beginner" type="button" aria-pressed="true">وضع المبتدئ</button>
+        <button id="mode-btn-advanced" type="button" aria-pressed="false">وضع المتقدم</button>
+      </div>
+      <div class="normalize-toggle">
+        <label>
+          <input type="checkbox" id="normalize-toggle-input">
+          توحيد الأحرف العربية
+        </label>
+        <button type="button" id="normalize-info-btn" class="normalize-info-btn" aria-expanded="false" aria-controls="normalize-info-panel" title="ما هذا؟">i</button>
+      </div>
+      <div id="normalize-info-panel" class="normalize-info-panel" hidden>
+        عند تفعيل هذا الخيار، يقوم البرنامج بتوحيد بعض الأحرف العربية المتشابهة (مثل أ، إ، آ تصبح ا) قبل البحث، مما يساعد على الحصول على نتائج أوسع. لا يغيّر هذا الخيار ما تكتبه — يظهر التحويل في معاينة الاستعلام أدناه.
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="welcome-panel" class="welcome-panel" aria-labelledby="welcome-heading">
+      <button type="button" class="welcome-close-btn" id="welcome-close-btn" aria-label="إخفاء لوحة الترحيب">إخفاء</button>
+      <h2 id="welcome-heading">مرحباً بك</h2>
+      <p>هذه الأداة تساعد متحدثي العربية في بناء استعلامات بحث متقدمة في Google دون الحاجة إلى الكتابة بالإنجليزية أو تبديل لوحة المفاتيح. كل عامل بحث (موقع، نوع ملف، تاريخ…) له حقل خاص به في الأعلى.</p>
+      <p>اكتب ما تعرفه في الحقول، شاهد الاستعلام يُبنى تلقائياً في الأسفل، ثم انسخه أو ابحث به في Google.</p>
+      <p>جرّب القوالب الجاهزة أدناه، أو ابدأ مباشرةً بكتابة كلمات البحث في الحقل الأول.</p>
+    </section>
+
+    <section class="templates-row" aria-label="قوالب جاهزة">
+      <button type="button" class="template-btn" id="template-site">
+        <span class="template-btn-title"><span class="template-btn-icon">🌐</span>بحث في موقع محدد</span>
+        <span class="template-btn-subtitle">ابحث داخل موقع واحد فقط — مفيد للمواقع الإخبارية أو الحكومية</span>
+      </button>
+      <button type="button" class="template-btn" id="template-docs">
+        <span class="template-btn-title"><span class="template-btn-icon">📄</span>بحث في الوثائق</span>
+        <span class="template-btn-subtitle">ابحث عن ملفات PDF أو وثائق أخرى — مفيد للتحقيقات</span>
+      </button>
+      <button type="button" class="template-btn" id="template-daterange">
+        <span class="template-btn-title"><span class="template-btn-icon">📅</span>بحث في نطاق زمني</span>
+        <span class="template-btn-subtitle">ابحث ضمن فترة زمنية محددة — مفيد لتغطية حدث معين</span>
+      </button>
+    </section>
+
+    <div id="fields-container" class="fields-container">
+      <div class="field field-keywords">
+  <div class="field-keywords-header">
+    <label for="field-keywords-input">
+      الكلمات الرئيسية
+      <span class="op-badge">keywords</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-keywords-clear" aria-label="مسح الكلمات الرئيسية" hidden>×</button>
+  </div>
+  <input
+    id="field-keywords-input"
+    type="text"
+    placeholder="اكتب كلمات البحث هنا، مثلاً: انتخابات"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <label class="quote-toggle" for="field-keywords-quote">
+    <input type="checkbox" id="field-keywords-quote" />
+    اقتباس حرفي
+  </label>
+  <p class="field-help">أدخل كلمات البحث الرئيسية — يبحث Google عنها بأي ترتيب. عند تفعيل «اقتباس حرفي»، يطلب Google العثور على الكلمات بالتسلسل الذي كتبته تماماً.</p>
+</div>
+      <div class="field field-exact-phrase">
+  <div class="field-exact-phrase-header">
+    <label for="field-exact-phrase-input">
+      عبارة بعينها
+      <span class="op-badge">&quot;…&quot;</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-exact-phrase-clear" aria-label="مسح العبارة بعينها" hidden>×</button>
+  </div>
+  <input
+    id="field-exact-phrase-input"
+    type="text"
+    placeholder="جملة كاملة بين علامتي اقتباس"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <p class="field-help">يطلب Google العثور على هذه الكلمات بالتسلسل الحرفي الذي كتبته. مفيد جداً للأسماء العربية، لأن محركات البحث قد تُفرّق رموز الاسم. يمكنك استخدام هذا الحقل مع الكلمات الرئيسية معاً للجمع بين بحث مرن وعبارة إلزامية.</p>
+</div>
+      <div class="field field-excluded">
+  <div class="field-excluded-header">
+    <label for="field-excluded-input">
+      كلمات مستبعدة
+      <span class="op-badge">-</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-excluded-clear" aria-label="مسح الكلمات المستبعدة" hidden>×</button>
+  </div>
+  <input
+    id="field-excluded-input"
+    type="text"
+    placeholder="سيارة كرة برمجة"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <p class="field-help">أي كلمة تكتبها هنا ستُحذف من نتائج البحث. مفيد لتصفية المعنى الخاطئ لكلمة مشتركة — مثلاً للبحث عن «النمر» الحيوان بعيداً عن نتائج كرة القدم أو الكمبيوتر.</p>
+</div>
+      <div class="field field-site">
+  <div class="field-site-header">
+    <label for="field-site-input">
+      الموقع
+      <span class="op-badge">site:</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-site-clear" aria-label="مسح تقييد الموقع" hidden>×</button>
+  </div>
+  <input
+    id="field-site-input"
+    type="text"
+    dir="ltr"
+    placeholder="example.com أو *.gov"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <p class="field-help">يقصر النتائج على نطاق واحد فقط. يمكن استخدام الرمز * للبحث في جميع النطاقات الفرعية (مثل *.gov للمواقع الحكومية). وبالدمج مع «نوع الملف» يصبح هذا أحد أقوى أنماط البحث الاستخباراتي.</p>
+</div>
+      <div class="field field-intitle">
+  <div class="field-intitle-header">
+    <label for="field-intitle-input">
+      في عنوان الصفحة
+      <span class="op-badge">intitle:</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-intitle-clear" aria-label="مسح حقل عنوان الصفحة" hidden>×</button>
+  </div>
+  <input
+    id="field-intitle-input"
+    type="text"
+    placeholder="مثلاً: تقرير سنوي"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <label class="quote-toggle" for="field-intitle-quote">
+    <input type="checkbox" id="field-intitle-quote" />
+    اقتباس حرفي
+  </label>
+  <p class="field-help">يبحث عن صفحات تحتوي هذه الكلمة في عنوانها (النص الظاهر في تبويب المتصفح ونتائج البحث) — وهو مؤشر قوي على موضوع الصفحة، مفيد للعثور على المقالات والتصريحات الرسمية وفهارس الوثائق.</p>
+</div>
+      <div class="field field-inurl">
+  <div class="field-inurl-header">
+    <label for="field-inurl-input">
+      في عنوان الرابط
+      <span class="op-badge">inurl:</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-inurl-clear" aria-label="مسح حقل عنوان الرابط" hidden>×</button>
+  </div>
+  <input
+    id="field-inurl-input"
+    type="text"
+    dir="ltr"
+    placeholder="archive"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <p class="field-help">يبحث عن صفحات يظهر فيها هذا النص داخل عنوان الرابط (URL) — مفيد للعثور على أقسام محددة من المواقع مثل الأرشيف أو التقارير أو الوثائق المسرّبة، وعادةً ما تكون هذه الكلمات بالإنجليزية حتى في المواقع العربية.</p>
+</div>
+      <div class="field field-intext">
+  <div class="field-intext-header">
+    <label for="field-intext-input">
+      في نص الصفحة
+      <span class="op-badge">intext:</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-intext-clear" aria-label="مسح حقل نص الصفحة" hidden>×</button>
+  </div>
+  <input
+    id="field-intext-input"
+    type="text"
+    placeholder="مثلاً: تمويل سري"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <label class="field-intext-quote-row" for="field-intext-quote">
+    <input type="checkbox" id="field-intext-quote" />
+    اقتباس حرفي
+  </label>
+  <p class="field-help">يشترط أن تظهر الكلمة في متن الصفحة نفسها — مفيد حين تريد التأكد من أن الموضوع مُناقَش فعلاً في المحتوى وليس فقط في العنوان أو الرابط.</p>
+</div>
+      <div class="field field-inanchor">
+  <div class="field-inanchor-header">
+    <label for="field-inanchor-input">
+      في نص الروابط الواردة
+      <span class="op-badge">inanchor:</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-inanchor-clear" aria-label="مسح حقل نص الروابط الواردة" hidden>×</button>
+  </div>
+  <input
+    id="field-inanchor-input"
+    type="text"
+    placeholder="مثلاً: تقرير رسمي"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <label class="field-inanchor-quote-row" for="field-inanchor-quote">
+    <input type="checkbox" id="field-inanchor-quote" />
+    اقتباس حرفي
+  </label>
+  <p class="field-help">يبحث عن الصفحات التي تُشير إليها صفحات أخرى بهذا النص في روابطها — طريقة للعثور على صفحات يعتبرها الويب مرجعاً في موضوع ما. أكثر تخصصاً من بقية المعاملات وقد تُعيد نتائج أقل.</p>
+</div>
+      <div class="field field-filetype">
+  <div class="field-filetype-header">
+    <label for="field-filetype-select">
+      نوع الملف
+      <span class="op-badge">filetype:</span>
+    </label>
+    <button type="button" id="field-filetype-clear" class="field-filetype-clear-btn" aria-label="مسح نوع الملف" hidden>×</button>
+  </div>
+  <select id="field-filetype-select" dir="ltr">
+    <option value="">بدون تحديد</option>
+    <option value="pdf">PDF</option>
+    <option value="doc">Word (doc)</option>
+    <option value="docx">Word (docx)</option>
+    <option value="xls">Excel (xls)</option>
+    <option value="xlsx">Excel (xlsx)</option>
+    <option value="ppt">PowerPoint (ppt)</option>
+    <option value="pptx">PowerPoint (pptx)</option>
+    <option value="txt">نص (txt)</option>
+    <option value="rtf">RTF</option>
+  </select>
+  <p class="field-help">يقيّد البحث على نوع محدد من الملفات. PDF هو الخيار الأكثر شيوعاً للعثور على التقارير والوثائق المسرّبة والأوراق الأكاديمية. الجمع بين هذا الحقل وحقل الموقع (site:) من أساسيات بحث OSINT — مثلاً: الملفات PDF على نطاق حكومي.</p>
+</div>
+      <div class="field field-date-range">
+  <div class="field-date-range-header">
+    <label class="field-date-range-outer-label">
+      نطاق زمني
+      <span class="op-badge">before: / after:</span>
+    </label>
+    <button type="button" id="field-date-range-clear" class="field-date-range-clear-btn" aria-label="مسح التواريخ" hidden>×</button>
+  </div>
+  <div class="field-date-range-inputs">
+    <div class="field-date-range-input-group">
+      <label for="field-date-range-after" class="field-date-range-inner-label">بعد تاريخ</label>
+      <input type="date" id="field-date-range-after" dir="ltr" />
+    </div>
+    <div class="field-date-range-input-group">
+      <label for="field-date-range-before" class="field-date-range-inner-label">قبل تاريخ</label>
+      <input type="date" id="field-date-range-before" dir="ltr" />
+    </div>
+  </div>
+  <p class="field-help">يصفّي النتائج حسب نطاق زمني محدد. يمكن ضبط التاريخين معاً أو كل منهما بشكل مستقل. مفيد جداً لتضييق البحث على حدث أو فترة بعينها، خاصةً عند دمجه مع حقل الموقع أو عنوان الصفحة.</p>
+</div>
+      <div class="field field-proximity">
+  <div class="field-proximity-header">
+    <label id="field-proximity-label">
+      بحث بالقرب من
+      <span class="op-badge">AROUND</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-proximity-clear" aria-label="مسح حقل القرب" hidden>×</button>
+  </div>
+  <div class="field-proximity-row">
+    <div class="field-proximity-term-group">
+      <label for="field-proximity-term1" class="field-proximity-sublabel">الكلمة الأولى</label>
+      <input
+        id="field-proximity-term1"
+        type="text"
+        placeholder="مثلاً: محمد"
+        autocomplete="off"
+        spellcheck="false"
+        aria-labelledby="field-proximity-label"
+      />
+    </div>
+    <div class="field-proximity-sep">
+      <span class="field-proximity-sep-text">بمسافة</span>
+      <input
+        id="field-proximity-distance"
+        type="number"
+        min="1"
+        max="50"
+        value="5"
+        dir="ltr"
+        aria-label="عدد الكلمات بين المصطلحين"
+      />
+      <span class="field-proximity-sep-text">كلمة من</span>
+    </div>
+    <div class="field-proximity-term-group">
+      <label for="field-proximity-term2" class="field-proximity-sublabel">الكلمة الثانية</label>
+      <input
+        id="field-proximity-term2"
+        type="text"
+        placeholder="مثلاً: شركة"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+  </div>
+  <p class="field-help">يجد الصفحات التي تظهر فيها كلمتان ضمن عدد محدد من الكلمات بينهما — مفيد لإيجاد ذكر شخصين معاً أو شخص بالقرب من حدث أو منظمة. لا يهم ترتيب الكلمتين؛ يجد Google كلا الاتجاهين.</p>
+</div>
+      <div class="field field-wildcard">
+  <div class="field-wildcard-header">
+    <label for="field-wildcard-input">
+      بحث ببدل
+      <span class="op-badge">*</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-wildcard-clear" aria-label="مسح حقل البدل" hidden>×</button>
+  </div>
+  <input
+    id="field-wildcard-input"
+    type="text"
+    placeholder="* اشترى منزلاً في *"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <label class="quote-toggle" for="field-wildcard-quote">
+    <input type="checkbox" id="field-wildcard-quote" />
+    اقتباس حرفي
+  </label>
+  <p class="field-help">النجمة * تحل محل أي كلمة مجهولة — مفيدة لإيجاد اقتباسات جزئية أو جمل ناقصة (مثلاً: «صوّت * على مشروع قانون *»). تعمل علامة البدل بشكل أفضل داخل عبارات بين علامتي اقتباس.</p>
+</div>
+      <div class="field field-number-range">
+  <div class="field-number-range-header">
+    <label>
+      نطاق رقمي
+      <span class="op-badge">A..B</span>
+    </label>
+    <button type="button" id="field-number-range-clear" class="field-number-range-clear-btn" aria-label="مسح النطاق الرقمي" hidden>×</button>
+  </div>
+  <div class="field-number-range-inputs">
+    <div class="field-number-range-input-group">
+      <label for="field-number-range-low" class="field-number-range-sub-label">من</label>
+      <input id="field-number-range-low" type="number" dir="ltr" placeholder="1950" min="0" />
+    </div>
+    <div class="field-number-range-sep" aria-hidden="true">..</div>
+    <div class="field-number-range-input-group">
+      <label for="field-number-range-high" class="field-number-range-sub-label">إلى</label>
+      <input id="field-number-range-high" type="number" dir="ltr" placeholder="1960" min="0" />
+    </div>
+    <div class="field-number-range-input-group field-number-range-prefix-group">
+      <label for="field-number-range-prefix" class="field-number-range-sub-label">بادئة</label>
+      <input id="field-number-range-prefix" type="text" dir="ltr" placeholder="$" maxlength="3" />
+    </div>
+  </div>
+  <p class="field-help">يبحث عن الصفحات التي تذكر أرقاماً ضمن نطاق محدد. إضافة بادئة مثل <code>$</code> يحصر النتائج في المبالغ المالية. مفيد للعثور على نطاقات الأسعار والسنوات وأي معايير رقمية أخرى.</p>
+</div>
+      <div class="field field-or-groups">
+  <div class="field-or-groups-header">
+    <label for="field-or-groups-input">
+      بدائل (أو)
+      <span class="op-badge">OR</span>
+    </label>
+    <button type="button" id="field-or-groups-clear" class="field-or-groups-clear-btn" aria-label="مسح حقل البدائل" hidden>×</button>
+  </div>
+  <input
+    id="field-or-groups-input"
+    type="text"
+    placeholder="مهرجان، مؤتمر أو ندوة"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <p class="field-help">يتيح البحث عن أي من عدة بدائل دفعةً واحدة. افصل بين الكلمات بفاصلة أو بكلمة <strong>أو</strong> العربية. مفيد للبحث عن مرادفات أو أشكال متعددة لاسم ما. ملاحظة: تُضاف الأقواس لتوضيح المجموعة بصرياً، وجوجل يتجاهلها في التحليل لكن البدائل تعمل بشكل صحيح.</p>
+</div>
+      <!-- === FIELDS_INSERT === -->
+    </div>
+
+    <button type="button" id="more-options-btn" class="more-options-toggle" aria-expanded="false" aria-controls="fields-container">
+      <span>خيارات إضافية</span>
+      <span class="chevron" aria-hidden="true">▸</span>
+    </button>
+
+    <div id="warnings-region" class="warnings-region" aria-live="polite"></div>
+    <div id="tips-region" class="tips-region" aria-live="polite"></div>
+
+    <section class="preview-section">
+      <h2 class="preview-heading">استعلامك جاهز</h2>
+      <div id="preview-box" class="preview-box empty" dir="ltr" aria-live="polite">ابدأ بكتابة كلمات البحث</div>
+      <div class="action-row">
+        <button id="copy-btn" class="btn-primary" type="button" disabled>نسخ</button>
+        <button id="search-btn" class="btn-primary" type="button" disabled>البحث في Google</button>
+        <button id="reset-btn" class="btn-secondary" type="button">مسح الكل</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ===== Core state =====
+  const segments = [];           // { order, fn }
+  const fieldRegistry = new Map(); // slug -> { setValue }
+  const modeListeners = [];
+  const warningRegion = document.getElementById('warnings-region');
+  const tipRegion = document.getElementById('tips-region');
+  const previewBox = document.getElementById('preview-box');
+  const copyBtn = document.getElementById('copy-btn');
+  const searchBtn = document.getElementById('search-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const normalizeInput = document.getElementById('normalize-toggle-input');
+  const normalizeInfoBtn = document.getElementById('normalize-info-btn');
+  const normalizeInfoPanel = document.getElementById('normalize-info-panel');
+  const modeBtnBeginner = document.getElementById('mode-btn-beginner');
+  const modeBtnAdvanced = document.getElementById('mode-btn-advanced');
+  const toastEl = document.getElementById('toast');
+
+  let currentMode = 'beginner';
+  const activeWarnings = new Map(); // slug -> element
+  const activeTips = new Map();     // slug -> { priority, messageHtml, element }
+
+  // ===== Arabic normalization (Phase 2 may extend; keep no-op here if toggle off) =====
+  function normalizeArabic(text) {
+    if (!normalizeInput.checked || !text) return text;
+    let s = String(text);
+    // Strip diacritics, tatweel, superscript alef.
+    s = s.replace(/[ً-ْٰـ]/g, '');
+    // Unify alef variants.
+    s = s.replace(/[أإآٱ]/g, 'ا');
+    // Unify ya variants.
+    s = s.replace(/ى/g, 'ي');
+    // Ta marbuta -> ha.
+    s = s.replace(/ة/g, 'ه');
+    return s;
+  }
+
+  // ===== Query assembly =====
+  function assembleQuery() {
+    const ordered = segments.slice().sort((a, b) => a.order - b.order);
+    const parts = [];
+    for (const seg of ordered) {
+      try {
+        const out = seg.fn();
+        if (out && String(out).trim()) parts.push(String(out).trim());
+      } catch (e) {
+        console.warn('segment failed', seg.order, e);
+      }
+    }
+    return parts.join(' ').replace(/\s+/g, ' ').trim();
+  }
+
+  function renderPreview() {
+    const q = assembleQuery();
+    if (!q) {
+      previewBox.textContent = 'ابدأ بكتابة كلمات البحث';
+      previewBox.classList.add('empty');
+      copyBtn.disabled = true;
+      searchBtn.disabled = true;
+    } else {
+      previewBox.textContent = q;
+      previewBox.classList.remove('empty');
+      copyBtn.disabled = false;
+      searchBtn.disabled = false;
+    }
+  }
+
+  // ===== Warnings & tips =====
+  function renderWarning(slug, messageHtml) {
+    let el = activeWarnings.get(slug);
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'warning warning-' + slug;
+      el.id = 'warning-' + slug;
+      activeWarnings.set(slug, el);
+      warningRegion.appendChild(el);
+    }
+    el.innerHTML = messageHtml;
+  }
+  function clearWarning(slug) {
+    const el = activeWarnings.get(slug);
+    if (el) {
+      el.remove();
+      activeWarnings.delete(slug);
+    }
+  }
+
+  function reflowTips() {
+    // Beginner-only, single-tip-at-a-time. Pick highest-priority undismissed tip.
+    tipRegion.innerHTML = '';
+    if (currentMode !== 'beginner') return;
+    const tips = Array.from(activeTips.values()).filter(t => !t.dismissed);
+    if (!tips.length) return;
+    tips.sort((a, b) => b.priority - a.priority);
+    const t = tips[0];
+    const el = document.createElement('div');
+    el.className = 'tip tip-' + t.slug;
+    el.id = 'tip-' + t.slug;
+    el.innerHTML = t.messageHtml + ' <button type="button" aria-label="إخفاء الاقتراح" style="margin-inline-start:8px;background:transparent;border:0;color:inherit;cursor:pointer;font-size:16px;line-height:1;min-width:36px;min-height:36px;padding:4px 8px;vertical-align:middle;">×</button>';
+    el.querySelector('button').addEventListener('click', () => {
+      t.dismissed = true;
+      reflowTips();
+    });
+    tipRegion.appendChild(el);
+  }
+  function addTip(slug, opts) {
+    const existing = activeTips.get(slug);
+    if (existing && existing.dismissed) return; // session-dismissed
+    activeTips.set(slug, { slug, priority: opts.priority || 0, messageHtml: opts.messageHtml, dismissed: existing ? existing.dismissed : false });
+    reflowTips();
+  }
+  function removeTip(slug) {
+    activeTips.delete(slug);
+    reflowTips();
+  }
+
+  // ===== Mode toggle =====
+  function setMode(mode) {
+    if (mode === currentMode) return;
+    currentMode = mode;
+    document.body.classList.toggle('mode-beginner', mode === 'beginner');
+    document.body.classList.toggle('mode-advanced', mode === 'advanced');
+    modeBtnBeginner.setAttribute('aria-pressed', mode === 'beginner' ? 'true' : 'false');
+    modeBtnAdvanced.setAttribute('aria-pressed', mode === 'advanced' ? 'true' : 'false');
+    reflowTips();
+    modeListeners.forEach(cb => { try { cb(mode); } catch (e) { console.warn(e); } });
+  }
+  modeBtnBeginner.addEventListener('click', () => setMode('beginner'));
+  modeBtnAdvanced.addEventListener('click', () => setMode('advanced'));
+
+  // ===== Normalization toggle =====
+  normalizeInput.addEventListener('change', renderPreview);
+  normalizeInfoBtn.addEventListener('click', () => {
+    const open = normalizeInfoPanel.hasAttribute('hidden');
+    if (open) {
+      normalizeInfoPanel.removeAttribute('hidden');
+      normalizeInfoBtn.setAttribute('aria-expanded', 'true');
+    } else {
+      normalizeInfoPanel.setAttribute('hidden', '');
+      normalizeInfoBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // ===== Copy & search =====
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('visible');
+    setTimeout(() => toastEl.classList.remove('visible'), 1500);
+  }
+  copyBtn.addEventListener('click', async () => {
+    const q = previewBox.textContent;
+    let copied = false;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(q);
+        copied = true;
+      }
+    } catch (e) { /* fallthrough */ }
+    if (!copied) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = q;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        copied = document.execCommand('copy');
+        document.body.removeChild(ta);
+      } catch (e) { /* fallthrough */ }
+    }
+    if (copied) {
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'تم النسخ';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } else {
+      showToast('تعذر النسخ — يرجى نسخ الاستعلام يدوياً');
+    }
+  });
+  searchBtn.addEventListener('click', () => {
+    const q = previewBox.textContent;
+    if (!q) return;
+    const url = 'https://www.google.com/search?q=' + encodeURIComponent(q);
+    window.open(url, '_blank', 'noopener,noreferrer');
+  });
+
+  // ===== Reset (two-tap inline confirmation) =====
+  let resetArmed = false;
+  let resetTimer = null;
+  resetBtn.addEventListener('click', () => {
+    if (!resetArmed) {
+      resetArmed = true;
+      resetBtn.textContent = 'تأكيد المسح';
+      resetTimer = setTimeout(() => {
+        resetArmed = false;
+        resetBtn.textContent = 'مسح الكل';
+      }, 3000);
+    } else {
+      clearTimeout(resetTimer);
+      resetArmed = false;
+      resetBtn.textContent = 'مسح الكل';
+      // Clear every registered field by setting to empty value.
+      fieldRegistry.forEach(api => { try { api.setValue(''); } catch (e) {} });
+      // Clear all warnings and tips too.
+      Array.from(activeWarnings.keys()).forEach(clearWarning);
+      activeTips.clear();
+      reflowTips();
+      renderPreview();
+    }
+  });
+
+  // ===== Field setter (used by templates) =====
+  function setField(slug, value) {
+    const api = fieldRegistry.get(slug);
+    if (api && typeof api.setValue === 'function') {
+      try { api.setValue(value); } catch (e) { console.warn('setField failed', slug, e); }
+    }
+  }
+
+  // ===== Welcome panel close =====
+  const welcomeCloseBtn = document.getElementById('welcome-close-btn');
+  if (welcomeCloseBtn) {
+    welcomeCloseBtn.addEventListener('click', () => {
+      document.body.classList.add('welcome-collapsed');
+    });
+  }
+
+  // ===== More-options disclosure =====
+  const moreOptionsBtn = document.getElementById('more-options-btn');
+  function setAdvancedRevealed(revealed) {
+    document.body.classList.toggle('advanced-revealed', revealed);
+    if (moreOptionsBtn) moreOptionsBtn.setAttribute('aria-expanded', revealed ? 'true' : 'false');
+  }
+  if (moreOptionsBtn) {
+    moreOptionsBtn.addEventListener('click', () => {
+      setAdvancedRevealed(!document.body.classList.contains('advanced-revealed'));
+    });
+  }
+
+  // ===== Templates =====
+  function scrollToKeywords() {
+    const el = document.getElementById('field-keywords-input');
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => el.focus(), 250);
+  }
+  function applyTemplate(fillers, requiresAdvanced) {
+    Object.keys(fillers).forEach(slug => setField(slug, fillers[slug]));
+    if (requiresAdvanced) setAdvancedRevealed(true);
+    scrollToKeywords();
+  }
+  const templateSiteBtn = document.getElementById('template-site');
+  const templateDocsBtn = document.getElementById('template-docs');
+  const templateDateRangeBtn = document.getElementById('template-daterange');
+  if (templateSiteBtn) templateSiteBtn.addEventListener('click', () => {
+    applyTemplate({ site: 'example.com' }, false);
+  });
+  if (templateDocsBtn) templateDocsBtn.addEventListener('click', () => {
+    applyTemplate({ filetype: 'pdf' }, true);
+  });
+  if (templateDateRangeBtn) templateDateRangeBtn.addEventListener('click', () => {
+    const today = new Date();
+    const lastYear = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+    const fmt = (d) => d.toISOString().slice(0, 10);
+    applyTemplate({ 'date-range': { after: fmt(lastYear), before: fmt(today) } }, true);
+  });
+
+  // ===== ctx exposed to register* fragments =====
+  const ctx = {
+    registerSegment(order, fn) { segments.push({ order, fn }); },
+    registerField(slug, api) { fieldRegistry.set(slug, api); },
+    setField,
+    requestUpdate() { renderPreview(); },
+    addWarning(slug, html) { renderWarning(slug, html); },
+    removeWarning(slug) { clearWarning(slug); },
+    addTip(slug, opts) { addTip(slug, opts); },
+    removeTip(slug) { removeTip(slug); },
+    normalize: normalizeArabic,
+    getMode() { return currentMode; },
+    onModeChange(cb) { if (typeof cb === 'function') modeListeners.push(cb); },
+  };
+
+  // The orchestrator's merge step appends each fragment's function declaration here,
+  // followed by a `__pendingRegisters.push(<functionName>);` line. The bootstrap below
+  // then invokes every collected register* function with the shared ctx.
+  const __pendingRegisters = [];
+
+  function registerFieldKeywords(ctx) {
+  var input = document.getElementById('field-keywords-input');
+  var quoteToggle = document.getElementById('field-keywords-quote');
+  var clearBtn = document.getElementById('field-keywords-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  function checkTips() {
+    var v = getValue();
+    if (v && quoteToggle.checked && /\s/.test(v)) {
+      ctx.addTip('keywords-name-variants', {
+        priority: 50,
+        messageHtml: '💡 تلميح: الأسماء العربية لها كثير من التهجئات المختلفة (أ، إ، آ). يمكنك تفعيل «توحيد الأحرف العربية» في الأعلى ليشمل البحث هذه الاختلافات تلقائياً.'
+      });
+    } else {
+      ctx.removeTip('keywords-name-variants');
+    }
+
+    if (v && !quoteToggle.checked) {
+      ctx.addTip('keywords-no-restrictions', {
+        priority: 20,
+        messageHtml: '💡 تلميح: الكلمات الرئيسية وحدها قد تُعيد نتائج كثيرة جداً. فكّر في إضافة تقييد للموقع أو نطاق زمني لتضييق النتائج.'
+      });
+    } else {
+      ctx.removeTip('keywords-no-restrictions');
+    }
+  }
+
+  function checkSingleWordQuote() {
+    var v = getValue();
+    if (quoteToggle.checked && v && !(/\s/.test(v))) {
+      ctx.addWarning('keywords-single-word-quote', '⚠️ تقييد كلمة واحدة بالاقتباس يُعطّل تصحيح التهجئة والمرادفات في Google. هذا مقصود أحياناً (للأسماء الخاصة أو المصطلحات التقنية)، لكنه غالباً غير ضروري.');
+    } else {
+      ctx.removeWarning('keywords-single-word-quote');
+    }
+  }
+
+  ctx.registerField('keywords', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(1, function() {
+    var v = getValue();
+    if (!v) return '';
+    var normalized = ctx.normalize(v);
+    return quoteToggle.checked ? ('"' + normalized + '"') : normalized;
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    checkTips();
+    checkSingleWordQuote();
+    ctx.requestUpdate();
+  });
+
+  quoteToggle.addEventListener('change', function() {
+    checkTips();
+    checkSingleWordQuote();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    quoteToggle.checked = false;
+    updateClearBtn();
+    checkTips();
+    checkSingleWordQuote();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldKeywords);
+
+  function registerFieldExactPhrase(ctx) {
+  var input = document.getElementById('field-exact-phrase-input');
+  var clearBtn = document.getElementById('field-exact-phrase-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('exact-phrase', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(2, function() {
+    var v = getValue();
+    if (!v) return '';
+    return '"' + ctx.normalize(v) + '"';
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    updateClearBtn();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldExactPhrase);
+
+  function registerFieldExcluded(ctx) {
+  var input = document.getElementById('field-excluded-input');
+  var clearBtn = document.getElementById('field-excluded-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('excluded', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(3, function() {
+    var v = getValue();
+    if (!v) return '';
+    var tokens = v.split(/\s+/).filter(function(t) { return t.length > 0; });
+    if (!tokens.length) return '';
+    return tokens.map(function(t) { return '-' + ctx.normalize(t); }).join(' ');
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    updateClearBtn();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldExcluded);
+
+  function registerFieldSite(ctx) {
+  var input = document.getElementById('field-site-input');
+  var clearBtn = document.getElementById('field-site-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  function checkArabicWarning() {
+    var v = getValue();
+    if (v && /[\u0600-\u06FF]/.test(v)) {
+      ctx.addWarning('site-arabic-chars', '⚠️ هذا الحقل يتوقع اسم نطاق أو عنوان URL بالأحرف اللاتينية. لن يتطابق Google مع النص العربي في عناوين المواقع.');
+    } else {
+      ctx.removeWarning('site-arabic-chars');
+    }
+  }
+
+  ctx.registerField('site', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      checkArabicWarning();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(4, function() {
+    var v = getValue();
+    if (!v) return '';
+    return 'site:' + v;
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    checkArabicWarning();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    updateClearBtn();
+    checkArabicWarning();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldSite);
+
+  function registerFieldIntitle(ctx) {
+  var input = document.getElementById('field-intitle-input');
+  var quoteToggle = document.getElementById('field-intitle-quote');
+  var clearBtn = document.getElementById('field-intitle-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('intitle', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(5, function() {
+    var v = getValue();
+    if (!v) return '';
+    var normalized = ctx.normalize(v);
+    var wrapped = quoteToggle.checked ? ('"' + normalized + '"') : normalized;
+    return 'intitle:' + wrapped;
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    ctx.requestUpdate();
+  });
+
+  quoteToggle.addEventListener('change', function() {
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    quoteToggle.checked = false;
+    updateClearBtn();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldIntitle);
+
+  function registerFieldInurl(ctx) {
+  var input = document.getElementById('field-inurl-input');
+  var clearBtn = document.getElementById('field-inurl-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  function checkArabicWarning() {
+    var v = getValue();
+    if (v && /[\u0600-\u06FF]/.test(v)) {
+      ctx.addWarning('inurl-arabic-chars', '⚠️ هذا الحقل يتوقع جزءاً من عنوان URL بالأحرف اللاتينية. لن يتطابق Google مع النص العربي في عناوين الروابط.');
+    } else {
+      ctx.removeWarning('inurl-arabic-chars');
+    }
+  }
+
+  ctx.registerField('inurl', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      checkArabicWarning();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(6, function() {
+    var v = getValue();
+    if (!v) return '';
+    return 'inurl:' + v;
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    checkArabicWarning();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    updateClearBtn();
+    checkArabicWarning();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldInurl);
+
+  function registerFieldIntext(ctx) {
+  var input = document.getElementById('field-intext-input');
+  var quoteToggle = document.getElementById('field-intext-quote');
+  var clearBtn = document.getElementById('field-intext-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('intext', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(7, function() {
+    var v = getValue();
+    if (!v) return '';
+    var normalized = ctx.normalize(v);
+    return quoteToggle.checked ? ('intext:"' + normalized + '"') : ('intext:' + normalized);
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    ctx.requestUpdate();
+  });
+
+  quoteToggle.addEventListener('change', function() {
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    quoteToggle.checked = false;
+    updateClearBtn();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldIntext);
+
+  function registerFieldInanchor(ctx) {
+  var input = document.getElementById('field-inanchor-input');
+  var quoteToggle = document.getElementById('field-inanchor-quote');
+  var clearBtn = document.getElementById('field-inanchor-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('inanchor', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(8, function() {
+    var v = getValue();
+    if (!v) return '';
+    var normalized = ctx.normalize(v);
+    return quoteToggle.checked ? ('inanchor:"' + normalized + '"') : ('inanchor:' + normalized);
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    ctx.requestUpdate();
+  });
+
+  quoteToggle.addEventListener('change', function() {
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    quoteToggle.checked = false;
+    updateClearBtn();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldInanchor);
+
+  function registerFieldFiletype(ctx) {
+  var select = document.getElementById('field-filetype-select');
+  var clearBtn = document.getElementById('field-filetype-clear');
+
+  function updateClearVisibility() {
+    if (select.value !== '') {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('filetype', {
+    setValue: function(v) {
+      select.value = v || '';
+      updateClearVisibility();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(9, function() {
+    var v = select.value;
+    return v ? ('filetype:' + v) : '';
+  });
+
+  select.addEventListener('change', function() {
+    updateClearVisibility();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    select.value = '';
+    updateClearVisibility();
+    ctx.requestUpdate();
+  });
+}
+  __pendingRegisters.push(registerFieldFiletype);
+
+  function registerFieldDateRange(ctx) {
+  var afterInput = document.getElementById('field-date-range-after');
+  var beforeInput = document.getElementById('field-date-range-before');
+  var clearBtn = document.getElementById('field-date-range-clear');
+
+  function updateClearVisibility() {
+    if (afterInput.value || beforeInput.value) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  function checkDateWarning() {
+    var after = afterInput.value;
+    var before = beforeInput.value;
+    if (after && before && after > before) {
+      ctx.addWarning('date-range-reversed', 'النطاق الزمني مقلوب: تاريخ "بعد" أحدث من تاريخ "قبل"، مما يعني أن البحث لن يُعيد أي نتائج. يُرجى تصحيح الترتيب.');
+    } else {
+      ctx.removeWarning('date-range-reversed');
+    }
+  }
+
+  function checkDateTip() {
+    var after = afterInput.value;
+    var before = beforeInput.value;
+    if (after && before) {
+      ctx.addTip('date-range-both', { priority: 60, messageHtml: '💡 النطاقات الزمنية الضيقة مع قيود الموقع فعّالة جداً للعثور على تغطية أحداث بعينها. جرّب دمج هذا النطاق مع حقل "عنوان الصفحة" للعثور على مقالات تتعلق بحدث محدد.' });
+    } else {
+      ctx.removeTip('date-range-both');
+    }
+  }
+
+  ctx.registerField('date-range', {
+    setValue: function(v) {
+      if (!v || v === '') {
+        afterInput.value = '';
+        beforeInput.value = '';
+      } else {
+        if (v.after !== undefined) afterInput.value = v.after || '';
+        if (v.before !== undefined) beforeInput.value = v.before || '';
+      }
+      updateClearVisibility();
+      checkDateWarning();
+      checkDateTip();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(10, function() {
+    var v = beforeInput.value;
+    return v ? ('before:' + v) : '';
+  });
+
+  ctx.registerSegment(11, function() {
+    var v = afterInput.value;
+    return v ? ('after:' + v) : '';
+  });
+
+  function onInput() {
+    updateClearVisibility();
+    checkDateWarning();
+    checkDateTip();
+    ctx.requestUpdate();
+  }
+
+  afterInput.addEventListener('input', onInput);
+  afterInput.addEventListener('change', onInput);
+  beforeInput.addEventListener('input', onInput);
+  beforeInput.addEventListener('change', onInput);
+
+  clearBtn.addEventListener('click', function() {
+    afterInput.value = '';
+    beforeInput.value = '';
+    updateClearVisibility();
+    checkDateWarning();
+    checkDateTip();
+    ctx.requestUpdate();
+  });
+}
+  __pendingRegisters.push(registerFieldDateRange);
+
+  function registerFieldProximity(ctx) {
+  var term1Input = document.getElementById('field-proximity-term1');
+  var distanceInput = document.getElementById('field-proximity-distance');
+  var term2Input = document.getElementById('field-proximity-term2');
+  var clearBtn = document.getElementById('field-proximity-clear');
+
+  function getTerm1() { return term1Input.value.trim(); }
+  function getDistance() { return distanceInput.value.trim() || '5'; }
+  function getTerm2() { return term2Input.value.trim(); }
+
+  function isFilled() { return getTerm1().length > 0 && getTerm2().length > 0; }
+
+  function updateClearBtn() {
+    if (getTerm1().length > 0 || getTerm2().length > 0 || distanceInput.value !== '5') {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  function checkTip() {
+    if (isFilled()) {
+      ctx.addTip('proximity-usage', {
+        priority: 60,
+        messageHtml: '💡 تلميح: بحث القرب من أقوى أدوات OSINT لإيجاد شخصين أو كيانين يُذكران معاً. المسافات الصغيرة (3–5) تجد الذكر المباشر، بينما المسافات الأكبر (10–20) تجد أي علاقة سياقية.'
+      });
+    } else {
+      ctx.removeTip('proximity-usage');
+    }
+  }
+
+  ctx.registerField('proximity', {
+    setValue: function(v) {
+      if (!v || v === '') {
+        term1Input.value = '';
+        distanceInput.value = '5';
+        term2Input.value = '';
+      } else {
+        if (v.term1 !== undefined) term1Input.value = v.term1;
+        if (v.distance !== undefined) distanceInput.value = v.distance;
+        if (v.term2 !== undefined) term2Input.value = v.term2;
+      }
+      updateClearBtn();
+      checkTip();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(12, function() {
+    var t1 = getTerm1();
+    var t2 = getTerm2();
+    var n = parseInt(getDistance(), 10);
+    if (!t1 || !t2) return '';
+    if (isNaN(n) || n < 1) n = 5;
+    if (n > 50) n = 50;
+    var n1 = ctx.normalize(t1);
+    var n2 = ctx.normalize(t2);
+    return '"' + n1 + '" AROUND(' + n + ') "' + n2 + '"';
+  });
+
+  function handleInput() {
+    updateClearBtn();
+    checkTip();
+    ctx.requestUpdate();
+  }
+
+  term1Input.addEventListener('input', handleInput);
+  distanceInput.addEventListener('input', handleInput);
+  term2Input.addEventListener('input', handleInput);
+
+  clearBtn.addEventListener('click', function() {
+    term1Input.value = '';
+    distanceInput.value = '5';
+    term2Input.value = '';
+    updateClearBtn();
+    checkTip();
+    ctx.requestUpdate();
+    term1Input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldProximity);
+
+  function registerFieldWildcard(ctx) {
+  var input = document.getElementById('field-wildcard-input');
+  var quoteToggle = document.getElementById('field-wildcard-quote');
+  var clearBtn = document.getElementById('field-wildcard-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  function checkSingleWordQuote() {
+    var v = getValue();
+    if (quoteToggle.checked && v && !(/\s/.test(v))) {
+      ctx.addWarning('wildcard-single-word-quote', '⚠️ تقييد كلمة واحدة بالاقتباس يُعطّل تصحيح التهجئة والمرادفات في Google. هذا مقصود أحياناً لكنه غالباً غير ضروري.');
+    } else {
+      ctx.removeWarning('wildcard-single-word-quote');
+    }
+  }
+
+  ctx.registerField('wildcard', {
+    setValue: function(v) {
+      input.value = v || '';
+      updateClearBtn();
+      checkSingleWordQuote();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(13, function() {
+    var v = getValue();
+    if (!v) return '';
+    var normalized = ctx.normalize(v);
+    return quoteToggle.checked ? ('"' + normalized + '"') : normalized;
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    checkSingleWordQuote();
+    ctx.requestUpdate();
+  });
+
+  quoteToggle.addEventListener('change', function() {
+    checkSingleWordQuote();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    quoteToggle.checked = false;
+    updateClearBtn();
+    checkSingleWordQuote();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldWildcard);
+
+  function registerFieldNumberRange(ctx) {
+  var lowInput = document.getElementById('field-number-range-low');
+  var highInput = document.getElementById('field-number-range-high');
+  var prefixInput = document.getElementById('field-number-range-prefix');
+  var clearBtn = document.getElementById('field-number-range-clear');
+
+  function hasAnyValue() {
+    return lowInput.value.trim() !== '' || highInput.value.trim() !== '' || prefixInput.value.trim() !== '';
+  }
+
+  function updateClearBtn() {
+    if (hasAnyValue()) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('number-range', {
+    setValue: function(v) {
+      if (!v || v === '') {
+        lowInput.value = '';
+        highInput.value = '';
+        prefixInput.value = '';
+      } else {
+        lowInput.value = v.low !== undefined ? v.low : '';
+        highInput.value = v.high !== undefined ? v.high : '';
+        prefixInput.value = v.prefix !== undefined ? v.prefix : '';
+      }
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(14, function() {
+    var low = lowInput.value.trim();
+    var high = highInput.value.trim();
+    if (!low || !high) return '';
+    var prefix = prefixInput.value.trim();
+    if (prefix) {
+      return prefix + low + '..' + prefix + high;
+    }
+    return low + '..' + high;
+  });
+
+  function onInput() {
+    updateClearBtn();
+    ctx.requestUpdate();
+  }
+
+  lowInput.addEventListener('input', onInput);
+  highInput.addEventListener('input', onInput);
+  prefixInput.addEventListener('input', onInput);
+
+  clearBtn.addEventListener('click', function() {
+    lowInput.value = '';
+    highInput.value = '';
+    prefixInput.value = '';
+    updateClearBtn();
+    ctx.requestUpdate();
+  });
+}
+  __pendingRegisters.push(registerFieldNumberRange);
+
+  function registerFieldOrGroups(ctx) {
+  var input = document.getElementById('field-or-groups-input');
+  var clearBtn = document.getElementById('field-or-groups-clear');
+
+  function tokenize(raw) {
+    var parts = raw.split(/\s*(?:,|\bأو\b)\s*/);
+    var seen = Object.create(null);
+    var result = [];
+    for (var i = 0; i < parts.length; i++) {
+      var t = parts[i].trim();
+      if (t && !seen[t]) {
+        seen[t] = true;
+        result.push(t);
+      }
+    }
+    return result;
+  }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('or-groups', {
+    setValue: function(v) {
+      input.value = v || '';
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(15, function() {
+    var raw = input.value.trim();
+    if (!raw) return '';
+    var tokens = tokenize(raw);
+    if (tokens.length < 2) return '';
+    var normalized = [];
+    for (var i = 0; i < tokens.length; i++) {
+      normalized.push(ctx.normalize(tokens[i]));
+    }
+    return '(' + normalized.join(' OR ') + ')';
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    updateClearBtn();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldOrGroups);
+
+  /* === SCRIPT_INSERT === */
+
+  __pendingRegisters.forEach(fn => {
+    if (typeof fn !== 'function') return;
+    try { fn(ctx); } catch (e) { console.error('register fn failed', fn.name, e); }
+  });
+
+  // ===== Phase 4: cross-field warnings and tips =====
+
+  // Multi-word values in intitle/intext/inanchor without quoting silently bind
+  // only the first word to the operator — the most common surprise in this tool.
+  ['intitle', 'intext', 'inanchor'].forEach(slug => {
+    const input = document.getElementById('field-' + slug + '-input');
+    const quote = document.getElementById('field-' + slug + '-quote');
+    if (!input || !quote) return;
+    const labels = { intitle: 'في عنوان الصفحة', intext: 'في نص الصفحة', inanchor: 'في نص الروابط الواردة' };
+    const opLabel = labels[slug];
+    function check() {
+      const v = input.value.trim();
+      if (v && /\s/.test(v) && !quote.checked) {
+        renderWarning(slug + '-multiword',
+          '⚠️ في حقل «' + opLabel + '» (<code>' + slug + ':</code>): يحتوي على كلمات متعددة بدون اقتباس. سيقتصر جوجل على ربط الكلمة الأولى فقط بالعامل. فعّل «اقتباس حرفي» أو انقل الكلمات الإضافية إلى حقل الكلمات الرئيسية.');
+      } else {
+        clearWarning(slug + '-multiword');
+      }
+    }
+    input.addEventListener('input', check);
+    quote.addEventListener('change', check);
+  });
+
+  // PDF + suggest-site-restriction tip (Beginner only, single-tip queue handles mode).
+  const filetypeSelect = document.getElementById('field-filetype-select');
+  if (filetypeSelect) {
+    filetypeSelect.addEventListener('change', () => {
+      if (filetypeSelect.value === 'pdf') {
+        addTip('filetype-pdf', {
+          priority: 70,
+          messageHtml: '💡 تلميح: ابحث عن PDF مع قيد موقع لاكتشاف وثائق محصورة. مثلاً، إضافة <code>site:.gov</code> أو <code>site:.edu</code> غالباً تكشف وثائق رسمية أو أكاديمية.'
+        });
+      } else {
+        removeTip('filetype-pdf');
+      }
+    });
+  }
+
+  // Query-length warning (>32 words) and over-restricted warning (>4 operator fields).
+  const restrictedSlugs = ['site', 'intitle', 'inurl', 'intext', 'inanchor', 'filetype', 'date-range', 'proximity', 'number-range'];
+  function globalChecks() {
+    const q = previewBox.textContent.trim();
+    const wordCount = q && !previewBox.classList.contains('empty') ? q.split(/\s+/).filter(Boolean).length : 0;
+    if (wordCount > 32) {
+      renderWarning('query-too-long',
+        '⚠️ الاستعلام طويل (' + wordCount + ' كلمة). جوجل قد يُعيد نتائج قليلة أو لا شيء عند تجاوز نحو 32 كلمة. حاول تبسيط البحث.');
+    } else {
+      clearWarning('query-too-long');
+    }
+    let activeRestrictions = 0;
+    restrictedSlugs.forEach(slug => {
+      const wrapper = document.querySelector('.field-' + slug);
+      if (!wrapper) return;
+      const inputs = wrapper.querySelectorAll('input:not([type="checkbox"]), select');
+      const hasValue = Array.from(inputs).some(el => el.value && String(el.value).trim());
+      if (hasValue) activeRestrictions++;
+    });
+    if (activeRestrictions > 4) {
+      renderWarning('over-restricted',
+        '⚠️ فعّلت ' + activeRestrictions + ' قيود بحث في نفس الوقت. الاستعلامات المقيدة جداً غالباً لا تُعيد نتائج. ابدأ بقيود أقل وأضف المزيد إذا كانت النتائج واسعة.');
+    } else {
+      clearWarning('over-restricted');
+    }
+  }
+  // Wrap renderPreview so globalChecks runs after every update.
+  const __originalRenderPreview = renderPreview;
+  renderPreview = function () {
+    __originalRenderPreview.apply(this, arguments);
+    globalChecks();
+  };
+
+  renderPreview();
+})();
+</script>
+</body>
+</html>
