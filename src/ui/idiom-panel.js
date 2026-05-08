@@ -67,6 +67,28 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx, lang }) {
     return;
   }
 
+  // Preview region: a sticky band rendered after the body inside the panel.
+  // Hovering or focusing a card populates it with that recipe's title +
+  // pattern + description. Lives outside the card grid so it can never
+  // overlap a card title (the original popover overlapped the row below).
+  let preview = panel.querySelector('.idiom-panel-preview');
+  if (!preview) {
+    preview = document.createElement('div');
+    preview.className = 'idiom-panel-preview';
+    preview.setAttribute('aria-live', 'polite');
+    preview.innerHTML = `
+      <span class="idiom-panel-preview-hint"></span>
+      <span class="idiom-panel-preview-title"></span>
+      <span class="idiom-panel-preview-pattern" dir="ltr"></span>
+      <span class="idiom-panel-preview-desc"></span>
+    `;
+    panel.appendChild(preview);
+  }
+  const previewHint    = preview.querySelector('.idiom-panel-preview-hint');
+  const previewTitle   = preview.querySelector('.idiom-panel-preview-title');
+  const previewPattern = preview.querySelector('.idiom-panel-preview-pattern');
+  const previewDesc    = preview.querySelector('.idiom-panel-preview-desc');
+
   // Track whether the body has ever been rendered for the current engine
   let bodyRendered = false;
   let lastRenderedEngineId = null;
@@ -115,6 +137,36 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx, lang }) {
     if (!pillCount) return;
     const { items } = getIdioms();
     pillCount.textContent = t('idiom.pillCount', { n: items.length });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Preview region helpers
+  // ---------------------------------------------------------------------------
+
+  function setPreviewHint() {
+    preview.classList.remove('idiom-panel-preview--filled');
+    previewHint.textContent = t('idiom.previewHint');
+    previewTitle.textContent = '';
+    previewPattern.textContent = '';
+    previewDesc.textContent = '';
+  }
+
+  function setPreviewIdiom(idiom) {
+    if (!idiom) { setPreviewHint(); return; }
+    preview.classList.add('idiom-panel-preview--filled');
+    previewHint.textContent = '';
+    previewTitle.textContent = pickLocalized(idiom.title);
+    previewPattern.textContent = idiom.pattern || '';
+    previewDesc.textContent = pickLocalized(idiom.description);
+  }
+
+  function findCardIdiom(target) {
+    if (!(target instanceof Element)) return null;
+    const card = target.closest('.idiom-panel-card');
+    if (!card) return null;
+    const id = card.dataset.idiomId;
+    if (!id) return null;
+    return getIdioms().items.find(i => i.id === id) || null;
   }
 
   // ---------------------------------------------------------------------------
@@ -271,6 +323,20 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx, lang }) {
     closeBtn.addEventListener('click', close);
   }
 
+  // Hover / focus on a card → update the preview band. Use capture-phase
+  // mouseenter so it fires before any stopPropagation. The preview is sticky
+  // — once a card is hovered, its details remain shown until another card
+  // (or focus) takes over. We don't clear on mouseleave from a single card
+  // because the user may move the mouse to read the preview itself.
+  body.addEventListener('mouseover', (e) => {
+    const idiom = findCardIdiom(e.target);
+    if (idiom) setPreviewIdiom(idiom);
+  });
+  body.addEventListener('focusin', (e) => {
+    const idiom = findCardIdiom(e.target);
+    if (idiom) setPreviewIdiom(idiom);
+  });
+
   // Descriptions toggle
   if (descToggle) {
     descToggle.addEventListener('click', () => {
@@ -324,6 +390,9 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx, lang }) {
       setState('closed');
       // Reset descriptions state so next open starts compact
       setDescriptions(false);
+      // Reset preview hint so the next engine's first hover starts from the
+      // empty-state copy rather than the previous engine's last-hovered card.
+      setPreviewHint();
       // Update pill count immediately (it's visible even when closed)
       updatePillCount();
       // Trigger a lazy re-render next time the panel opens by clearing the
@@ -344,6 +413,16 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx, lang }) {
       updatePillCount();
       setDescriptions(panel.dataset.descriptions === 'visible');
       if (bodyRendered) renderBody();
+      // Re-paint preview in the new language (hint copy or last-shown idiom).
+      if (preview.classList.contains('idiom-panel-preview--filled')) {
+        // Re-resolve the last-shown idiom by id from the title element's
+        // dataset — but we didn't store an id, so fall back to the hint.
+        // Simpler: drop back to the hint on language flip; the user can
+        // hover again to see the localized description.
+        setPreviewHint();
+      } else {
+        setPreviewHint();
+      }
     });
   }
 
@@ -354,5 +433,6 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx, lang }) {
   // Set initial state (ensure HTML attributes match defaults)
   setState('closed');
   setDescriptions(false);
+  setPreviewHint();
   updatePillCount();
 }

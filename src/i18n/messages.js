@@ -502,6 +502,10 @@ export const MESSAGES = {
   },
   'idiom.toggleShow':  { ar: '📖 شروح',           en: '📖 Descriptions' },
   'idiom.toggleHide':  { ar: '📖 إخفاء الشروح',   en: '📖 Hide descriptions' },
+  'idiom.previewHint': {
+    ar: 'مرّر الفأرة فوق وصفة لرؤية ما تفعله.',
+    en: 'Hover a recipe to see what it does.',
+  },
 
   // ===== Warnings =====
   'warning.queryTooLong':          {

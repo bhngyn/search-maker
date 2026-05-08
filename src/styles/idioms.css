@@ -409,6 +409,95 @@
   display: -webkit-box;
 }
 
+/* ─── PREVIEW BAND ───────────────────────────────────────────────────── */
+/*
+ * The preview is a sibling of .idiom-panel-body inside .idiom-panel.
+ * When the panel is open we render a sticky band at the bottom carrying
+ * the hovered/focused recipe's title + pattern + description. Lives outside
+ * the card grid so it can never overlap a card title.
+ */
+
+.idiom-panel-preview {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px 12px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 13px;
+  min-height: 56px;
+  /* Smooth transition between hint state and filled state */
+  transition: background 120ms ease;
+}
+
+.idiom-panel[data-state="open"] .idiom-panel-preview {
+  display: flex;
+}
+
+.idiom-panel-preview-hint {
+  font-size: 12px;
+  color: var(--fg-muted);
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.idiom-panel-preview--filled .idiom-panel-preview-hint {
+  display: none;
+}
+
+.idiom-panel-preview-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+  line-height: 1.3;
+}
+
+.idiom-panel-preview-title:empty {
+  display: none;
+}
+
+.idiom-panel-preview-pattern {
+  direction: ltr;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  background: var(--accent-muted);
+  border-radius: 4px;
+  padding: 2px 6px;
+  align-self: flex-start;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  /* Hide horizontal scrollbar in the band; the user can still see most of
+     the pattern, and the full string is in the live region for screen readers */
+  scrollbar-width: thin;
+}
+
+.idiom-panel-preview-pattern:empty {
+  display: none;
+}
+
+.idiom-panel-preview-desc {
+  font-size: 12px;
+  color: var(--fg-muted);
+  line-height: 1.45;
+  /* Allow up to ~3 lines before clamping; rest is reachable by the toggle */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.idiom-panel-preview-desc:empty {
+  display: none;
+}
+
+/* When descriptions are visible inline, the preview band is redundant.
+   Keep it visible (nice to have a focus cue) but tone it down a touch. */
+.idiom-panel[data-descriptions="visible"] .idiom-panel-preview {
+  opacity: 0.85;
+}
+
 /* ─── REDUCED MOTION ─────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
@@ -424,6 +513,10 @@
   .idiom-panel-card,
   .idiom-panel-descriptions-toggle,
   .idiom-panel-close {
+    transition: none;
+  }
+
+  .idiom-panel-preview {
     transition: none;
   }
 }
