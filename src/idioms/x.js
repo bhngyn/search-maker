@@ -5,10 +5,12 @@
 // actually flow in the field (Bellingcat / OSINTCurio / Igor Brigadir
 // cross-referenced).
 //
-// Literals are used for Arabic strings instead of i18n keys — acceptable
-// because the UI is Arabic-only (CLAUDE.md: "interface language is Arabic").
-// A mechanical pass to route through messages.js is the migration path if an
-// English UI ever lands.
+// Each idiom's title and description are bilingual { ar, en } pairs.  The
+// language toggle in the header chooses which side renders.  English copy
+// matches the messages.js voice for X (engine.x.drawer.*, engine.x.tpl.*):
+// short imperative / noun-phrase titles, practical descriptions, X-native
+// terminology (tweet, retweet, quote tweet, thread, native video, verified,
+// Spaces).
 //
 // Chip API:  chipState.add(type, props)
 //            chipState.addAfter(afterId, type, props)
@@ -46,11 +48,13 @@ export const IDIOMS = [
 
   {
     id: 'first-tweeter',
-    title: 'أول من غرّد',
+    title: { ar: 'أول من غرّد', en: 'First to tweet it' },
     icon: '⚡',
     pattern: '_____ since:_ until:_ -filter:replies -filter:retweets',
-    description:
-      'حدث كاسر تحتاج المصدر الأصلي قبل أن يتكرر. يقصّ الردود وإعادات النشر فيظهر التغريدات الأولى داخل النافذة الزمنية.',
+    description: {
+      ar: 'حدث كاسر تحتاج المصدر الأصلي قبل أن يتكرر. يقصّ الردود وإعادات النشر فيظهر التغريدات الأولى داخل النافذة الزمنية.',
+      en: 'Breaking event — find the original source before it gets retweeted. Strips replies and retweets so the earliest tweets in the time window surface.',
+    },
     group: 'origin',
     apply(chipState) {
       chipState.add('keyword', { operator: 'none', text: '' });
@@ -65,11 +69,13 @@ export const IDIOMS = [
 
   {
     id: 'first-video-witness',
-    title: 'أول شاهد بالفيديو',
+    title: { ar: 'أول شاهد بالفيديو', en: 'First video witness' },
     icon: '🎥',
     pattern: '_____ filter:native_video lang:ar since:_ until:_ -filter:retweets',
-    description:
-      'أول فيديو خام التقطه شاهد عيان لا قناة إخبارية. الفيديو الأصلي + اللغة العربية = شهادة محلية، لا مادة معاد بثها.',
+    description: {
+      ar: 'أول فيديو خام التقطه شاهد عيان لا قناة إخبارية. الفيديو الأصلي + اللغة العربية = شهادة محلية، لا مادة معاد بثها.',
+      en: 'Raw video shot by an eyewitness, not a news channel. Native video + Arabic language = a local testimony, not rebroadcast footage.',
+    },
     group: 'origin',
     apply(chipState) {
       chipState.add('keyword', { operator: 'none', text: '' });
@@ -85,11 +91,13 @@ export const IDIOMS = [
 
   {
     id: 'first-image-witness',
-    title: 'أول صورة ميدانية',
+    title: { ar: 'أول صورة ميدانية', en: 'First image from the scene' },
     icon: '📸',
     pattern: '_____ filter:images lang:ar -filter:retweets since:_ until:_',
-    description:
-      'أول صورة محلية لحادثة قبل أن تنتشر. الصور + اللغة + استبعاد إعادة النشر يكشف المصور المحلي الأول.',
+    description: {
+      ar: 'أول صورة محلية لحادثة قبل أن تنتشر. الصور + اللغة + استبعاد إعادة النشر يكشف المصور المحلي الأول.',
+      en: 'The first local photo of an incident before it spreads. Images + language + excluding retweets surfaces the original on-the-ground photographer.',
+    },
     group: 'origin',
     apply(chipState) {
       chipState.add('keyword', { operator: 'none', text: '' });
@@ -105,11 +113,13 @@ export const IDIOMS = [
 
   {
     id: 'deleted-via-mentions',
-    title: 'تغريدة محذوفة',
+    title: { ar: 'تغريدة محذوفة', en: 'Deleted tweet via mentions' },
     icon: '🗑️',
     pattern: '@user "phrase" since:_ until:_',
-    description:
-      'التغريدة محذوفة لكن أحدهم اقتبسها في رد أو لقطة. يصطاد الإشارات والاقتباسات التي بقيت بعد الحذف فيعيد بناء النص الأصلي.',
+    description: {
+      ar: 'التغريدة محذوفة لكن أحدهم اقتبسها في رد أو لقطة. يصطاد الإشارات والاقتباسات التي بقيت بعد الحذف فيعيد بناء النص الأصلي.',
+      en: 'The original tweet is gone but someone quoted it in a reply or screenshot. Hunts the mentions and quotes that survived the deletion so you can reconstruct the original text.',
+    },
     group: 'origin',
     apply(chipState) {
       chipState.add('keyword', { operator: 'mention', text: '' });
@@ -123,11 +133,13 @@ export const IDIOMS = [
 
   {
     id: 'breaking-arabic',
-    title: 'عاجل بالعربية',
+    title: { ar: 'عاجل بالعربية', en: 'Breaking news in Arabic' },
     icon: '🔴',
     pattern: '"عاجل" _____ lang:ar -filter:retweets since:_ until:_',
-    description:
-      'كلمة "عاجل" هي العَلَم الفعلي للأخبار الكاسرة بالعربية. الاقتباس الحرفي يحصر النتائج على هذا التأطير المحلي.',
+    description: {
+      ar: 'كلمة "عاجل" هي العَلَم الفعلي للأخبار الكاسرة بالعربية. الاقتباس الحرفي يحصر النتائج على هذا التأطير المحلي.',
+      en: 'The word "عاجل" is the de facto flag for breaking news in Arabic. The literal quote restricts results to that local framing.',
+    },
     group: 'origin',
     apply(chipState) {
       chipState.add('keyword', { operator: 'none', text: 'عاجل', quoted: true });
@@ -145,11 +157,13 @@ export const IDIOMS = [
 
   {
     id: 'quoters-of-tweet',
-    title: 'من اقتبس التغريدة',
+    title: { ar: 'من اقتبس التغريدة', en: 'Who quote-tweeted it' },
     icon: '🔁',
     pattern: 'quoted_tweet_id:_____',
-    description:
-      'لرسم خريطة من اقتبس تغريدة محورية. يكشف كل من أعاد التأطير عبر الاقتباس — وليس الإعجاب فقط. (انسخ معرّف التغريدة من رابطها.)',
+    description: {
+      ar: 'لرسم خريطة من اقتبس تغريدة محورية. يكشف كل من أعاد التأطير عبر الاقتباس — وليس الإعجاب فقط. (انسخ معرّف التغريدة من رابطها.)',
+      en: 'Map who quote-tweeted a pivotal tweet. Surfaces every account that reframed it via QT — not just liked it. (Copy the tweet ID from its URL.)',
+    },
     group: 'amplification',
     apply(chipState) {
       chipState.add('keyword', { operator: 'quoted_tweet_id', text: '' });
@@ -158,11 +172,13 @@ export const IDIOMS = [
 
   {
     id: 'paid-amplifiers',
-    title: 'مُضخّمون بالعلامة الزرقاء',
+    title: { ar: 'مُضخّمون بالعلامة الزرقاء', en: 'Blue-check amplifiers' },
     icon: '💙',
     pattern: 'quoted_tweet_id:_____ filter:blue_verified',
-    description:
-      'للتمييز بين تضخيم مدفوع وتضخيم عضوي. يحصر مقتبسي تغريدة معينة في حسابات Blue المدفوعة فيكشف نمط الشراء.',
+    description: {
+      ar: 'للتمييز بين تضخيم مدفوع وتضخيم عضوي. يحصر مقتبسي تغريدة معينة في حسابات Blue المدفوعة فيكشف نمط الشراء.',
+      en: 'Tell paid amplification apart from organic. Restricts quote-tweeters of a given tweet to paid Blue accounts so coordinated buying patterns surface.',
+    },
     group: 'amplification',
     apply(chipState) {
       chipState.add('keyword', { operator: 'quoted_tweet_id', text: '' });
@@ -172,11 +188,13 @@ export const IDIOMS = [
 
   {
     id: 'account-quotes',
-    title: 'ماذا يقتبس الحساب',
+    title: { ar: 'ماذا يقتبس الحساب', en: 'What an account quotes' },
     icon: '🗨️',
     pattern: 'from:user filter:quote',
-    description:
-      'لرسم خريطة آراء حساب من خلال من يقتبس عنهم. الاقتباسات إشارة موقف؛ تكشف الشبكة الفكرية للحساب.',
+    description: {
+      ar: 'لرسم خريطة آراء حساب من خلال من يقتبس عنهم. الاقتباسات إشارة موقف؛ تكشف الشبكة الفكرية للحساب.',
+      en: 'Map an account\'s views through who they quote-tweet. Quote tweets are a stance signal; they expose the account\'s ideological network.',
+    },
     group: 'amplification',
     apply(chipState) {
       chipState.add('keyword', { operator: 'from', text: '' });
@@ -186,11 +204,13 @@ export const IDIOMS = [
 
   {
     id: 'street-on-statement',
-    title: 'ردود الشارع على بيان',
+    title: { ar: 'ردود الشارع على بيان', en: 'Street reactions to a statement' },
     icon: '📢',
     pattern: 'quoted_tweet_id:_____ -filter:verified -filter:blue_verified',
-    description:
-      'بيان رسمي صدر، نريد قراءة الشارع غير الموثّق. يستثني الموثقين بكل أنواعهم فيظهر ما قاله الناس فعلاً.',
+    description: {
+      ar: 'بيان رسمي صدر، نريد قراءة الشارع غير الموثّق. يستثني الموثقين بكل أنواعهم فيظهر ما قاله الناس فعلاً.',
+      en: 'An official statement dropped — read the unverified street. Excludes both verified tiers so what ordinary people actually said floats up.',
+    },
     group: 'amplification',
     apply(chipState) {
       chipState.add('keyword', { operator: 'quoted_tweet_id', text: '' });
@@ -201,11 +221,13 @@ export const IDIOMS = [
 
   {
     id: 'verified-quote-reactions',
-    title: 'ردود فعل المؤثرين',
+    title: { ar: 'ردود فعل المؤثرين', en: 'Reactions from influencers' },
     icon: '⭐',
     pattern: '_____ filter:blue_verified filter:quote -filter:retweets',
-    description:
-      'حدث كبير، نريد كيف أطّره المؤثرون مدفوعو الاشتراك. الاقتباس + الزرقاء = من يضع تأطيره فوق تأطير غيره عبر QT.',
+    description: {
+      ar: 'حدث كبير، نريد كيف أطّره المؤثرون مدفوعو الاشتراك. الاقتباس + الزرقاء = من يضع تأطيره فوق تأطير غيره عبر QT.',
+      en: 'Major event — see how paid-subscription influencers framed it. Quote + blue check = who layers their take on someone else\'s tweet via QT.',
+    },
     group: 'amplification',
     apply(chipState) {
       chipState.add('keyword', { operator: 'none', text: '' });
@@ -219,11 +241,13 @@ export const IDIOMS = [
 
   {
     id: 'full-thread',
-    title: 'كامل الموضوع',
+    title: { ar: 'كامل الموضوع', en: 'Full thread' },
     icon: '🧵',
     pattern: 'conversation_id:_____',
-    description:
-      'تغريدة جذر بمحادثة طويلة، نريد كل الردود والردود على الردود. يستحضر الموضوع كاملاً متجاوزاً ترتيب X الافتراضي. (انسخ معرّف التغريدة الجذر.)',
+    description: {
+      ar: 'تغريدة جذر بمحادثة طويلة، نريد كل الردود والردود على الردود. يستحضر الموضوع كاملاً متجاوزاً ترتيب X الافتراضي. (انسخ معرّف التغريدة الجذر.)',
+      en: 'A root tweet with a long conversation — pull every reply and reply-to-reply. Loads the entire thread, bypassing X\'s default ordering. (Copy the root tweet ID.)',
+    },
     group: 'thread',
     apply(chipState) {
       chipState.add('keyword', { operator: 'conversation_id', text: '' });
@@ -232,11 +256,13 @@ export const IDIOMS = [
 
   {
     id: 'thread-arabic',
-    title: 'ردود الموضوع بالعربية',
+    title: { ar: 'ردود الموضوع بالعربية', en: 'Arabic replies in a thread' },
     icon: '🌐',
     pattern: 'conversation_id:_____ lang:ar',
-    description:
-      'المحادثة متعددة اللغات، نريد الأصوات المحلية فقط. يقتطف الجزء العربي من المحادثة في بحث متعدد اللغات.',
+    description: {
+      ar: 'المحادثة متعددة اللغات، نريد الأصوات المحلية فقط. يقتطف الجزء العربي من المحادثة في بحث متعدد اللغات.',
+      en: 'A multilingual conversation — keep only the local voices. Slices out the Arabic segment of a cross-language thread.',
+    },
     group: 'thread',
     apply(chipState) {
       chipState.add('keyword', { operator: 'conversation_id', text: '' });
@@ -246,11 +272,13 @@ export const IDIOMS = [
 
   {
     id: 'thread-top-replies',
-    title: 'الردود الأكثر تفاعلاً',
+    title: { ar: 'الردود الأكثر تفاعلاً', en: 'Top-engagement replies' },
     icon: '🔝',
     pattern: 'conversation_id:_____ min_faves:100',
-    description:
-      'محادثة بآلاف الردود، نريد الأهم. يطفو الردود ذات التفاعل الحقيقي ويتجاوز ترتيب الخوارزمية المبهم.',
+    description: {
+      ar: 'محادثة بآلاف الردود، نريد الأهم. يطفو الردود ذات التفاعل الحقيقي ويتجاوز ترتيب الخوارزمية المبهم.',
+      en: 'A thread with thousands of replies — surface the ones that mattered. Floats up replies with real engagement and bypasses X\'s opaque ranking.',
+    },
     group: 'thread',
     apply(chipState) {
       chipState.add('keyword', { operator: 'conversation_id', text: '' });
@@ -260,11 +288,13 @@ export const IDIOMS = [
 
   {
     id: 'thread-verified',
-    title: 'الردود الموثّقة',
+    title: { ar: 'الردود الموثّقة', en: 'Verified replies' },
     icon: '✅',
     pattern: 'conversation_id:_____ filter:verified',
-    description:
-      'الذين ردوا من النخب التقليدية الموثقة على تغريدة بعينها. يكشف الحوار العمودي بين المؤسسات.',
+    description: {
+      ar: 'الذين ردوا من النخب التقليدية الموثقة على تغريدة بعينها. يكشف الحوار العمودي بين المؤسسات.',
+      en: 'Legacy-verified accounts that replied to a given tweet. Reveals the institutional, top-down dialogue inside the thread.',
+    },
     group: 'thread',
     apply(chipState) {
       chipState.add('keyword', { operator: 'conversation_id', text: '' });
@@ -274,11 +304,13 @@ export const IDIOMS = [
 
   {
     id: 'thread-dissent',
-    title: 'ردود المعارضة',
+    title: { ar: 'ردود المعارضة', en: 'Dissenting replies' },
     icon: '⚖️',
     pattern: 'conversation_id:_____ -from:author filter:has_engagement',
-    description:
-      'الاعتراضات والتصحيحات تحت تغريدة جدلية. يستثني صاحب التغريدة ويُبقي الردود المتفاعلة فقط — حيث يكون التصحيح غالباً.',
+    description: {
+      ar: 'الاعتراضات والتصحيحات تحت تغريدة جدلية. يستثني صاحب التغريدة ويُبقي الردود المتفاعلة فقط — حيث يكون التصحيح غالباً.',
+      en: 'Pushback and corrections under a contested tweet. Excludes the original author and keeps only replies with engagement — where the corrections usually live.',
+    },
     group: 'thread',
     apply(chipState) {
       chipState.add('keyword', { operator: 'conversation_id', text: '' });
@@ -291,11 +323,13 @@ export const IDIOMS = [
 
   {
     id: 'person-on-topic',
-    title: 'ماذا قال الشخص؟',
+    title: { ar: 'ماذا قال الشخص؟', en: 'What did the person say?' },
     icon: '🎙️',
     pattern: 'from:user _____',
-    description:
-      'شخصية عامة وموضوع — كل ما قالته. البحث الأساسي لاستخراج موقف شخص من ملف.',
+    description: {
+      ar: 'شخصية عامة وموضوع — كل ما قالته. البحث الأساسي لاستخراج موقف شخص من ملف.',
+      en: 'A public figure and a topic — everything they said about it. The core search for pulling a person\'s stance on a file.',
+    },
     group: 'person',
     apply(chipState) {
       chipState.add('keyword', { operator: 'from', text: '' });
@@ -305,11 +339,13 @@ export const IDIOMS = [
 
   {
     id: 'position-evolution',
-    title: 'تطور الموقف عبر الزمن',
+    title: { ar: 'تطور الموقف عبر الزمن', en: 'Position drift over time' },
     icon: '📅',
     pattern: 'from:user _____ since:_ until:_',
-    description:
-      'متى تغيّر تأطير المسؤول لقضية بعينها. النافذة الزمنية تكشف تحولات الخطاب وتغيرات السياسة.',
+    description: {
+      ar: 'متى تغيّر تأطير المسؤول لقضية بعينها. النافذة الزمنية تكشف تحولات الخطاب وتغيرات السياسة.',
+      en: 'When did an official\'s framing of a given issue shift. The time window exposes shifts in rhetoric and policy pivots.',
+    },
     group: 'person',
     apply(chipState) {
       chipState.add('keyword', { operator: 'from', text: '' });
@@ -323,11 +359,13 @@ export const IDIOMS = [
 
   {
     id: 'did-they-name',
-    title: 'هل ذكر هذا الاسم؟',
+    title: { ar: 'هل ذكر هذا الاسم؟', en: 'Did they name this person?' },
     icon: '🔍',
     pattern: 'from:user "name"',
-    description:
-      'للتحقق ما إذا كان مسؤول قد ذكر اسماً بعينه. الاقتباس يمنع التطابقات الجزئية ويعطي إثباتاً قابلاً للنقل.',
+    description: {
+      ar: 'للتحقق ما إذا كان مسؤول قد ذكر اسماً بعينه. الاقتباس يمنع التطابقات الجزئية ويعطي إثباتاً قابلاً للنقل.',
+      en: 'Verify whether an official ever uttered a specific name. The quote blocks partial matches and gives a citable, screenshot-ready hit.',
+    },
     group: 'person',
     apply(chipState) {
       chipState.add('keyword', { operator: 'from', text: '' });
@@ -337,11 +375,13 @@ export const IDIOMS = [
 
   {
     id: 'person-vs-person',
-    title: 'الشخص ضد الشخص',
+    title: { ar: 'الشخص ضد الشخص', en: 'Person vs. person' },
     icon: '⚔️',
     pattern: 'from:userA (@userB OR "userB display")',
-    description:
-      'جدل علني بين شخصيتين — مباشر أو بالاسم. يدمج الإشارات وذكر الاسم في استعلام واحد فيكشف المواجهات والإشارات الضمنية.',
+    description: {
+      ar: 'جدل علني بين شخصيتين — مباشر أو بالاسم. يدمج الإشارات وذكر الاسم في استعلام واحد فيكشف المواجهات والإشارات الضمنية.',
+      en: 'A public spat between two figures — direct or by-name. Combines mentions and name references in one query so direct hits and indirect digs both surface.',
+    },
     group: 'person',
     apply(chipState) {
       chipState.add('keyword', { operator: 'from', text: '' });
@@ -353,11 +393,13 @@ export const IDIOMS = [
 
   {
     id: 'person-quote-network',
-    title: 'شبكة اقتباسات الشخص',
+    title: { ar: 'شبكة اقتباسات الشخص', en: 'Their quote-tweet network' },
     icon: '🕸️',
     pattern: 'from:user filter:quote',
-    description:
-      'شبكة المرجعيات الفكرية للشخص عبر اقتباساته. ما يختار الشخص اقتباسه إشارة موقف؛ يبني خارطة تأييد ضمنية.',
+    description: {
+      ar: 'شبكة المرجعيات الفكرية للشخص عبر اقتباساته. ما يختار الشخص اقتباسه إشارة موقف؛ يبني خارطة تأييد ضمنية.',
+      en: 'Map a person\'s intellectual references through what they choose to quote-tweet. Quote selection is a stance signal; it builds an implicit endorsement graph.',
+    },
     group: 'person',
     apply(chipState) {
       chipState.add('keyword', { operator: 'from', text: '' });
@@ -369,11 +411,13 @@ export const IDIOMS = [
 
   {
     id: 'account-audience',
-    title: 'من يرد على الحساب',
+    title: { ar: 'من يرد على الحساب', en: 'Who replies to an account' },
     icon: '👥',
     pattern: 'to:user -filter:retweets',
-    description:
-      'فهم قاعدة الجمهور المتفاعل لشخصية. الردود الأصلية بمعزل عن إعادات النشر.',
+    description: {
+      ar: 'فهم قاعدة الجمهور المتفاعل لشخصية. الردود الأصلية بمعزل عن إعادات النشر.',
+      en: 'Understand the engaged audience around a figure. Original replies, with retweets stripped out.',
+    },
     group: 'audience',
     apply(chipState) {
       chipState.add('keyword', { operator: 'to', text: '' });
@@ -383,11 +427,13 @@ export const IDIOMS = [
 
   {
     id: 'anger-on-statement',
-    title: 'غضب على بيان رسمي',
+    title: { ar: 'غضب على بيان رسمي', en: 'Anger at an official statement' },
     icon: '😡',
     pattern: 'to:official min_faves:50 lang:ar',
-    description:
-      'بعد بيان مثير للجدل، نريد قراءة الغضب المحلي. عتبة التفاعل + العربية تفلتر إلى الردود التي وجدت صدى فعلياً.',
+    description: {
+      ar: 'بعد بيان مثير للجدل، نريد قراءة الغضب المحلي. عتبة التفاعل + العربية تفلتر إلى الردود التي وجدت صدى فعلياً.',
+      en: 'After a controversial statement, read the local anger. An engagement threshold + Arabic filters down to replies that actually resonated.',
+    },
     group: 'audience',
     apply(chipState) {
       chipState.add('keyword', { operator: 'to', text: '' });
@@ -398,11 +444,13 @@ export const IDIOMS = [
 
   {
     id: 'how-addressed',
-    title: 'كيف يخاطبه الناس',
+    title: { ar: 'كيف يخاطبه الناس', en: 'How people address them' },
     icon: '🏷️',
     pattern: 'to:user "term" lang:ar',
-    description:
-      'تتبع الألقاب التي يستخدمها الناس مع شخصية — احترام أم سخرية. يكشف خطاب القاعدة (لقب، نعت، شتيمة).',
+    description: {
+      ar: 'تتبع الألقاب التي يستخدمها الناس مع شخصية — احترام أم سخرية. يكشف خطاب القاعدة (لقب، نعت، شتيمة).',
+      en: 'Track the labels people apply to a figure — respect or mockery. Surfaces base-rate vocabulary (titles, epithets, insults).',
+    },
     group: 'audience',
     apply(chipState) {
       chipState.add('keyword', { operator: 'to', text: '' });
@@ -413,11 +461,13 @@ export const IDIOMS = [
 
   {
     id: 'viral-unverified',
-    title: 'الفيروسي بلا توثيق',
+    title: { ar: 'الفيروسي بلا توثيق', en: 'Viral without verification' },
     icon: '🦠',
     pattern: '_____ min_faves:10000 -filter:verified -filter:blue_verified',
-    description:
-      'تفاعل ضخم على حساب غير موثّق = اختراق صحفي مواطن. يصطاد الانتشار العضوي خارج الحسابات الرسمية أو المدفوعة.',
+    description: {
+      ar: 'تفاعل ضخم على حساب غير موثّق = اختراق صحفي مواطن. يصطاد الانتشار العضوي خارج الحسابات الرسمية أو المدفوعة.',
+      en: 'Massive engagement on an unverified account = a citizen-journalism breakthrough. Catches organic virality outside the official and paid tiers.',
+    },
     group: 'audience',
     apply(chipState) {
       chipState.add('keyword', { operator: 'none', text: '' });
@@ -429,11 +479,13 @@ export const IDIOMS = [
 
   {
     id: 'organic-arabic-virality',
-    title: 'تفاعل عربي بدون اشتراك',
+    title: { ar: 'تفاعل عربي بدون اشتراك', en: 'Organic Arabic virality' },
     icon: '🌿',
     pattern: '_____ min_faves:5000 -filter:blue_verified lang:ar',
-    description:
-      'للتمييز بين الانتشار العضوي العربي والتضخيم المدفوع. عتبة عالية + استثناء الزرقاء = صوت شعبي حقيقي وصل لأرقام كبيرة.',
+    description: {
+      ar: 'للتمييز بين الانتشار العضوي العربي والتضخيم المدفوع. عتبة عالية + استثناء الزرقاء = صوت شعبي حقيقي وصل لأرقام كبيرة.',
+      en: 'Tell organic Arabic spread apart from paid amplification. A high threshold + excluding blue checks = a real grassroots voice that reached scale.',
+    },
     group: 'audience',
     apply(chipState) {
       chipState.add('keyword', { operator: 'none', text: '' });
@@ -447,11 +499,13 @@ export const IDIOMS = [
 
   {
     id: 'unofficial-voices',
-    title: 'الأصوات غير الرسمية',
+    title: { ar: 'الأصوات غير الرسمية', en: 'Unofficial voices' },
     icon: '📣',
     pattern: '_____ -filter:verified -filter:blue_verified lang:ar',
-    description:
-      'استبعاد كل المنصات الرسمية والمدفوعة لرؤية الشارع. يفصل التأطير الشعبي عن المؤسسي والمدفوع.',
+    description: {
+      ar: 'استبعاد كل المنصات الرسمية والمدفوعة لرؤية الشارع. يفصل التأطير الشعبي عن المؤسسي والمدفوع.',
+      en: 'Exclude every official and paid tier to see the street. Separates grassroots framing from institutional and paid-amplifier framing.',
+    },
     group: 'framing',
     apply(chipState) {
       chipState.add('keyword', { operator: 'none', text: '' });
@@ -463,11 +517,13 @@ export const IDIOMS = [
 
   {
     id: 'competing-hashtags',
-    title: 'هاشتاقات متنافسة',
+    title: { ar: 'هاشتاقات متنافسة', en: 'Competing hashtags' },
     icon: '#️⃣',
     pattern: '(#tagA OR #tagB) lang:ar',
-    description:
-      'حدثان متنافسان حول نفس الواقعة (#الرواية_أ OR #الرواية_ب). يضع التأطيرَين جنباً إلى جنب في نفس الجدول الزمني.',
+    description: {
+      ar: 'حدثان متنافسان حول نفس الواقعة (#الرواية_أ OR #الرواية_ب). يضع التأطيرَين جنباً إلى جنب في نفس الجدول الزمني.',
+      en: 'Two competing hashtags around the same event (#narrativeA OR #narrativeB). Lays both framings side by side in a single timeline.',
+    },
     group: 'framing',
     apply(chipState) {
       const hashId = chipState.add('keyword', { operator: 'hashtag', text: '' });
@@ -479,11 +535,13 @@ export const IDIOMS = [
 
   {
     id: 'cross-script-name',
-    title: 'اسم الشخص بلغتين',
+    title: { ar: 'اسم الشخص بلغتين', en: 'A name across scripts' },
     icon: '🌍',
     pattern: '("اسم عربي" OR "Latin name" OR ACRONYM) topic',
-    description:
-      'شخصية عربية لها صيغة لاتينية وأخرى مختصرة. يحلّ مشكلة تعدد كتابة الاسم في خط واحد بدل بحوث متعددة.',
+    description: {
+      ar: 'شخصية عربية لها صيغة لاتينية وأخرى مختصرة. يحلّ مشكلة تعدد كتابة الاسم في خط واحد بدل بحوث متعددة.',
+      en: 'A figure with an Arabic spelling, a Latin transliteration, and an acronym. Solves the multi-spelling problem in one query instead of three searches.',
+    },
     group: 'framing',
     apply(chipState) {
       const kw1 = chipState.add('keyword', { operator: 'none', text: '', quoted: true });
@@ -497,11 +555,13 @@ export const IDIOMS = [
 
   {
     id: 'event-bilingual',
-    title: 'الحدث بلغتين',
+    title: { ar: 'الحدث بلغتين', en: 'An event in two languages' },
     icon: '🌐',
     pattern: '_____ (lang:ar OR lang:en)',
-    description:
-      'حدث دولي نريد روايته بالعربية والإنجليزية معاً. يكشف الفجوات بين التأطير المحلي والدولي.',
+    description: {
+      ar: 'حدث دولي نريد روايته بالعربية والإنجليزية معاً. يكشف الفجوات بين التأطير المحلي والدولي.',
+      en: 'An international event — read the story in Arabic and English at once. Exposes the gaps between the local and the international framing.',
+    },
     group: 'framing',
     apply(chipState) {
       chipState.add('keyword', { operator: 'none', text: '' });
@@ -513,11 +573,13 @@ export const IDIOMS = [
 
   {
     id: 'hashtag-hijack',
-    title: 'خطف الهاشتاق',
+    title: { ar: 'خطف الهاشتاق', en: 'Hashtag hijack' },
     icon: '🎣',
     pattern: '#tag -lang:ar',
-    description:
-      'هاشتاق عربي يبدو أن غير عرب يستخدمونه. يكشف التغريدات الخارجية على وسم محلي — مؤشر على تنسيق خارجي محتمل.',
+    description: {
+      ar: 'هاشتاق عربي يبدو أن غير عرب يستخدمونه. يكشف التغريدات الخارجية على وسم محلي — مؤشر على تنسيق خارجي محتمل.',
+      en: 'An Arabic hashtag that non-Arabic speakers seem to be pushing. Surfaces foreign-language tweets riding a local tag — a possible coordination signal.',
+    },
     group: 'framing',
     apply(chipState) {
       chipState.add('keyword', { operator: 'hashtag', text: '' });
@@ -529,11 +591,13 @@ export const IDIOMS = [
 
   {
     id: 'geo-image-witness',
-    title: 'صورة محلية في موقع',
+    title: { ar: 'صورة محلية في موقع', en: 'On-the-ground image at a place' },
     icon: '📍',
     pattern: '_____ filter:images near:city lang:ar',
-    description:
-      'حدث في مدينة معينة، نريد صور المحليين. تثليث الموقع + اللغة + الصور = شهادة بصرية قابلة للتحقق.',
+    description: {
+      ar: 'حدث في مدينة معينة، نريد صور المحليين. تثليث الموقع + اللغة + الصور = شهادة بصرية قابلة للتحقق.',
+      en: 'An event in a specific city — pull images from locals. Triangulating location + language + images = a verifiable visual testimony.',
+    },
     group: 'verify',
     apply(chipState) {
       chipState.add('keyword', { operator: 'none', text: '' });
@@ -545,11 +609,13 @@ export const IDIOMS = [
 
   {
     id: 'raw-video-no-press',
-    title: 'فيديو خام بلا قنوات',
+    title: { ar: 'فيديو خام بلا قنوات', en: 'Raw video without news channels' },
     icon: '🎬',
     pattern: '_____ filter:native_video -from:press lang:ar',
-    description:
-      'استبعاد قناة إخبارية معروفة لرؤية الفيديو الخام. يطفو الشهادة الميدانية بدل المادة الإخبارية المُعاد بثها.',
+    description: {
+      ar: 'استبعاد قناة إخبارية معروفة لرؤية الفيديو الخام. يطفو الشهادة الميدانية بدل المادة الإخبارية المُعاد بثها.',
+      en: 'Exclude a known news channel to see the raw footage. Floats up on-the-ground witness video instead of rebroadcast news material.',
+    },
     group: 'verify',
     apply(chipState) {
       chipState.add('keyword', { operator: 'none', text: '' });
@@ -561,12 +627,14 @@ export const IDIOMS = [
 
   {
     id: 'unusual-source',
-    title: 'مصدر تطبيق غير عادي',
+    title: { ar: 'مصدر تطبيق غير عادي', en: 'Unusual source app' },
     icon: '🤖',
     pattern:
       '_____ -source:Twitter_for_iPhone -source:Twitter_for_Android -source:Twitter_Web_App',
-    description:
-      'تنسيق بوتات نشطة على وسم؟ نستثني التطبيقات الشائعة الثلاثة. يكشف الجدولة والأتمتة عبر استبعاد العملاء المهيمنين.',
+    description: {
+      ar: 'تنسيق بوتات نشطة على وسم؟ نستثني التطبيقات الشائعة الثلاثة. يكشف الجدولة والأتمتة عبر استبعاد العملاء المهيمنين.',
+      en: 'Bots coordinated on a hashtag? Exclude the three dominant clients. Surfaces scheduling and automation by stripping out the apps real humans use.',
+    },
     group: 'verify',
     apply(chipState) {
       chipState.add('keyword', { operator: 'none', text: '' });
@@ -590,11 +658,13 @@ export const IDIOMS = [
 
   {
     id: 'domain-amplification',
-    title: 'روابط تضخّم نطاقاً',
+    title: { ar: 'روابط تضخّم نطاقاً', en: 'Links amplifying a domain' },
     icon: '🔗',
     pattern: 'url:domain lang:ar -filter:retweets',
-    description:
-      'نقيس انتشار موقع إخباري بالعربية بدون التكرار. url: يطابق أيّ جزء من الرابط — يمكن أيضاً وضع شظية مسار لتتبع مقالة بعينها.',
+    description: {
+      ar: 'نقيس انتشار موقع إخباري بالعربية بدون التكرار. url: يطابق أيّ جزء من الرابط — يمكن أيضاً وضع شظية مسار لتتبع مقالة بعينها.',
+      en: 'Measure how a news domain spreads in Arabic without retweet noise. url: matches any part of the link — drop in a path fragment to track a single article.',
+    },
     group: 'verify',
     apply(chipState) {
       chipState.add('keyword', { operator: 'url', text: '' });
@@ -605,11 +675,13 @@ export const IDIOMS = [
 
   {
     id: 'live-spaces',
-    title: 'مساحة صوتية حول حدث',
+    title: { ar: 'مساحة صوتية حول حدث', en: 'Live Spaces around an event' },
     icon: '🎙️',
     pattern: '_____ filter:spaces lang:ar',
-    description:
-      'بحث عن مساحات Spaces مباشرة حول حدث جارٍ. المساحات الصوتية شهادات حية في الوقت الحقيقي ومصدر صوتي نادر يصعب الوصول إليه بطرق أخرى.',
+    description: {
+      ar: 'بحث عن مساحات Spaces مباشرة حول حدث جارٍ. المساحات الصوتية شهادات حية في الوقت الحقيقي ومصدر صوتي نادر يصعب الوصول إليه بطرق أخرى.',
+      en: 'Find live Spaces around an unfolding event. Spaces are real-time audio testimony — a rare voice source that\'s hard to reach any other way.',
+    },
     group: 'verify',
     apply(chipState) {
       chipState.add('keyword', { operator: 'none', text: '' });
@@ -634,11 +706,11 @@ export const GROUP_ORDER = [
 ];
 
 export const GROUP_LABELS = {
-  origin: 'المصدر الأول',
-  amplification: 'شبكة التضخيم',
-  thread: 'إعادة بناء المحادثة',
-  person: 'الشخص والموضوع',
-  audience: 'الجمهور والتفاعل',
-  framing: 'تأطير وروايات متضادة',
-  verify: 'تحقق وتخصص',
+  origin:        { ar: 'المصدر الأول',           en: 'Original source' },
+  amplification: { ar: 'شبكة التضخيم',           en: 'Amplification network' },
+  thread:        { ar: 'إعادة بناء المحادثة',     en: 'Reconstruct the conversation' },
+  person:        { ar: 'الشخص والموضوع',          en: 'Person and topic' },
+  audience:      { ar: 'الجمهور والتفاعل',         en: 'Audience and engagement' },
+  framing:       { ar: 'تأطير وروايات متضادة',    en: 'Framing and counter-narratives' },
+  verify:        { ar: 'تحقق وتخصص',             en: 'Verify and specialize' },
 };
