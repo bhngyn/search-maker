@@ -8,6 +8,7 @@
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/fields.css';
+import './styles/chips.css';
 
 import { createNormalizer } from './core/normalize.js';
 import { createAssembler } from './core/assemble.js';
@@ -16,11 +17,14 @@ import { createTips } from './core/tips.js';
 import { createModeController } from './core/mode.js';
 import { createPreview } from './core/preview.js';
 import { createCtx } from './core/ctx.js';
+import { createChipState } from './core/chip-state.js';
 
 import { wireWelcomePanel } from './ui/welcome.js';
 import { wireMoreOptions } from './ui/disclosure.js';
 import { wireTemplates } from './ui/templates.js';
 import { wireNormalizeToggle } from './ui/normalize-toggle.js';
+import { wireComposer } from './ui/composer.js';
+import { wireChipArea } from './ui/chip-area.js';
 
 import { fields } from './fields/_registry.js';
 import { warnings as warningModules } from './warnings/_registry.js';
@@ -87,12 +91,23 @@ wireNormalizeToggle({
   onChange: preview.render,
 });
 
+// ===== Chip state =====
+// Chip-state registers ONE segment at order=100 (after all form segments at
+// 1–15). During Phase 4 the form and chips coexist; both feed the visualizer.
+const chipState = createChipState({ ctx, segmentOrder: 100 });
+
 // ===== Field registrations =====
 fields.forEach(mod => {
   if (typeof mod.register === 'function') {
     try { mod.register(ctx); } catch (e) { console.error('field register failed', e); }
   }
 });
+
+// ===== Chip UI =====
+const chipAreaHost = document.getElementById('chip-area');
+const composerHost = document.getElementById('composer');
+if (chipAreaHost) wireChipArea({ host: chipAreaHost, chipState });
+if (composerHost) wireComposer({ host: composerHost, chipState });
 
 // ===== Warnings + tips =====
 // Each module's register() may return { onRender } if it needs to recompute

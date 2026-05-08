@@ -1,0 +1,236 @@
+/* Chip-based composer + chip area + sticky visualizer.
+   Phase 4: lives ABOVE the existing form. Phase 5 will absorb the form. */
+
+/* ===== Section frame ===== */
+.chip-section {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: var(--gap);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.chip-section h2 {
+  margin: 0;
+  font-size: 15px;
+  color: var(--fg-muted);
+  font-weight: 500;
+}
+body.mode-advanced .chip-section h2 { display: none; }
+
+/* ===== Chip area ===== */
+.chip-area {
+  min-height: 56px;
+  padding: 8px;
+  background: var(--bg);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.chip-area-empty {
+  margin: 0;
+  padding: 4px 8px;
+  color: var(--fg-muted);
+  font-size: 13px;
+}
+
+/* ===== Chip pill ===== */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 8px 4px 4px;
+  font-size: 14px;
+  line-height: 1.3;
+  max-width: 100%;
+  transition: border-color 150ms, background 150ms;
+}
+.chip:hover { border-color: var(--accent); }
+
+.chip-text {
+  padding: 2px 6px;
+  word-break: break-word;
+  unicode-bidi: isolate;
+}
+
+.chip-tools {
+  display: inline-flex;
+  gap: 2px;
+  margin-inline-start: 4px;
+}
+.chip-tool-btn {
+  background: transparent;
+  border: 0;
+  color: var(--fg-muted);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1;
+  min-width: 24px;
+  min-height: 24px;
+}
+.chip-tool-btn:hover { background: var(--bg); color: var(--fg); }
+.chip-tool-btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+.chip-tool-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.chip-delete-btn {
+  background: transparent;
+  border: 0;
+  color: var(--fg-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+  min-width: 28px;
+  min-height: 28px;
+}
+.chip-delete-btn:hover { background: var(--warning-bg); color: var(--warning); }
+.chip-delete-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.chip-delete-btn-small { padding: 2px 6px; min-width: 20px; min-height: 20px; font-size: 13px; }
+
+/* Negated chip — red border + darker tone. */
+.chip-negate { border-color: var(--warning); background: var(--warning-bg); color: var(--warning); }
+.chip-negate .chip-text { font-weight: 500; }
+.chip-negate .chip-delete-btn { color: var(--warning); }
+
+/* Quoted chip — accent tint. */
+.chip-quoted { border-color: var(--accent); }
+.chip-quoted .chip-text { font-family: var(--mono); }
+
+/* OR connector — distinct shape (no rounded ends, smaller). */
+.chip-or-connector {
+  background: var(--tip-bg);
+  border-color: var(--tip);
+  color: var(--tip);
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.chip-or-text { padding: 0 4px; }
+
+/* ===== Composer ===== */
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.composer-input-row { width: 100%; }
+.composer-input {
+  width: 100%;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 16px;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.composer-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+.composer-commit-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.composer-btn {
+  flex: 1;
+  min-width: 100px;
+  min-height: 44px;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 15px;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms;
+}
+.composer-btn:hover:not(:disabled) { background: var(--bg-subtle); border-color: var(--accent); }
+.composer-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.composer-btn:disabled { background: var(--bg-subtle); color: var(--fg-muted); cursor: not-allowed; opacity: 0.6; }
+
+.composer-btn-and { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.composer-btn-and:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); filter: brightness(1.05); }
+.composer-btn-and:disabled { background: var(--border); color: var(--fg-muted); border-color: var(--border); }
+
+.composer-btn-or { color: var(--tip); border-color: var(--tip); }
+.composer-btn-or:hover:not(:disabled) { background: var(--tip-bg); }
+
+.composer-btn-not { color: var(--warning); border-color: var(--warning); }
+.composer-btn-not:hover:not(:disabled) { background: var(--warning-bg); }
+
+.composer-btn-hint {
+  font-family: var(--mono);
+  font-size: 12px;
+  margin-inline-start: 4px;
+  opacity: 0.85;
+}
+
+.composer-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+body.mode-advanced .composer-hint { display: none; }
+
+/* ===== Sticky visualizer (the bottom query bar) ===== */
+.preview-section.preview-section-sticky {
+  position: sticky;
+  bottom: 0;
+  margin-top: 24px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  /* Faint shadow above so users notice it sticks. */
+  box-shadow: 0 -4px 12px -4px rgba(0,0,0,0.08);
+  z-index: 10;
+}
+@media (prefers-color-scheme: dark) {
+  .preview-section.preview-section-sticky {
+    box-shadow: 0 -4px 12px -4px rgba(0,0,0,0.4);
+  }
+}
+.preview-section-sticky .preview-heading { display: none; }
+.preview-section-sticky .preview-box {
+  cursor: pointer;
+  user-select: text;
+  position: relative;
+}
+.preview-section-sticky .preview-box:not(.empty):hover {
+  border-color: var(--accent);
+}
+.preview-section-sticky .preview-box:not(.empty)::after {
+  content: '📋';
+  position: absolute;
+  top: 8px;
+  inset-inline-end: 12px;
+  font-size: 14px;
+  opacity: 0.4;
+  pointer-events: none;
+}
+.preview-section-sticky .preview-box:not(.empty):hover::after {
+  opacity: 1;
+}
+
+/* Mobile: stack action buttons. */
+@media (max-width: 600px) {
+  .composer-commit-row { flex-direction: column; }
+  .composer-btn { width: 100%; }
+}
