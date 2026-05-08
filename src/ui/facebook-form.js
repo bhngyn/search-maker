@@ -1,4 +1,6 @@
 import { t } from '../i18n/messages.js';
+import { getActiveLang } from '../core/lang.js';
+import { createArabicDateInput } from './arabic-calendar.js';
 
 // Facebook search form — the entire input UI when the Facebook engine is
 // active. Replaces the chip composer + chip area + drawer surface (which
@@ -329,19 +331,9 @@ export function wireFacebookForm({ host, engine, ctx, lang }) {
     const row = document.createElement('div');
     row.className = 'fb-date-row';
 
-    const startLabel = document.createElement('label');
-    startLabel.className = 'fb-date-label';
-    startLabel.textContent = t('engine.facebook.sec.datePosted.from');
-    const startInput = document.createElement('input');
-    startInput.type = 'date';
-    startInput.className = 'fb-date-input';
-    startInput.dir = 'ltr';
-    startInput.value = state.date && state.date.startDay ? state.date.startDay : '';
-    startInput.addEventListener('input', () => {
-      const v = startInput.value; // 'YYYY-MM-DD'
+    function applyStart(v) {
       const parsed = parseDateStr(v);
       if (!parsed) {
-        // Cleared start — drop the start half but keep end if any
         const next = { ...(state.date || {}) };
         delete next.startDay; delete next.startMonth; delete next.startYear;
         if (Object.keys(next).length === 0) clearDate(); else setDate(next);
@@ -352,18 +344,8 @@ export function wireFacebookForm({ host, engine, ctx, lang }) {
         startMonth: parsed.year + '-' + parsed.monthRaw,
         startDay:   parsed.year + '-' + parsed.monthRaw + '-' + parsed.dayRaw,
       });
-    });
-
-    const endLabel = document.createElement('label');
-    endLabel.className = 'fb-date-label';
-    endLabel.textContent = t('engine.facebook.sec.datePosted.to');
-    const endInput = document.createElement('input');
-    endInput.type = 'date';
-    endInput.className = 'fb-date-input';
-    endInput.dir = 'ltr';
-    endInput.value = state.date && state.date.endDay ? state.date.endDay : '';
-    endInput.addEventListener('input', () => {
-      const v = endInput.value;
+    }
+    function applyEnd(v) {
       const parsed = parseDateStr(v);
       if (!parsed) {
         const next = { ...(state.date || {}) };
@@ -376,12 +358,59 @@ export function wireFacebookForm({ host, engine, ctx, lang }) {
         endMonth: parsed.year + '-' + parsed.monthRaw,
         endDay:   parsed.year + '-' + parsed.monthRaw + '-' + parsed.dayRaw,
       });
-    });
+    }
+
+    const startLabel = document.createElement('label');
+    startLabel.className = 'fb-date-label';
+    startLabel.textContent = t('engine.facebook.sec.datePosted.from');
+
+    const endLabel = document.createElement('label');
+    endLabel.className = 'fb-date-label';
+    endLabel.textContent = t('engine.facebook.sec.datePosted.to');
+
+    // Same locale-driven swap as the date-range chip — Arabic mode gets the
+    // custom calendar; English mode keeps the native picker.
+    const isArabic = getActiveLang() === 'ar';
+    // state.date stores Facebook's preferred un-padded form ('2026-5-15');
+    // input widgets need padded ISO ('2026-05-15'). Pad here so a value
+    // round-trips correctly across language toggles.
+    const startValue = padIsoDate(state.date && state.date.startDay);
+    const endValue = padIsoDate(state.date && state.date.endDay);
+
+    let startEl, endEl;
+    if (isArabic) {
+      startEl = createArabicDateInput({
+        value: startValue,
+        ariaLabel: t('engine.facebook.sec.datePosted.from'),
+        onChange: applyStart,
+      }).el;
+      endEl = createArabicDateInput({
+        value: endValue,
+        ariaLabel: t('engine.facebook.sec.datePosted.to'),
+        onChange: applyEnd,
+      }).el;
+    } else {
+      const startInput = document.createElement('input');
+      startInput.type = 'date';
+      startInput.className = 'fb-date-input';
+      startInput.dir = 'ltr';
+      startInput.value = startValue;
+      startInput.addEventListener('input', () => applyStart(startInput.value));
+      startEl = startInput;
+
+      const endInput = document.createElement('input');
+      endInput.type = 'date';
+      endInput.className = 'fb-date-input';
+      endInput.dir = 'ltr';
+      endInput.value = endValue;
+      endInput.addEventListener('input', () => applyEnd(endInput.value));
+      endEl = endInput;
+    }
 
     row.appendChild(startLabel);
-    row.appendChild(startInput);
+    row.appendChild(startEl);
     row.appendChild(endLabel);
-    row.appendChild(endInput);
+    row.appendChild(endEl);
     wrap.appendChild(row);
     return wrap;
   }
@@ -427,6 +456,17 @@ function parseDateStr(s) {
   const monthRaw = String(parseInt(m[2], 10));
   const dayRaw   = String(parseInt(m[3], 10));
   return { year, monthRaw, dayRaw };
+}
+
+// Pad a Facebook-style un-padded date ('2026-5-15') back to ISO
+// ('2026-05-15') so it can be displayed by either picker. Empty in,
+// empty out.
+function padIsoDate(s) {
+  if (!s) return '';
+  const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s);
+  if (!m) return '';
+  const pad = (x) => x.length < 2 ? '0' + x : x;
+  return m[1] + '-' + pad(m[2]) + '-' + pad(m[3]);
 }
 
 function escapeHtml(s) {

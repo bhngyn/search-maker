@@ -284,6 +284,23 @@ body.engine-facebook main { padding-bottom: 140px; }
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16);
 }
 
+/* Custom Arabic calendar triggers in the Facebook form: match the
+   .fb-date-input footprint so the form looks the same in AR vs EN. */
+.fb-date-row .date-trigger-wrap { display: inline-flex; align-items: center; }
+.fb-date-row .date-trigger {
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 8px 28px 8px 10px;
+  min-width: 160px;
+  min-height: 38px;
+  border-radius: 6px;
+}
+.fb-date-row .date-trigger:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.16);
+}
+
 /* Date pickers in dark mode use the system widget — leave color-scheme as
    default. The Safari date picker icon will follow prefers-color-scheme. */
 @media (prefers-color-scheme: dark) {

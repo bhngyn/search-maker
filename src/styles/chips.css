@@ -1226,3 +1226,118 @@
   color: var(--accent);
   transition: background-color 80ms ease-in, color 80ms ease-in;
 }
+
+/* ===== Arabic calendar (date-range chip, AR mode) =====
+   Replaces the native <input type="date"> in Arabic mode because native
+   pickers can't be reliably localized. The trigger button mimics the
+   `.chip-wide-input-date` silhouette so the chip stays the same size
+   when the user toggles language. */
+.date-trigger-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.date-trigger {
+  cursor: pointer;
+  text-align: start;
+  padding-inline-end: 24px;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.date-trigger:hover { border-color: var(--accent); }
+.date-trigger-label--placeholder {
+  color: var(--fg-muted);
+  font-family: inherit;
+}
+.date-trigger-clear {
+  position: absolute;
+  inset-inline-end: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px; height: 18px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  color: var(--fg-muted);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+.date-trigger-clear:hover { background: var(--bg-subtle); color: var(--fg); }
+.date-trigger-clear:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.date-picker-popup {
+  width: 264px;
+  padding: 10px;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  font-size: 13px;
+  color: var(--fg);
+}
+.date-picker-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.date-picker-title {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+.date-picker-nav {
+  width: 28px; height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--fg);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+.date-picker-nav:hover { border-color: var(--accent); color: var(--accent); }
+.date-picker-nav:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.date-picker-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+.date-picker-weekday {
+  text-align: center;
+  font-size: 11px;
+  color: var(--fg-muted);
+  padding: 4px 0;
+}
+.date-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.date-picker-day {
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--fg);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+.date-picker-day:hover { background: var(--bg-subtle); border-color: var(--accent); }
+.date-picker-day:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.date-picker-day--other-month { color: var(--fg-muted); opacity: 0.5; }
+.date-picker-day--today { border-color: var(--accent-muted); }
+.date-picker-day--selected,
+.date-picker-day--selected:hover {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}

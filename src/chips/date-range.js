@@ -1,5 +1,7 @@
 import { renderWarningGlyph } from '../ui/chip-popover.js';
 import { getActiveEngine } from '../core/engine.js';
+import { getActiveLang } from '../core/lang.js';
+import { createArabicDateInput } from '../ui/arabic-calendar.js';
 import { t } from '../i18n/messages.js';
 
 // Date-range chip — wraps the active engine's date-bound operators in a
@@ -68,33 +70,59 @@ export function render(chip, handlers) {
   const afterLabel = document.createElement('span');
   afterLabel.className = 'chip-wide-input-label';
   afterLabel.textContent = t('chip.dateRange.afterLabel');
-  const afterInput = document.createElement('input');
-  afterInput.type = 'date';
-  afterInput.className = 'chip-wide-input chip-wide-input-date';
-  afterInput.setAttribute('aria-label', t('chip.dateRange.afterAria'));
-  afterInput.value = chip.props.after || '';
-  afterInput.addEventListener('input', () => {
-    if (handlers.onChangeProps) handlers.onChangeProps({ after: afterInput.value });
-  });
-  afterInput.addEventListener('click', (e) => e.stopPropagation());
 
   const beforeLabel = document.createElement('span');
   beforeLabel.className = 'chip-wide-input-label';
   beforeLabel.textContent = t('chip.dateRange.beforeLabel');
-  const beforeInput = document.createElement('input');
-  beforeInput.type = 'date';
-  beforeInput.className = 'chip-wide-input chip-wide-input-date';
-  beforeInput.setAttribute('aria-label', t('chip.dateRange.beforeAria'));
-  beforeInput.value = chip.props.before || '';
-  beforeInput.addEventListener('input', () => {
-    if (handlers.onChangeProps) handlers.onChangeProps({ before: beforeInput.value });
-  });
-  beforeInput.addEventListener('click', (e) => e.stopPropagation());
+
+  // Arabic native pickers can't be reliably localized — Safari/Chrome tie
+  // the date popup to the OS locale. Substitute our own Arabic calendar in
+  // AR mode; English mode keeps the friendlier native picker.
+  const isArabic = getActiveLang() === 'ar';
+
+  let afterEl, beforeEl;
+  if (isArabic) {
+    const afterPicker = createArabicDateInput({
+      value: chip.props.after || '',
+      ariaLabel: t('chip.dateRange.afterAria'),
+      onChange: (iso) => { if (handlers.onChangeProps) handlers.onChangeProps({ after: iso }); },
+    });
+    const beforePicker = createArabicDateInput({
+      value: chip.props.before || '',
+      ariaLabel: t('chip.dateRange.beforeAria'),
+      onChange: (iso) => { if (handlers.onChangeProps) handlers.onChangeProps({ before: iso }); },
+    });
+    afterEl = afterPicker.el;
+    beforeEl = beforePicker.el;
+  } else {
+    const afterInput = document.createElement('input');
+    afterInput.type = 'date';
+    afterInput.className = 'chip-wide-input chip-wide-input-date';
+    afterInput.setAttribute('aria-label', t('chip.dateRange.afterAria'));
+    afterInput.value = chip.props.after || '';
+    afterInput.addEventListener('input', () => {
+      if (handlers.onChangeProps) handlers.onChangeProps({ after: afterInput.value });
+    });
+    afterInput.addEventListener('click', (e) => e.stopPropagation());
+
+    const beforeInput = document.createElement('input');
+    beforeInput.type = 'date';
+    beforeInput.className = 'chip-wide-input chip-wide-input-date';
+    beforeInput.setAttribute('aria-label', t('chip.dateRange.beforeAria'));
+    beforeInput.value = chip.props.before || '';
+    beforeInput.addEventListener('input', () => {
+      if (handlers.onChangeProps) handlers.onChangeProps({ before: beforeInput.value });
+    });
+    beforeInput.addEventListener('click', (e) => e.stopPropagation());
+
+    afterEl = afterInput;
+    beforeEl = beforeInput;
+  }
 
   inputs.appendChild(afterLabel);
-  inputs.appendChild(afterInput);
+  inputs.appendChild(afterEl);
   inputs.appendChild(beforeLabel);
-  inputs.appendChild(beforeInput);
+  inputs.appendChild(beforeEl);
 
   const glyph = renderWarningGlyph(chip, validate(chip), handlers);
 
