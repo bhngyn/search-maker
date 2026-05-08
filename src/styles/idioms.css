@@ -409,72 +409,6 @@
   display: -webkit-box;
 }
 
-/* ─── POPOVER ────────────────────────────────────────────────────────── */
-
-.idiom-popover {
-  position: fixed;
-  z-index: 1000;
-  max-width: 280px;
-  min-width: 200px;
-  padding: 10px 12px;
-  background: var(--bg-subtle);
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-  pointer-events: none; /* popover is informational only */
-  /* Entrance fade */
-  animation: idiom-popover-in 100ms ease forwards;
-}
-
-@keyframes idiom-popover-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Auto-flipped variant: slide up instead of down */
-.idiom-popover.idiom-popover-above {
-  animation: idiom-popover-in-above 100ms ease forwards;
-}
-
-@keyframes idiom-popover-in-above {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.idiom-popover-pattern {
-  direction: ltr; /* explicit — pattern is always LTR mono */
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--accent);
-  background: var(--accent-muted);
-  border-radius: 4px;
-  padding: 2px 6px;
-  margin-bottom: 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-}
-
-.idiom-popover-desc {
-  font-size: 13px;
-  color: var(--fg);
-  line-height: 1.5;
-  /* Arabic text (inherits RTL from document dir) */
-}
-
 /* ─── REDUCED MOTION ─────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
@@ -491,10 +425,5 @@
   .idiom-panel-descriptions-toggle,
   .idiom-panel-close {
     transition: none;
-  }
-
-  .idiom-popover,
-  .idiom-popover.idiom-popover-above {
-    animation: none;
   }
 }
