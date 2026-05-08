@@ -8,6 +8,8 @@
 // Engine descriptor shape is locked by `src/core/engine.js` — see the
 // docblock there before changing this file.
 
+import { IDIOMS, GROUP_ORDER, GROUP_LABELS } from '../idioms/google.js';
+
 const keywordOperators = {
   none: {
     label: 'engine.google.op.none.label',
@@ -133,6 +135,9 @@ export default {
     advancedSpecials: ['filetype', 'date-range', 'proximity', 'number-range'],
   },
   templates,
+  idioms: IDIOMS,
+  idiomGroupOrder: GROUP_ORDER,
+  idiomGroupLabels: GROUP_LABELS,
   dateRangeOps: { after: 'after', before: 'before' },
   addableChipTypes: new Set(['keyword', 'or-connector', 'filetype', 'date-range', 'proximity', 'number-range']),
   arabicForbiddenOps: new Set(['site', 'inurl']),

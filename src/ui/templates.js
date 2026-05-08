@@ -1,10 +1,5 @@
-// Beginner-mode templates. Each pre-fills chips and focuses the composer.
-// Clicking a template doesn't auto-submit a search — it just scaffolds the
-// chip state so the user can continue typing.
-//
-// The template list is engine-driven: see `templates` on each engine
-// descriptor in src/engines/<id>.js. chip-area's empty-state picker calls
-// `getTemplates()` so the surface always matches the active engine.
+// Engine-driven recipe templates. The active engine's `templates` field is
+// read for the legacy 3-card row; the new panel reads `idioms` instead.
 
 import { getActiveEngine } from '../core/engine.js';
 
@@ -15,6 +10,8 @@ import { getActiveEngine } from '../core/engine.js';
  * @property {string} description     Arabic one-line description (muted)
  * @property {string} icon            single emoji shown next to the title
  * @property {(chipState: object) => void} apply  mutates chip-state to seed chips
+ * @property {string} [pattern]       optional mono LTR string for the operator recipe (idiom panel only)
+ * @property {string} [group]         optional group slug (idiom panel only)
  */
 
 /** Active-engine template list. */
