@@ -196,6 +196,96 @@
 .field-site input[type="text"] { text-align: left; }
 .field-site input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
 
+  .field-intitle .field-intitle-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-intitle .field-intitle-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-intitle .quote-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+.field-intitle .quote-toggle input { accent-color: var(--accent); width: 15px; height: 15px; }
+.field-intitle input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-inurl .field-inurl-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-inurl .field-inurl-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-inurl input[type="text"] { text-align: left; }
+.field-inurl input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-intext .field-intext-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-intext .field-intext-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-intext .field-intext-quote-row { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+.field-intext .field-intext-quote-row input { accent-color: var(--accent); width: 15px; height: 15px; }
+.field-intext input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-inanchor .field-inanchor-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-inanchor .field-inanchor-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-inanchor .field-inanchor-quote-row { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--fg-muted); }
+.field-inanchor .field-inanchor-quote-row input { accent-color: var(--accent); width: 15px; height: 15px; }
+.field-inanchor input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-filetype { display: flex; flex-direction: column; gap: var(--gap-tight); }
+.field-filetype .field-filetype-header { display: flex; align-items: center; gap: var(--gap-tight); }
+.field-filetype .field-filetype-header label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.field-filetype .field-filetype-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 2px 7px; color: var(--fg-muted); min-width: 28px; min-height: 28px; transition: background 150ms; }
+.field-filetype .field-filetype-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
+.field-filetype .field-filetype-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.field-filetype select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--fg); cursor: pointer; min-height: 44px; }
+.field-filetype select:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-filetype .field-help { margin: 0; font-size: 0.85rem; color: var(--fg-muted); line-height: 1.5; }
+
+  .field-date-range { display: flex; flex-direction: column; gap: var(--gap-tight); }
+.field-date-range .field-date-range-header { display: flex; align-items: center; gap: var(--gap-tight); }
+.field-date-range .field-date-range-outer-label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.field-date-range .field-date-range-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 2px 7px; color: var(--fg-muted); min-width: 28px; min-height: 28px; transition: background 150ms; }
+.field-date-range .field-date-range-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
+.field-date-range .field-date-range-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.field-date-range .field-date-range-inputs { display: flex; flex-wrap: wrap; gap: var(--gap); }
+.field-date-range .field-date-range-input-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+.field-date-range .field-date-range-inner-label { font-size: 0.875rem; color: var(--fg-muted); font-weight: 500; }
+.field-date-range input[type="date"] { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--fg); min-height: 44px; }
+.field-date-range input[type="date"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-date-range .field-help { margin: 0; font-size: 0.85rem; color: var(--fg-muted); line-height: 1.5; }
+
+  .field-proximity .field-proximity-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-proximity .field-proximity-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-proximity .field-proximity-row { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
+.field-proximity .field-proximity-term-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 100px; }
+.field-proximity .field-proximity-sublabel { font-size: 12px; color: var(--fg-muted); }
+.field-proximity .field-proximity-term-group input[type="text"] { width: 100%; padding: 10px 12px; font: inherit; font-size: 15px; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; }
+.field-proximity .field-proximity-term-group input[type="text"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.field-proximity .field-proximity-sep { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
+.field-proximity .field-proximity-sep-text { font-size: 13px; color: var(--fg-muted); white-space: nowrap; }
+.field-proximity .field-proximity-sep input[type="number"] { width: 80px; padding: 10px 8px; font: inherit; font-size: 15px; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; text-align: center; }
+.field-proximity .field-proximity-sep input[type="number"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+@media (max-width: 500px) { .field-proximity .field-proximity-row { flex-direction: column; } .field-proximity .field-proximity-sep { flex-direction: row; align-items: center; gap: 6px; } }
+
+  .field-wildcard .field-wildcard-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.field-wildcard .field-wildcard-header label { flex: 1; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; }
+.field-wildcard input[type="text"]:focus-visible { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .field-number-range { display: flex; flex-direction: column; gap: var(--gap-tight); }
+.field-number-range .field-number-range-header { display: flex; align-items: center; gap: var(--gap-tight); }
+.field-number-range .field-number-range-header > label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.field-number-range .field-number-range-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 2px 7px; color: var(--fg-muted); min-width: 28px; min-height: 28px; transition: background 150ms; }
+.field-number-range .field-number-range-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
+.field-number-range .field-number-range-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.field-number-range .field-number-range-inputs { display: flex; flex-direction: row; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
+.field-number-range .field-number-range-input-group { display: flex; flex-direction: column; gap: 3px; }
+.field-number-range .field-number-range-sub-label { font-size: 0.78rem; color: var(--fg-muted); font-weight: 500; }
+.field-number-range .field-number-range-sep { font-size: 1.2rem; font-weight: 700; color: var(--fg-muted); padding-bottom: 8px; font-family: var(--mono); }
+.field-number-range .field-number-range-input-group input[type="number"] { width: 90px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: var(--mono); font-size: 1rem; background: var(--bg); color: var(--fg); min-height: 44px; }
+.field-number-range .field-number-range-input-group input[type="number"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-number-range .field-number-range-prefix-group input[type="text"] { width: 56px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-family: var(--mono); font-size: 1rem; background: var(--bg); color: var(--fg); min-height: 44px; }
+.field-number-range .field-number-range-prefix-group input[type="text"]:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-number-range .field-help { margin: 0; font-size: 0.85rem; color: var(--fg-muted); line-height: 1.5; }
+.field-number-range .field-help code { font-family: var(--mono); background: var(--bg-subtle); padding: 1px 4px; border-radius: 3px; }
+
+  .field-or-groups { display: flex; flex-direction: column; gap: var(--gap-tight); }
+.field-or-groups .field-or-groups-header { display: flex; align-items: center; gap: var(--gap-tight); }
+.field-or-groups .field-or-groups-header label { flex: 1; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.field-or-groups .field-or-groups-clear-btn { background: none; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; padding: 2px 7px; color: var(--fg-muted); min-width: 28px; min-height: 28px; transition: background 150ms; }
+.field-or-groups .field-or-groups-clear-btn:hover { background: var(--bg-subtle); color: var(--fg); }
+.field-or-groups .field-or-groups-clear-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.field-or-groups #field-or-groups-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 1rem; background: var(--bg); color: var(--fg); min-height: 44px; box-sizing: border-box; }
+.field-or-groups #field-or-groups-input:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.field-or-groups .field-help { margin: 0; font-size: 0.85rem; color: var(--fg-muted); line-height: 1.5; }
+
   /* === STYLES_INSERT === */
 
 </style>
@@ -300,6 +390,238 @@
     spellcheck="false"
   />
   <p class="field-help">يقصر النتائج على نطاق واحد فقط. يمكن استخدام الرمز * للبحث في جميع النطاقات الفرعية (مثل *.gov للمواقع الحكومية). وبالدمج مع «نوع الملف» يصبح هذا أحد أقوى أنماط البحث الاستخباراتي.</p>
+</div>
+      <div class="field field-intitle">
+  <div class="field-intitle-header">
+    <label for="field-intitle-input">
+      في عنوان الصفحة
+      <span class="op-badge">intitle:</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-intitle-clear" aria-label="مسح حقل عنوان الصفحة" hidden>×</button>
+  </div>
+  <input
+    id="field-intitle-input"
+    type="text"
+    placeholder="مثلاً: تقرير سنوي"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <label class="quote-toggle" for="field-intitle-quote">
+    <input type="checkbox" id="field-intitle-quote" />
+    اقتباس حرفي
+  </label>
+  <p class="field-help">يبحث عن صفحات تحتوي هذه الكلمة في عنوانها (النص الظاهر في تبويب المتصفح ونتائج البحث) — وهو مؤشر قوي على موضوع الصفحة، مفيد للعثور على المقالات والتصريحات الرسمية وفهارس الوثائق.</p>
+</div>
+      <div class="field field-inurl">
+  <div class="field-inurl-header">
+    <label for="field-inurl-input">
+      في عنوان الرابط
+      <span class="op-badge">inurl:</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-inurl-clear" aria-label="مسح حقل عنوان الرابط" hidden>×</button>
+  </div>
+  <input
+    id="field-inurl-input"
+    type="text"
+    dir="ltr"
+    placeholder="archive"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <p class="field-help">يبحث عن صفحات يظهر فيها هذا النص داخل عنوان الرابط (URL) — مفيد للعثور على أقسام محددة من المواقع مثل الأرشيف أو التقارير أو الوثائق المسرّبة، وعادةً ما تكون هذه الكلمات بالإنجليزية حتى في المواقع العربية.</p>
+</div>
+      <div class="field field-intext">
+  <div class="field-intext-header">
+    <label for="field-intext-input">
+      في نص الصفحة
+      <span class="op-badge">intext:</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-intext-clear" aria-label="مسح حقل نص الصفحة" hidden>×</button>
+  </div>
+  <input
+    id="field-intext-input"
+    type="text"
+    placeholder="مثلاً: تمويل سري"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <label class="field-intext-quote-row" for="field-intext-quote">
+    <input type="checkbox" id="field-intext-quote" />
+    اقتباس حرفي
+  </label>
+  <p class="field-help">يشترط أن تظهر الكلمة في متن الصفحة نفسها — مفيد حين تريد التأكد من أن الموضوع مُناقَش فعلاً في المحتوى وليس فقط في العنوان أو الرابط.</p>
+</div>
+      <div class="field field-inanchor">
+  <div class="field-inanchor-header">
+    <label for="field-inanchor-input">
+      في نص الروابط الواردة
+      <span class="op-badge">inanchor:</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-inanchor-clear" aria-label="مسح حقل نص الروابط الواردة" hidden>×</button>
+  </div>
+  <input
+    id="field-inanchor-input"
+    type="text"
+    placeholder="مثلاً: تقرير رسمي"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <label class="field-inanchor-quote-row" for="field-inanchor-quote">
+    <input type="checkbox" id="field-inanchor-quote" />
+    اقتباس حرفي
+  </label>
+  <p class="field-help">يبحث عن الصفحات التي تُشير إليها صفحات أخرى بهذا النص في روابطها — طريقة للعثور على صفحات يعتبرها الويب مرجعاً في موضوع ما. أكثر تخصصاً من بقية المعاملات وقد تُعيد نتائج أقل.</p>
+</div>
+      <div class="field field-filetype">
+  <div class="field-filetype-header">
+    <label for="field-filetype-select">
+      نوع الملف
+      <span class="op-badge">filetype:</span>
+    </label>
+    <button type="button" id="field-filetype-clear" class="field-filetype-clear-btn" aria-label="مسح نوع الملف" hidden>×</button>
+  </div>
+  <select id="field-filetype-select" dir="ltr">
+    <option value="">بدون تحديد</option>
+    <option value="pdf">PDF</option>
+    <option value="doc">Word (doc)</option>
+    <option value="docx">Word (docx)</option>
+    <option value="xls">Excel (xls)</option>
+    <option value="xlsx">Excel (xlsx)</option>
+    <option value="ppt">PowerPoint (ppt)</option>
+    <option value="pptx">PowerPoint (pptx)</option>
+    <option value="txt">نص (txt)</option>
+    <option value="rtf">RTF</option>
+  </select>
+  <p class="field-help">يقيّد البحث على نوع محدد من الملفات. PDF هو الخيار الأكثر شيوعاً للعثور على التقارير والوثائق المسرّبة والأوراق الأكاديمية. الجمع بين هذا الحقل وحقل الموقع (site:) من أساسيات بحث OSINT — مثلاً: الملفات PDF على نطاق حكومي.</p>
+</div>
+      <div class="field field-date-range">
+  <div class="field-date-range-header">
+    <label class="field-date-range-outer-label">
+      نطاق زمني
+      <span class="op-badge">before: / after:</span>
+    </label>
+    <button type="button" id="field-date-range-clear" class="field-date-range-clear-btn" aria-label="مسح التواريخ" hidden>×</button>
+  </div>
+  <div class="field-date-range-inputs">
+    <div class="field-date-range-input-group">
+      <label for="field-date-range-after" class="field-date-range-inner-label">بعد تاريخ</label>
+      <input type="date" id="field-date-range-after" dir="ltr" />
+    </div>
+    <div class="field-date-range-input-group">
+      <label for="field-date-range-before" class="field-date-range-inner-label">قبل تاريخ</label>
+      <input type="date" id="field-date-range-before" dir="ltr" />
+    </div>
+  </div>
+  <p class="field-help">يصفّي النتائج حسب نطاق زمني محدد. يمكن ضبط التاريخين معاً أو كل منهما بشكل مستقل. مفيد جداً لتضييق البحث على حدث أو فترة بعينها، خاصةً عند دمجه مع حقل الموقع أو عنوان الصفحة.</p>
+</div>
+      <div class="field field-proximity">
+  <div class="field-proximity-header">
+    <label id="field-proximity-label">
+      بحث بالقرب من
+      <span class="op-badge">AROUND</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-proximity-clear" aria-label="مسح حقل القرب" hidden>×</button>
+  </div>
+  <div class="field-proximity-row">
+    <div class="field-proximity-term-group">
+      <label for="field-proximity-term1" class="field-proximity-sublabel">الكلمة الأولى</label>
+      <input
+        id="field-proximity-term1"
+        type="text"
+        placeholder="مثلاً: محمد"
+        autocomplete="off"
+        spellcheck="false"
+        aria-labelledby="field-proximity-label"
+      />
+    </div>
+    <div class="field-proximity-sep">
+      <span class="field-proximity-sep-text">بمسافة</span>
+      <input
+        id="field-proximity-distance"
+        type="number"
+        min="1"
+        max="50"
+        value="5"
+        dir="ltr"
+        aria-label="عدد الكلمات بين المصطلحين"
+      />
+      <span class="field-proximity-sep-text">كلمة من</span>
+    </div>
+    <div class="field-proximity-term-group">
+      <label for="field-proximity-term2" class="field-proximity-sublabel">الكلمة الثانية</label>
+      <input
+        id="field-proximity-term2"
+        type="text"
+        placeholder="مثلاً: شركة"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+  </div>
+  <p class="field-help">يجد الصفحات التي تظهر فيها كلمتان ضمن عدد محدد من الكلمات بينهما — مفيد لإيجاد ذكر شخصين معاً أو شخص بالقرب من حدث أو منظمة. لا يهم ترتيب الكلمتين؛ يجد Google كلا الاتجاهين.</p>
+</div>
+      <div class="field field-wildcard">
+  <div class="field-wildcard-header">
+    <label for="field-wildcard-input">
+      بحث ببدل
+      <span class="op-badge">*</span>
+    </label>
+    <button type="button" class="field-clear-btn" id="field-wildcard-clear" aria-label="مسح حقل البدل" hidden>×</button>
+  </div>
+  <input
+    id="field-wildcard-input"
+    type="text"
+    placeholder="* اشترى منزلاً في *"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <label class="quote-toggle" for="field-wildcard-quote">
+    <input type="checkbox" id="field-wildcard-quote" />
+    اقتباس حرفي
+  </label>
+  <p class="field-help">النجمة * تحل محل أي كلمة مجهولة — مفيدة لإيجاد اقتباسات جزئية أو جمل ناقصة (مثلاً: «صوّت * على مشروع قانون *»). تعمل علامة البدل بشكل أفضل داخل عبارات بين علامتي اقتباس.</p>
+</div>
+      <div class="field field-number-range">
+  <div class="field-number-range-header">
+    <label>
+      نطاق رقمي
+      <span class="op-badge">A..B</span>
+    </label>
+    <button type="button" id="field-number-range-clear" class="field-number-range-clear-btn" aria-label="مسح النطاق الرقمي" hidden>×</button>
+  </div>
+  <div class="field-number-range-inputs">
+    <div class="field-number-range-input-group">
+      <label for="field-number-range-low" class="field-number-range-sub-label">من</label>
+      <input id="field-number-range-low" type="number" dir="ltr" placeholder="1950" min="0" />
+    </div>
+    <div class="field-number-range-sep" aria-hidden="true">..</div>
+    <div class="field-number-range-input-group">
+      <label for="field-number-range-high" class="field-number-range-sub-label">إلى</label>
+      <input id="field-number-range-high" type="number" dir="ltr" placeholder="1960" min="0" />
+    </div>
+    <div class="field-number-range-input-group field-number-range-prefix-group">
+      <label for="field-number-range-prefix" class="field-number-range-sub-label">بادئة</label>
+      <input id="field-number-range-prefix" type="text" dir="ltr" placeholder="$" maxlength="3" />
+    </div>
+  </div>
+  <p class="field-help">يبحث عن الصفحات التي تذكر أرقاماً ضمن نطاق محدد. إضافة بادئة مثل <code>$</code> يحصر النتائج في المبالغ المالية. مفيد للعثور على نطاقات الأسعار والسنوات وأي معايير رقمية أخرى.</p>
+</div>
+      <div class="field field-or-groups">
+  <div class="field-or-groups-header">
+    <label for="field-or-groups-input">
+      بدائل (أو)
+      <span class="op-badge">OR</span>
+    </label>
+    <button type="button" id="field-or-groups-clear" class="field-or-groups-clear-btn" aria-label="مسح حقل البدائل" hidden>×</button>
+  </div>
+  <input
+    id="field-or-groups-input"
+    type="text"
+    placeholder="مهرجان، مؤتمر أو ندوة"
+    autocomplete="off"
+    spellcheck="false"
+  />
+  <p class="field-help">يتيح البحث عن أي من عدة بدائل دفعةً واحدة. افصل بين الكلمات بفاصلة أو بكلمة <strong>أو</strong> العربية. مفيد للبحث عن مرادفات أو أشكال متعددة لاسم ما. ملاحظة: تُضاف الأقواس لتوضيح المجموعة بصرياً، وجوجل يتجاهلها في التحليل لكن البدائل تعمل بشكل صحيح.</p>
 </div>
       <!-- === FIELDS_INSERT === -->
     </div>
@@ -778,6 +1100,596 @@
   });
 }
   __pendingRegisters.push(registerFieldSite);
+
+  function registerFieldIntitle(ctx) {
+  var input = document.getElementById('field-intitle-input');
+  var quoteToggle = document.getElementById('field-intitle-quote');
+  var clearBtn = document.getElementById('field-intitle-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('intitle', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(5, function() {
+    var v = getValue();
+    if (!v) return '';
+    var normalized = ctx.normalize(v);
+    var wrapped = quoteToggle.checked ? ('"' + normalized + '"') : normalized;
+    return 'intitle:' + wrapped;
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    ctx.requestUpdate();
+  });
+
+  quoteToggle.addEventListener('change', function() {
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    quoteToggle.checked = false;
+    updateClearBtn();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldIntitle);
+
+  function registerFieldInurl(ctx) {
+  var input = document.getElementById('field-inurl-input');
+  var clearBtn = document.getElementById('field-inurl-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  function checkArabicWarning() {
+    var v = getValue();
+    if (v && /[\u0600-\u06FF]/.test(v)) {
+      ctx.addWarning('inurl-arabic-chars', '⚠️ هذا الحقل يتوقع جزءاً من عنوان URL بالأحرف اللاتينية. لن يتطابق Google مع النص العربي في عناوين الروابط.');
+    } else {
+      ctx.removeWarning('inurl-arabic-chars');
+    }
+  }
+
+  ctx.registerField('inurl', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      checkArabicWarning();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(6, function() {
+    var v = getValue();
+    if (!v) return '';
+    return 'inurl:' + v;
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    checkArabicWarning();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    updateClearBtn();
+    checkArabicWarning();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldInurl);
+
+  function registerFieldIntext(ctx) {
+  var input = document.getElementById('field-intext-input');
+  var quoteToggle = document.getElementById('field-intext-quote');
+  var clearBtn = document.getElementById('field-intext-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('intext', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(7, function() {
+    var v = getValue();
+    if (!v) return '';
+    var normalized = ctx.normalize(v);
+    return quoteToggle.checked ? ('intext:"' + normalized + '"') : ('intext:' + normalized);
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    ctx.requestUpdate();
+  });
+
+  quoteToggle.addEventListener('change', function() {
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    quoteToggle.checked = false;
+    updateClearBtn();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldIntext);
+
+  function registerFieldInanchor(ctx) {
+  var input = document.getElementById('field-inanchor-input');
+  var quoteToggle = document.getElementById('field-inanchor-quote');
+  var clearBtn = document.getElementById('field-inanchor-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('inanchor', {
+    setValue: function(v) {
+      input.value = v;
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(8, function() {
+    var v = getValue();
+    if (!v) return '';
+    var normalized = ctx.normalize(v);
+    return quoteToggle.checked ? ('inanchor:"' + normalized + '"') : ('inanchor:' + normalized);
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    ctx.requestUpdate();
+  });
+
+  quoteToggle.addEventListener('change', function() {
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    quoteToggle.checked = false;
+    updateClearBtn();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldInanchor);
+
+  function registerFieldFiletype(ctx) {
+  var select = document.getElementById('field-filetype-select');
+  var clearBtn = document.getElementById('field-filetype-clear');
+
+  function updateClearVisibility() {
+    if (select.value !== '') {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('filetype', {
+    setValue: function(v) {
+      select.value = v || '';
+      updateClearVisibility();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(9, function() {
+    var v = select.value;
+    return v ? ('filetype:' + v) : '';
+  });
+
+  select.addEventListener('change', function() {
+    updateClearVisibility();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    select.value = '';
+    updateClearVisibility();
+    ctx.requestUpdate();
+  });
+}
+  __pendingRegisters.push(registerFieldFiletype);
+
+  function registerFieldDateRange(ctx) {
+  var afterInput = document.getElementById('field-date-range-after');
+  var beforeInput = document.getElementById('field-date-range-before');
+  var clearBtn = document.getElementById('field-date-range-clear');
+
+  function updateClearVisibility() {
+    if (afterInput.value || beforeInput.value) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  function checkDateWarning() {
+    var after = afterInput.value;
+    var before = beforeInput.value;
+    if (after && before && after > before) {
+      ctx.addWarning('date-range-reversed', 'النطاق الزمني مقلوب: تاريخ "بعد" أحدث من تاريخ "قبل"، مما يعني أن البحث لن يُعيد أي نتائج. يُرجى تصحيح الترتيب.');
+    } else {
+      ctx.removeWarning('date-range-reversed');
+    }
+  }
+
+  function checkDateTip() {
+    var after = afterInput.value;
+    var before = beforeInput.value;
+    if (after && before) {
+      ctx.addTip('date-range-both', { priority: 60, messageHtml: '💡 النطاقات الزمنية الضيقة مع قيود الموقع فعّالة جداً للعثور على تغطية أحداث بعينها. جرّب دمج هذا النطاق مع حقل "عنوان الصفحة" للعثور على مقالات تتعلق بحدث محدد.' });
+    } else {
+      ctx.removeTip('date-range-both');
+    }
+  }
+
+  ctx.registerField('date-range', {
+    setValue: function(v) {
+      if (!v || v === '') {
+        afterInput.value = '';
+        beforeInput.value = '';
+      } else {
+        if (v.after !== undefined) afterInput.value = v.after || '';
+        if (v.before !== undefined) beforeInput.value = v.before || '';
+      }
+      updateClearVisibility();
+      checkDateWarning();
+      checkDateTip();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(10, function() {
+    var v = beforeInput.value;
+    return v ? ('before:' + v) : '';
+  });
+
+  ctx.registerSegment(11, function() {
+    var v = afterInput.value;
+    return v ? ('after:' + v) : '';
+  });
+
+  function onInput() {
+    updateClearVisibility();
+    checkDateWarning();
+    checkDateTip();
+    ctx.requestUpdate();
+  }
+
+  afterInput.addEventListener('input', onInput);
+  afterInput.addEventListener('change', onInput);
+  beforeInput.addEventListener('input', onInput);
+  beforeInput.addEventListener('change', onInput);
+
+  clearBtn.addEventListener('click', function() {
+    afterInput.value = '';
+    beforeInput.value = '';
+    updateClearVisibility();
+    checkDateWarning();
+    checkDateTip();
+    ctx.requestUpdate();
+  });
+}
+  __pendingRegisters.push(registerFieldDateRange);
+
+  function registerFieldProximity(ctx) {
+  var term1Input = document.getElementById('field-proximity-term1');
+  var distanceInput = document.getElementById('field-proximity-distance');
+  var term2Input = document.getElementById('field-proximity-term2');
+  var clearBtn = document.getElementById('field-proximity-clear');
+
+  function getTerm1() { return term1Input.value.trim(); }
+  function getDistance() { return distanceInput.value.trim() || '5'; }
+  function getTerm2() { return term2Input.value.trim(); }
+
+  function isFilled() { return getTerm1().length > 0 && getTerm2().length > 0; }
+
+  function updateClearBtn() {
+    if (getTerm1().length > 0 || getTerm2().length > 0 || distanceInput.value !== '5') {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  function checkTip() {
+    if (isFilled()) {
+      ctx.addTip('proximity-usage', {
+        priority: 60,
+        messageHtml: '💡 تلميح: بحث القرب من أقوى أدوات OSINT لإيجاد شخصين أو كيانين يُذكران معاً. المسافات الصغيرة (3–5) تجد الذكر المباشر، بينما المسافات الأكبر (10–20) تجد أي علاقة سياقية.'
+      });
+    } else {
+      ctx.removeTip('proximity-usage');
+    }
+  }
+
+  ctx.registerField('proximity', {
+    setValue: function(v) {
+      if (!v || v === '') {
+        term1Input.value = '';
+        distanceInput.value = '5';
+        term2Input.value = '';
+      } else {
+        if (v.term1 !== undefined) term1Input.value = v.term1;
+        if (v.distance !== undefined) distanceInput.value = v.distance;
+        if (v.term2 !== undefined) term2Input.value = v.term2;
+      }
+      updateClearBtn();
+      checkTip();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(12, function() {
+    var t1 = getTerm1();
+    var t2 = getTerm2();
+    var n = parseInt(getDistance(), 10);
+    if (!t1 || !t2) return '';
+    if (isNaN(n) || n < 1) n = 5;
+    if (n > 50) n = 50;
+    var n1 = ctx.normalize(t1);
+    var n2 = ctx.normalize(t2);
+    return '"' + n1 + '" AROUND(' + n + ') "' + n2 + '"';
+  });
+
+  function handleInput() {
+    updateClearBtn();
+    checkTip();
+    ctx.requestUpdate();
+  }
+
+  term1Input.addEventListener('input', handleInput);
+  distanceInput.addEventListener('input', handleInput);
+  term2Input.addEventListener('input', handleInput);
+
+  clearBtn.addEventListener('click', function() {
+    term1Input.value = '';
+    distanceInput.value = '5';
+    term2Input.value = '';
+    updateClearBtn();
+    checkTip();
+    ctx.requestUpdate();
+    term1Input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldProximity);
+
+  function registerFieldWildcard(ctx) {
+  var input = document.getElementById('field-wildcard-input');
+  var quoteToggle = document.getElementById('field-wildcard-quote');
+  var clearBtn = document.getElementById('field-wildcard-clear');
+
+  function getValue() { return input.value.trim(); }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  function checkSingleWordQuote() {
+    var v = getValue();
+    if (quoteToggle.checked && v && !(/\s/.test(v))) {
+      ctx.addWarning('wildcard-single-word-quote', '⚠️ تقييد كلمة واحدة بالاقتباس يُعطّل تصحيح التهجئة والمرادفات في Google. هذا مقصود أحياناً لكنه غالباً غير ضروري.');
+    } else {
+      ctx.removeWarning('wildcard-single-word-quote');
+    }
+  }
+
+  ctx.registerField('wildcard', {
+    setValue: function(v) {
+      input.value = v || '';
+      updateClearBtn();
+      checkSingleWordQuote();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(13, function() {
+    var v = getValue();
+    if (!v) return '';
+    var normalized = ctx.normalize(v);
+    return quoteToggle.checked ? ('"' + normalized + '"') : normalized;
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    checkSingleWordQuote();
+    ctx.requestUpdate();
+  });
+
+  quoteToggle.addEventListener('change', function() {
+    checkSingleWordQuote();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    quoteToggle.checked = false;
+    updateClearBtn();
+    checkSingleWordQuote();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldWildcard);
+
+  function registerFieldNumberRange(ctx) {
+  var lowInput = document.getElementById('field-number-range-low');
+  var highInput = document.getElementById('field-number-range-high');
+  var prefixInput = document.getElementById('field-number-range-prefix');
+  var clearBtn = document.getElementById('field-number-range-clear');
+
+  function hasAnyValue() {
+    return lowInput.value.trim() !== '' || highInput.value.trim() !== '' || prefixInput.value.trim() !== '';
+  }
+
+  function updateClearBtn() {
+    if (hasAnyValue()) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('number-range', {
+    setValue: function(v) {
+      if (!v || v === '') {
+        lowInput.value = '';
+        highInput.value = '';
+        prefixInput.value = '';
+      } else {
+        lowInput.value = v.low !== undefined ? v.low : '';
+        highInput.value = v.high !== undefined ? v.high : '';
+        prefixInput.value = v.prefix !== undefined ? v.prefix : '';
+      }
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(14, function() {
+    var low = lowInput.value.trim();
+    var high = highInput.value.trim();
+    if (!low || !high) return '';
+    var prefix = prefixInput.value.trim();
+    if (prefix) {
+      return prefix + low + '..' + prefix + high;
+    }
+    return low + '..' + high;
+  });
+
+  function onInput() {
+    updateClearBtn();
+    ctx.requestUpdate();
+  }
+
+  lowInput.addEventListener('input', onInput);
+  highInput.addEventListener('input', onInput);
+  prefixInput.addEventListener('input', onInput);
+
+  clearBtn.addEventListener('click', function() {
+    lowInput.value = '';
+    highInput.value = '';
+    prefixInput.value = '';
+    updateClearBtn();
+    ctx.requestUpdate();
+  });
+}
+  __pendingRegisters.push(registerFieldNumberRange);
+
+  function registerFieldOrGroups(ctx) {
+  var input = document.getElementById('field-or-groups-input');
+  var clearBtn = document.getElementById('field-or-groups-clear');
+
+  function tokenize(raw) {
+    var parts = raw.split(/\s*(?:,|\bأو\b)\s*/);
+    var seen = Object.create(null);
+    var result = [];
+    for (var i = 0; i < parts.length; i++) {
+      var t = parts[i].trim();
+      if (t && !seen[t]) {
+        seen[t] = true;
+        result.push(t);
+      }
+    }
+    return result;
+  }
+
+  function updateClearBtn() {
+    if (input.value.length > 0) {
+      clearBtn.removeAttribute('hidden');
+    } else {
+      clearBtn.setAttribute('hidden', '');
+    }
+  }
+
+  ctx.registerField('or-groups', {
+    setValue: function(v) {
+      input.value = v || '';
+      updateClearBtn();
+      ctx.requestUpdate();
+    }
+  });
+
+  ctx.registerSegment(15, function() {
+    var raw = input.value.trim();
+    if (!raw) return '';
+    var tokens = tokenize(raw);
+    if (tokens.length < 2) return '';
+    var normalized = [];
+    for (var i = 0; i < tokens.length; i++) {
+      normalized.push(ctx.normalize(tokens[i]));
+    }
+    return '(' + normalized.join(' OR ') + ')';
+  });
+
+  input.addEventListener('input', function() {
+    updateClearBtn();
+    ctx.requestUpdate();
+  });
+
+  clearBtn.addEventListener('click', function() {
+    input.value = '';
+    updateClearBtn();
+    ctx.requestUpdate();
+    input.focus();
+  });
+}
+  __pendingRegisters.push(registerFieldOrGroups);
 
   /* === SCRIPT_INSERT === */
 
