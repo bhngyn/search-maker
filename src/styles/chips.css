@@ -638,3 +638,93 @@ body.mode-advanced .chip-area .chip:hover:not(.chip-selected) {
   .composer-commit-row { flex-direction: column; }
   .composer-btn { width: 100%; }
 }
+
+/* === Composer redesign (A1+A3) ===
+   New rules added after the redesign. Older composer rules above remain for
+   chip-area / chip-pill / preview styling — these only override what changed
+   for the simplified commit row and the operator-suggestion pills under the
+   ghost preview. */
+
+/* A1 — two-button commit row. The remaining buttons are the primary "أضف"
+   and the dashed "+ إضافة" drawer trigger. Constrain the primary so the
+   trigger doesn't get squished, and make the trigger feel intentional next
+   to it rather than an afterthought. */
+.composer-commit-row .composer-btn-and {
+  flex: 1 1 auto;
+  min-width: 140px;
+}
+.composer-commit-row .composer-btn-add {
+  flex: 0 0 auto;
+  min-width: 120px;
+}
+
+/* A3 — operator-suggestion pills under the ghost preview.
+   The ghost-row was a fixed 32px-high single line; with pills it needs to
+   flex to fit two lines, so override the fixed height. The transition still
+   collapses to 0 height when hidden so empty input doesn't reserve space. */
+.composer-ghost-row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+.composer-ghost-row.visible {
+  height: auto;
+}
+.composer-ghost-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.composer-ghost-op-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--bg-subtle);
+  color: var(--accent);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+.composer-ghost-neg {
+  font-family: var(--mono);
+  color: var(--warning);
+  font-weight: 700;
+}
+
+.composer-op-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.composer-op-pill {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  min-height: 32px;
+  line-height: 1.15;
+  transition: background 120ms, border-color 120ms, color 120ms;
+}
+.composer-op-pill:hover { border-color: var(--accent); background: var(--bg-subtle); }
+.composer-op-pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.composer-op-pill[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}
+.composer-op-pill-label { font-weight: 500; }
+.composer-op-pill-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  opacity: 0.75;
+}
+.composer-op-pill[aria-pressed="true"] .composer-op-pill-badge { opacity: 0.85; }
