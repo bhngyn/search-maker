@@ -331,7 +331,7 @@ export const MESSAGES = {
   'ui.chipArea.orGroupAddTitle':   { ar: 'إضافة بديل آخر بـ "أو"',           en: 'Add another OR alternative' },
   'ui.chipArea.andSeam':           { ar: 'و',                                en: 'and' },
   'ui.chipArea.emptyHeading':      { ar: 'ابدأ من قالب جاهز:',              en: 'Start from a template:' },
-  'ui.chipArea.emptyHint':         { ar: 'أو ابدأ من الصفر',                  en: 'or start from scratch' },
+  'ui.chipArea.emptyHint':         { ar: 'أو اكتب كلمة في الأسفل وابدأ من الصفر.', en: 'Or type a term below to start from scratch.' },
   'ui.chipArea.emptyAdvancedFallback':{
     ar: 'لم تُضف أي كلمات بعد. اكتب كلمة في الأسفل واضغط Enter.',
     en: 'No terms yet. Type one below and press Enter.',
@@ -494,7 +494,7 @@ export const MESSAGES = {
   // ===== Tip framework =====
   'ui.tip.dismissAria':            { ar: 'إخفاء الاقتراح',                  en: 'Dismiss tip' },
 
-  // ===== Idiom panel chrome =====
+  // ===== Idiom panel chrome (existing) =====
   'idiom.empty':       { ar: 'لا توجد وصفات لهذا المحرك.', en: 'No recipes for this engine.' },
   'idiom.pillCount':   {
     ar: (v) => v.n + ' وصفة',
@@ -502,9 +502,117 @@ export const MESSAGES = {
   },
   'idiom.toggleShow':  { ar: '📖 شروح',           en: '📖 Descriptions' },
   'idiom.toggleHide':  { ar: '📖 إخفاء الشروح',   en: '📖 Hide descriptions' },
-  'idiom.previewHint': {
-    ar: 'مرّر الفأرة فوق وصفة لرؤية ما تفعله.',
-    en: 'Hover a recipe to see what it does.',
+  // idiom.previewHint removed — unused after the inspector redesign.
+
+  // ===== Idiom panel — search + group filter =====
+  'idiom.search.placeholder': { ar: 'ابحث في الوصفات...', en: 'Search recipes...' },
+  'idiom.groupFilter.label':  { ar: 'تصفية حسب المجموعة', en: 'Filter by group' },
+  'idiom.groupFilter.all':    { ar: 'الكل', en: 'All' },
+
+  // ===== Idiom panel — inspector section headings =====
+  'idiom.section.whatItDoes': { ar: 'ما تفعله الوصفة',        en: 'What this recipe does' },
+  'idiom.section.anatomy':    { ar: 'بنية الوصفة',             en: 'Recipe anatomy' },
+  'idiom.section.howto':      { ar: 'كيف تبنيها يدوياً',       en: 'Build it manually' },
+  'idiom.section.assembled':  { ar: 'النص المُجمَّع',           en: 'Assembled query' },
+
+  // ===== Idiom panel — inspector action buttons =====
+  'idiom.applyRecipe':    { ar: 'أضِف الوصفة كاملة',     en: 'Add recipe to query' },
+  'idiom.replaceRecipe':  { ar: 'استبدل البحث الحالي',   en: 'Replace current query' },
+  'idiom.reapply':        { ar: 'أضِف مرة أخرى',          en: 'Apply again' },
+  'idiom.applied':        { ar: 'مُطبَّقة',                en: 'Applied' },
+  'idiom.addThisChip':    { ar: 'أضِف هذه الكلمة فقط',   en: 'Add only this chip' },
+
+  // ===== Idiom panel — empty / fallback states =====
+  'idiom.search.noResults': {
+    ar: (v) => 'لا توجد وصفات تطابق "' + v.q + '"',
+    en: (v) => 'No recipes match "' + v.q + '"',
+  },
+  'idiom.anatomy.unavailable': {
+    ar: 'تعذّر استخراج بنية الوصفة. اضغط أضِف لتجربتها مباشرة.',
+    en: "Couldn't extract this recipe's anatomy. Press Apply to try it directly.",
+  },
+
+  // ===== Idiom panel — "Build it manually" step templates =====
+  //
+  // Strings use [[...]] markers around control names; the renderer replaces
+  // them with `.idiom-control-mention` styled spans.
+  //
+  // keyword chip — plain word, no operator
+  'idiom.howto.keyword.plain': {
+    ar: (v) => v.text ? 'اكتب «' + v.text + '»، ثم اضغط Enter.' : 'اكتب كلمتك، ثم اضغط Enter.',
+    en: (v) => v.text ? 'Type "' + v.text + '", then press Enter.' : 'Type your term, then press Enter.',
+  },
+  // keyword chip — with content operator (site:, intitle:, etc.)
+  'idiom.howto.keyword.withOp': {
+    ar: (v) => (v.text ? 'اكتب «' + v.text + '»' : 'اكتب الكلمة المرغوبة') + '، اضغط [[' + v.opLabel + ']] من شريط المؤشرات، ثم Enter.',
+    en: (v) => (v.text ? 'Type "' + v.text + '"' : 'Type your term') + ', click [[' + v.opLabel + ']] in the operator row, then Enter.',
+  },
+  // keyword chip — quoted (literal phrase)
+  'idiom.howto.keyword.quoted': {
+    ar: (v) => (v.text ? 'اكتب «' + v.text + '»' : 'اكتب العبارة الحرفية') + (v.opLabel ? '، اضغط [[' + v.opLabel + ']]، ' : '، ') + 'فعّل [[اقتباس حرفي]]، ثم Enter.',
+    en: (v) => (v.text ? 'Type "' + v.text + '"' : 'Type the literal phrase') + (v.opLabel ? ', click [[' + v.opLabel + ']], ' : ', ') + 'enable [[Literal quote]], then Enter.',
+  },
+  // keyword chip — negate (excluded word, no operator)
+  'idiom.howto.keyword.negate': {
+    ar: (v) => (v.text ? 'اكتب «' + v.text + '»' : 'اكتب الكلمة المراد استبعادها') + '، اضغط [[− NOT]] قبل Enter (أو ابدأ بـ "-").',
+    en: (v) => (v.text ? 'Type "' + v.text + '"' : 'Type the word to exclude') + ', press [[− NOT]] before Enter (or start with "-").',
+  },
+  // keyword chip — negate + operator
+  'idiom.howto.keyword.negateOp': {
+    ar: (v) => (v.text ? 'اكتب «' + v.text + '»' : 'اكتب الكلمة المراد استبعادها') + '، اضغط [[' + v.opLabel + ']]، ثم [[− NOT]] قبل Enter.',
+    en: (v) => (v.text ? 'Type "' + v.text + '"' : 'Type the word to exclude') + ', click [[' + v.opLabel + ']], then [[− NOT]] before Enter.',
+  },
+  // or-connector chip
+  'idiom.howto.or': {
+    ar: 'اضغط [[+أو]] على آخر كلمة، ثم اكتب البديل في الكلمة الجديدة.',
+    en: 'Click [[+Or]] on the previous chip, then type the alternative in the new chip.',
+  },
+  // special chip — date-range
+  'idiom.howto.special.dateRange': {
+    ar: (v) => {
+      const parts = [];
+      if (v.after)  parts.push('"بعد" ' + v.after);
+      if (v.before) parts.push('"قبل" ' + v.before);
+      const range = parts.length ? '، أدخل ' + parts.join(' و') : '، ثم أدخل التواريخ المطلوبة';
+      return 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]' + range + '.';
+    },
+    en: (v) => {
+      const parts = [];
+      if (v.after)  parts.push('"After" ' + v.after);
+      if (v.before) parts.push('"Before" ' + v.before);
+      const range = parts.length ? ', enter ' + parts.join(' and ') : ', then fill in the dates';
+      return 'Click [[+ Add]], pick [[' + v.itemLabel + ']]' + range + '.';
+    },
+  },
+  // special chip — filetype
+  'idiom.howto.special.filetype': {
+    ar: (v) => 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]، ثم اختر «' + v.value.toUpperCase() + '» من القائمة.',
+    en: (v) => 'Click [[+ Add]], pick [[' + v.itemLabel + ']], then choose "' + v.value.toUpperCase() + '" from the list.',
+  },
+  // special chip — filter (X engine)
+  'idiom.howto.special.filter': {
+    ar: (v) => 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]، حدّد «' + v.filterValue + '»' + (v.negate ? '، ثم فعّل [[− NOT]] لاستبعادها' : '') + '.',
+    en: (v) => 'Click [[+ Add]], pick [[' + v.itemLabel + ']], select "' + v.filterValue + '"' + (v.negate ? ', then enable [[− NOT]] to exclude it' : '') + '.',
+  },
+  // special chip — engagement (X engine)
+  'idiom.howto.special.engagement': {
+    ar: (v) => 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]، اختر «' + v.metric + '» (' + (v.direction === 'min' ? 'حد أدنى' : 'حد أقصى') + ') وأدخل ' + v.value + '.',
+    en: (v) => 'Click [[+ Add]], pick [[' + v.itemLabel + ']], choose "' + v.metric + '" (' + v.direction + ') and enter ' + v.value + '.',
+  },
+  // special chip — proximity
+  'idiom.howto.special.proximity': {
+    ar: (v) => 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]، أدخل «' + (v.term1 || '_') + '» و«' + (v.term2 || '_') + '» بمسافة ' + v.distance + '.',
+    en: (v) => 'Click [[+ Add]], pick [[' + v.itemLabel + ']], enter "' + (v.term1 || '_') + '" and "' + (v.term2 || '_') + '" with distance ' + v.distance + '.',
+  },
+  // special chip — number-range
+  'idiom.howto.special.numberRange': {
+    ar: (v) => 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']]، أدخل الحد الأدنى ' + v.low + ' والأقصى ' + v.high + (v.prefix ? ' بالبادئة "' + v.prefix + '"' : '') + '.',
+    en: (v) => 'Click [[+ Add]], pick [[' + v.itemLabel + ']], enter min ' + v.low + ' and max ' + v.high + (v.prefix ? ' with prefix "' + v.prefix + '"' : '') + '.',
+  },
+  // special chip — generic fallback
+  'idiom.howto.special.generic': {
+    ar: (v) => 'اضغط [[+ إضافة]]، اختر [[' + v.itemLabel + ']] واضبط الحقول.',
+    en: (v) => 'Click [[+ Add]], pick [[' + v.itemLabel + ']] and fill the fields.',
   },
 
   // ===== Warnings =====
