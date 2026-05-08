@@ -16,8 +16,10 @@
 }
 
 /* === Engine show/hide === */
-#facebook-form { display: none; }
+#facebook-form,
+#facebook-explainer { display: none; }
 body.engine-facebook #facebook-form { display: block; }
+body.engine-facebook #facebook-explainer { display: block; margin-bottom: 12px; }
 body.engine-facebook .chip-section,
 body.engine-facebook #idiom-panel,
 body.engine-facebook #warnings-region,
@@ -199,59 +201,6 @@ body.engine-facebook main { padding-bottom: 140px; }
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22);
 }
 
-.fb-keyword-warning {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  padding: 8px 10px;
-  font: inherit;
-  font-size: 12px;
-  line-height: 1.45;
-  text-align: start;
-  color: var(--warning);
-  background: var(--warning-soft);
-  border: 1px solid var(--warning);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 120ms ease, border-color 120ms ease;
-}
-.fb-keyword-warning::before {
-  content: '!';
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  margin-top: 1px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--warning-bg);
-  background: var(--warning);
-  border-radius: 999px;
-}
-.fb-keyword-warning:hover {
-  background: rgba(251, 191, 36, 0.28);
-}
-.fb-keyword-warning:focus-visible {
-  outline: 2px solid var(--warning);
-  outline-offset: 2px;
-}
-.fb-keyword-warning-text { flex: 1 1 auto; }
-.fb-keyword-warning-close {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  font-size: 16px;
-  line-height: 1;
-  color: var(--warning);
-  opacity: 0.85;
-}
-.fb-keyword-warning:hover .fb-keyword-warning-close { opacity: 1; }
 
 /* === Sections container (single bordered block) === */
 .fb-form-sections {

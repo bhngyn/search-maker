@@ -64,6 +64,7 @@ const engineBtnFacebook = document.getElementById('engine-btn-facebook');
 const langBtnAr = document.getElementById('lang-btn-ar');
 const langBtnEn = document.getElementById('lang-btn-en');
 const facebookFormHost = document.getElementById('facebook-form');
+const facebookExplainerHost = document.getElementById('facebook-explainer');
 const subtitleEl = document.getElementById('app-subtitle');
 const toastEl = document.getElementById('toast');
 
@@ -251,7 +252,7 @@ wireIdiomPanel({ chipState, focusComposer: () => { if (composerHandle && compose
 
 // ===== Facebook form (mounted but only visible when engine === facebook) =====
 if (facebookFormHost) {
-  facebookFormHandle = wireFacebookForm({ host: facebookFormHost, engine: facebookEngine, ctx, lang });
+  facebookFormHandle = wireFacebookForm({ host: facebookFormHost, explainerHost: facebookExplainerHost, engine: facebookEngine, ctx, lang });
   onResetHooks.push(() => facebookFormHandle.reset());
 }
 

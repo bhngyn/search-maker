@@ -294,8 +294,6 @@ export const MESSAGES = {
   'ui.fbForm.categoryLegend':    { ar: 'نوع البحث',                          en: 'Search type' },
   'ui.fbForm.keywordLegend':     { ar: 'كلمة البحث',                         en: 'Search keyword' },
   'ui.fbForm.keywordHint':       { ar: 'حقل مطلوب من Facebook. اكتب كلمة واحدة أو عبارة (عربية أو إنجليزية).', en: 'Required by Facebook. Type a single word or phrase (Arabic or English).' },
-  'ui.fbForm.keywordWarning':    { ar: 'لا تستخدم AND أو OR أو علامات الاقتباس "…" — Facebook يتجاهلها ويعاملها كأحرف عادية.', en: 'Don’t use AND, OR, or quotation marks "…" — Facebook ignores them and treats them as plain characters.' },
-  'ui.fbForm.keywordWarningDismiss': { ar: 'إخفاء الملاحظة', en: 'Dismiss note' },
   'ui.fbForm.explainer.title':   { ar: 'كيف تعمل أداة بحث Facebook',   en: 'How the Facebook search tool works' },
   'ui.fbForm.explainer.intro':   { ar: 'لا يستخدم Facebook عوامل بحث (مثل site: أو AND). بدلاً من ذلك يبني الرابط من فئة بحث ومجموعة مرشحات. هذه الأداة تكوّن نفس الرابط نيابة عنك.', en: 'Facebook doesn’t use search operators (no site: or AND). Instead, it builds a URL from a search category plus a set of filters. This tool assembles that URL for you.' },
   'ui.fbForm.explainer.step1':   { ar: 'اختر الفئة من الشريط أعلاه — كل فئة تكشف مرشحات مختلفة لأن Facebook نفسه يستخدم مرشحات مختلفة لكل نوع بحث.', en: 'Pick a category from the bar above — each category exposes different filters because Facebook itself surfaces different filters per search type.' },

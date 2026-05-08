@@ -23,7 +23,7 @@ const CATEGORY_LABELS_BY_ID = {};
  * @param {{ requestUpdate: () => void }} args.ctx
  * @returns {{ getState: () => object, reset: () => void, refresh: () => void }}
  */
-export function wireFacebookForm({ host, engine, ctx, lang }) {
+export function wireFacebookForm({ host, explainerHost, engine, ctx, lang }) {
   host.classList.add('fb-form');
   host.setAttribute('aria-label', t('ui.fbForm.ariaLabel'));
 
@@ -91,8 +91,11 @@ export function wireFacebookForm({ host, engine, ctx, lang }) {
 
   // ===== DOM rendering =====
   function render() {
+    if (explainerHost) {
+      while (explainerHost.firstChild) explainerHost.removeChild(explainerHost.firstChild);
+      if (!state.explainerDismissed) explainerHost.appendChild(renderExplainer());
+    }
     while (host.firstChild) host.removeChild(host.firstChild);
-    if (!state.explainerDismissed) host.appendChild(renderExplainer());
     host.appendChild(renderCategoryRow());
     host.appendChild(renderKeywordRow());
     host.appendChild(renderSections());
@@ -199,7 +202,7 @@ export function wireFacebookForm({ host, engine, ctx, lang }) {
       placeholder: t('ui.fbForm.keywordPlaceholder'),
       autocomplete: 'off',
       spellcheck: false,
-      'aria-describedby': 'fb-keyword-hint fb-keyword-warning',
+      'aria-describedby': 'fb-keyword-hint',
       oninput: (e) => set({ keyword: e.target.value }),
     });
     wrap.appendChild(input);
@@ -208,23 +211,6 @@ export function wireFacebookForm({ host, engine, ctx, lang }) {
       class: 'fb-form-hint',
       text: t('ui.fbForm.keywordHint'),
     }));
-    if (!state.keywordWarningDismissed) {
-      const warning = el('button', {
-        type: 'button',
-        id: 'fb-keyword-warning',
-        class: 'fb-keyword-warning',
-        'aria-label': t('ui.fbForm.keywordWarningDismiss'),
-        title: t('ui.fbForm.keywordWarningDismiss'),
-        onclick: () => {
-          state.keywordWarningDismissed = true;
-          warning.remove();
-          ctx.requestUpdate();
-        },
-      });
-      warning.appendChild(el('span', { class: 'fb-keyword-warning-text', text: t('ui.fbForm.keywordWarning') }));
-      warning.appendChild(el('span', { class: 'fb-keyword-warning-close', 'aria-hidden': 'true', text: '×' }));
-      wrap.appendChild(warning);
-    }
     return wrap;
   }
 
@@ -451,7 +437,6 @@ function makeInitialState() {
     sections: {},
     toggles: {},
     date: null,
-    keywordWarningDismissed: false,
     explainerDismissed: false,
   };
 }
