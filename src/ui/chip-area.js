@@ -32,6 +32,9 @@ export function wireChipArea({ host, chipState }) {
         onDelete: () => chipState.remove(chip.id),
         onToggleNegate: () => chipState.update(chip.id, { negate: !chip.props.negate }),
         onToggleQuoted: () => chipState.update(chip.id, { quoted: !chip.props.quoted }),
+        onChangeOperator: (op) => chipState.update(chip.id, { operator: op }),
+        onChangeText: (text) => chipState.update(chip.id, { text }),
+        onChangeProps: (patch) => chipState.update(chip.id, patch),
       });
       host.appendChild(el);
     });

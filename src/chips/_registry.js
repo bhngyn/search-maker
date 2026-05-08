@@ -1,8 +1,8 @@
 // Single source of truth for chip types. Adding a new chip type means
 // writing one new file in this directory and adding it to the map below.
 //
-// The keys here are chip.type values. Each module must export:
-//   - type: string (matches the key)
+// Each chip module must export:
+//   - type: string (matches the key in this map)
 //   - label: string (Arabic display name for menus / drawer)
 //   - defaultProps(): object
 //   - assemble(chip, ctx): string
@@ -10,15 +10,23 @@
 
 import * as keyword from './keyword.js';
 import * as orConnector from './or-connector.js';
+import * as filetype from './filetype.js';
+import * as dateRange from './date-range.js';
+import * as proximity from './proximity.js';
+import * as numberRange from './number-range.js';
 
 export const chipTypes = {
   keyword,
   'or-connector': orConnector,
+  filetype,
+  'date-range': dateRange,
+  proximity,
+  'number-range': numberRange,
 };
 
 /**
- * Term-chip types — those that can carry user content and stand alone.
- * Used by the composer's `+ إضافة` menu (Phase 5+) and by chip-state's
- * cleanup logic for OR connectors.
+ * Term-chip types — those that can stand alone as user content. Used by the
+ * "+ إضافة" drawer to list addable types and by chip-state's connector
+ * cleanup to identify what counts as a term.
  */
-export const termChipTypes = ['keyword'];
+export const termChipTypes = ['keyword', 'filetype', 'date-range', 'proximity', 'number-range'];

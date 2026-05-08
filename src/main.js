@@ -25,6 +25,7 @@ import { wireTemplates } from './ui/templates.js';
 import { wireNormalizeToggle } from './ui/normalize-toggle.js';
 import { wireComposer } from './ui/composer.js';
 import { wireChipArea } from './ui/chip-area.js';
+import { wireDrawer } from './ui/drawer.js';
 
 import { fields } from './fields/_registry.js';
 import { warnings as warningModules } from './warnings/_registry.js';
@@ -107,7 +108,12 @@ fields.forEach(mod => {
 const chipAreaHost = document.getElementById('chip-area');
 const composerHost = document.getElementById('composer');
 if (chipAreaHost) wireChipArea({ host: chipAreaHost, chipState });
-if (composerHost) wireComposer({ host: composerHost, chipState });
+if (composerHost) {
+  const composerHandle = wireComposer({ host: composerHost, chipState });
+  if (composerHandle.drawerTrigger) {
+    wireDrawer({ trigger: composerHandle.drawerTrigger, chipState, mode });
+  }
+}
 
 // ===== Warnings + tips =====
 // Each module's register() may return { onRender } if it needs to recompute

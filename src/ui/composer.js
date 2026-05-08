@@ -39,6 +39,9 @@ export function wireComposer({ host, chipState }) {
       <button type="button" class="composer-btn composer-btn-not" id="composer-btn-not" disabled>
         ليس <span class="composer-btn-hint">(−)</span>
       </button>
+      <button type="button" class="composer-btn composer-btn-add" id="composer-btn-add" aria-label="إضافة عامل خاص">
+        + إضافة
+      </button>
     </div>
     <p class="composer-hint">اضغط Enter لإضافة كلمة. Shift+Enter يضيفها كبديل (أو) للكلمة السابقة.</p>
   `;
@@ -100,5 +103,6 @@ export function wireComposer({ host, chipState }) {
   return {
     focus() { input.focus(); },
     clear() { input.value = ''; refreshButtons(); },
+    drawerTrigger: host.querySelector('#composer-btn-add'),
   };
 }
