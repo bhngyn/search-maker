@@ -139,7 +139,13 @@ const drawerItems = {
   'filter-nativeretweets':{ kind: 'special', type: 'filter', props: { value: 'nativeretweets', negate: false }, label: 'chip.filter.opt.nativeretweets', badge: 'filter:nativeretweets', tier: 'beginner' },
   'filter-verified':      { kind: 'special', type: 'filter', props: { value: 'verified',       negate: false }, label: 'chip.filter.opt.verified',       badge: 'filter:verified',       tier: 'beginner' },
   'filter-has_engagement':{ kind: 'special', type: 'filter', props: { value: 'has_engagement', negate: false }, label: 'chip.filter.opt.has_engagement', badge: 'filter:has_engagement', tier: 'advanced' },
-  engagement:      { kind: 'special', type: 'engagement',          label: 'engine.x.drawer.engagement.label',      desc: 'engine.x.drawer.engagement.desc',      badge: 'min_*:',    tier: 'beginner' },
+  // Engagement thresholds — one drawer entry per metric so the user picks
+  // the dimension up front instead of opening a generic chip and changing
+  // its dropdown. Each pre-seeds `props.metric`; the chip still lets the
+  // user adjust the threshold value or flip min↔max after commit.
+  'engagement-faves':    { kind: 'special', type: 'engagement', props: { metric: 'min_faves',    direction: 'min', value: 100 }, label: 'engine.x.drawer.engagement.faves.label',    desc: 'engine.x.drawer.engagement.faves.desc',    badge: 'min_faves:',    tier: 'beginner' },
+  'engagement-replies':  { kind: 'special', type: 'engagement', props: { metric: 'min_replies',  direction: 'min', value: 50  }, label: 'engine.x.drawer.engagement.replies.label',  desc: 'engine.x.drawer.engagement.replies.desc',  badge: 'min_replies:',  tier: 'beginner' },
+  'engagement-retweets': { kind: 'special', type: 'engagement', props: { metric: 'min_retweets', direction: 'min', value: 100 }, label: 'engine.x.drawer.engagement.retweets.label', desc: 'engine.x.drawer.engagement.retweets.desc', badge: 'min_retweets:', tier: 'beginner' },
 };
 
 const templates = [
@@ -193,7 +199,7 @@ export default {
   composerPills,
   drawer: {
     items: drawerItems,
-    beginnerOrder: ['date-range', 'from', 'mention', 'hashtag', 'filter-media', 'engagement', 'lang'],
+    beginnerOrder: ['date-range', 'from', 'mention', 'hashtag', 'filter-media', 'engagement-faves', 'engagement-replies', 'engagement-retweets', 'lang'],
     beginnerMore: ['to', 'list', 'url', 'near', 'source', 'conversation_id', 'quoted_tweet_id'],
     advancedKeywords: ['from', 'to', 'mention', 'hashtag', 'list', 'url', 'lang', 'near', 'source', 'conversation_id', 'quoted_tweet_id'],
     advancedSpecials: [
@@ -201,7 +207,7 @@ export default {
       'filter-media', 'filter-images', 'filter-videos',
       'filter-links', 'filter-replies', 'filter-quote',
       'filter-nativeretweets', 'filter-verified', 'filter-has_engagement',
-      'engagement',
+      'engagement-faves', 'engagement-replies', 'engagement-retweets',
     ],
   },
   templates,
