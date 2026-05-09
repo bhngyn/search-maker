@@ -183,6 +183,7 @@
 }
 
 .idiom-panel-header-title {
+  font: inherit;
   font-size: 14px;
   font-weight: 600;
   color: var(--fg);
@@ -191,7 +192,17 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: start;
+  background: transparent;
+  border: 0;
+  padding: 4px 6px;
+  margin: 0 -6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
 }
+.idiom-panel-header-title:hover { background: var(--bg); color: var(--fg); }
+.idiom-panel-header-title:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ─── SEARCH INPUT ────────────────────────────────────────────────────── */
 

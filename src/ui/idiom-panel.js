@@ -140,8 +140,13 @@ export function wireIdiomPanel({ chipState, focusComposer, ctx, lang }) {
     const topRow = document.createElement('div');
     topRow.className = 'idiom-panel-header-top';
 
-    headerTitle = document.createElement('span');
+    // Title doubles as a collapse affordance — clicking the 📚 icon or the
+    // title text collapses the panel, mirroring the × button on the trailing
+    // edge so the whole top row is a usable dismiss target.
+    headerTitle = document.createElement('button');
+    headerTitle.type = 'button';
     headerTitle.className = 'idiom-panel-header-title';
+    headerTitle.addEventListener('click', closePanel);
     topRow.appendChild(headerTitle);
 
     closeBtn = document.createElement('button');
