@@ -389,11 +389,24 @@
    nested-scroll experience and lets users swipe naturally through
    all 35 recipes without trapping their finger inside a 60vh box.
    Browsers normalize `overflow-y: visible` to `auto` when `overflow-x`
-   stays non-visible, so reset both axes together. */
+   stays non-visible, so reset both axes together.
+
+   The header sticks to the viewport top so the title + × close stay
+   in reach while the user scrolls through the body. Releasing the
+   panel's `overflow: hidden` is a prerequisite — sticky needs a
+   scrolling ancestor that isn't clipping its overflow. */
 @media (max-width: 700px) {
+  .idiom-panel[data-state="open"] {
+    overflow: visible;
+  }
   .idiom-panel[data-state="open"] .idiom-panel-body {
     max-height: none;
     overflow: visible;
+  }
+  .idiom-panel[data-state="open"] .idiom-panel-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
 }
 
