@@ -180,6 +180,12 @@ export const MESSAGES = {
   'engine.x.drawer.filter.desc':           { ar: 'تغريدات بصور أو فيديو، ردود، تحقق…', en: 'Photos, video, replies, verified…' },
   'engine.x.drawer.engagement.label':      { ar: 'حد أدنى/أقصى للتفاعل',      en: 'Engagement threshold' },
   'engine.x.drawer.engagement.desc':       { ar: 'إعجابات أو ردود أو إعادات تغريد', en: 'Likes, replies, or retweets' },
+  'engine.x.drawer.engagement.faves.label':    { ar: 'حد أدنى للإعجابات',     en: 'Min likes' },
+  'engine.x.drawer.engagement.faves.desc':     { ar: 'تغريدات تخطّت عدداً معيّناً من الإعجابات.', en: 'Tweets above a likes threshold.' },
+  'engine.x.drawer.engagement.replies.label':  { ar: 'حد أدنى للردود',         en: 'Min replies' },
+  'engine.x.drawer.engagement.replies.desc':   { ar: 'تغريدات أثارت نقاشاً واسعاً.',  en: 'Tweets that sparked wide discussion.' },
+  'engine.x.drawer.engagement.retweets.label': { ar: 'حد أدنى لإعادات التغريد', en: 'Min retweets' },
+  'engine.x.drawer.engagement.retweets.desc':  { ar: 'تغريدات انتشرت على نطاق واسع.', en: 'Tweets that spread widely.' },
 
   // X templates
   'engine.x.tpl.account.title':    { ar: 'تغريدات من حساب',                en: 'Tweets from an account' },
