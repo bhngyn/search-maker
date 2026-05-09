@@ -336,6 +336,19 @@ body.engine-facebook main { padding-bottom: 140px; }
     padding: 8px 10px;
   }
   .fb-form-keyword { grid-template-columns: 1fr; }
+  .fb-cat-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+  }
+  .fb-cat-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 6px 4px;
+    font-size: 12px;
+    text-align: center;
+  }
+  .fb-cat-label { font-size: 12px; }
 }
 
 /* === Preview tweaks: when Facebook is active the box holds a URL,
