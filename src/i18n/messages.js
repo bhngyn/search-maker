@@ -363,7 +363,7 @@ export const MESSAGES = {
   'ui.chipArea.orGroupAddTitle':   { ar: 'إضافة بديل آخر بـ "أو"',           en: 'Add another OR alternative' },
   'ui.chipArea.andSeam':           { ar: 'و',                                en: 'and' },
   'ui.chipArea.emptyHeading':      { ar: 'ابدأ من قالب جاهز:',              en: 'Start from a template:' },
-  'ui.chipArea.emptyHint':         { ar: 'أو اكتب كلمة في الأسفل وابدأ من الصفر.', en: 'Or type a term below to start from scratch.' },
+  'ui.chipArea.emptyHint':         { ar: 'ستظهر كلمات بحثك هنا. اكتب كلمة في الأسفل أو اختر وصفة من الأعلى.', en: 'Your search terms will appear here. Type a term below, or pick a recipe above.' },
   'ui.chipArea.emptyAdvancedFallback':{
     ar: 'لم تُضف أي كلمات بعد. اكتب كلمة في الأسفل واضغط Enter.',
     en: 'No terms yet. Type one below and press Enter.',
