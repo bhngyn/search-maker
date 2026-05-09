@@ -307,7 +307,7 @@ export const MESSAGES = {
   'ui.fbForm.explainer.step3':   { ar: 'حدّد المرشحات لتضييق النتائج — خيار واحد من كل قسم. اتركها فارغة لأوسع نطاق.', en: 'Add filters to narrow your results — one option per section. Leave them blank for the broadest search.' },
   'ui.fbForm.explainer.step4':   { ar: 'اضغط «البحث في Facebook» لفتح الرابط، أو «نسخ» لنسخه ومشاركته.', en: 'Click “Search Facebook” to open the URL, or “Copy” to copy and share it.' },
   'ui.fbForm.explainer.dismiss': { ar: 'إخفاء',                           en: 'Dismiss' },
-  'ui.fbForm.attribution':       { ar: 'مستوحى من whopostedwhat — فكرة: Henk van Ess · تطوير: Daniel Endresz و Dan Nemec · واجهة: Tormund Gerhardsen.', en: 'Inspired by whopostedwhat — idea: Henk van Ess · developed by Daniel Endresz & Dan Nemec · GUI by Tormund Gerhardsen.' },
+  'ui.fbForm.attribution':       { ar: 'فكرة: Henk van Ess · تطوير: Daniel Endresz و Dan Nemec · واجهة: Tormund Gerhardsen', en: 'Idea: Henk van Ess · developed by Daniel Endresz & Dan Nemec · GUI by Tormund Gerhardsen' },
   'ui.fbForm.keywordPlaceholder':{ ar: 'اكتب كلمة البحث',                    en: 'Type your search keyword' },
   'ui.fbForm.noFilters':         { ar: 'لا توجد مرشحات إضافية لهذه الفئة.',  en: 'No additional filters for this category.' },
   'ui.fbForm.toggleDefault':     { ar: 'تفعيل',                              en: 'Enable' },
