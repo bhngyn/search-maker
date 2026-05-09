@@ -45,10 +45,10 @@ The hosted page loads the same single-file build that ships in releases. It runs
 
 ## Use it offline
 
-Download `dist/index.html` from the [latest release](https://github.com/bhngyn/search-maker/releases) (or build it yourself, see below) and open it in any modern browser. No install, no server.
+Download `search_maker.html` from the [latest release](https://github.com/bhngyn/search-maker/releases) (or build it yourself, see below) and open it in any modern browser. No install, no server.
 
 ```
-open search-maker/dist/index.html
+open ~/Downloads/search_maker.html
 ```
 
 The whole app — HTML, CSS, JS — is one self-contained file. It works directly from `file://` and is safe to carry on a USB stick.
@@ -84,7 +84,7 @@ npm run build            # produces dist/index.html (+ search_maker.html + .noje
 npm run preview          # serves dist/ locally (port 4173)
 ```
 
-The shipping artifact is `dist/index.html`. The production build inlines every CSS and JS chunk, so the output has zero runtime dependencies and no network calls beyond the user-triggered search. Pushes to `main` deploy automatically to GitHub Pages via [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml).
+The build emits `dist/index.html` (served by GitHub Pages) and copies it to `dist/search_maker.html` (the friendlier name attached to releases). Both are byte-identical. The production build inlines every CSS and JS chunk, so the output has zero runtime dependencies and no network calls beyond the user-triggered search. Pushes to `main` deploy automatically to GitHub Pages via [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml).
 
 ### Architecture
 
